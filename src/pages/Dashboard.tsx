@@ -2,18 +2,10 @@ import { useState } from "react"
 import DataTable from "../components/table/DataTable"
 import type { Column } from "../components/table/DataTable"
 import { useNavigate } from "react-router-dom"
+import EditEmployeeModal, { type EmployeeRow } from "../components/common/EditEmployeeModal"
+import ConfirmDialog from "../components/common/ConfirmDialog"
 
-/* EMS-style data type */
-type EmployeeRow = {
-  id: number
-  empId: string
-  name: string
-  department: string
-  designation: string
-  status: string
-}
 
-/* Initial data */
 const initialEmployees: EmployeeRow[] = [
   {
     id: 1,
@@ -52,94 +44,98 @@ const columns: Column<EmployeeRow>[] = [
 const Dashboard = () => {
   const navigate = useNavigate()
   const [showTable, setShowTable] = useState(false)
-  const [employees, setEmployees] =
-    useState<EmployeeRow[]>(initialEmployees)
+  const [employees, setEmployees] = useState<EmployeeRow[]>(initialEmployees)
 
-  /* ACTION HANDLERS */
+
+  const [editOpen, setEditOpen] = useState(false)
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRow | null>(null)
+
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<EmployeeRow | null>(null)
+
 
   const handleView = (row: EmployeeRow) => {
+    
     alert(
       `Employee Details\n\n` +
-      `ID: ${row.empId}\n` +
-      `Name: ${row.name}\n` +
-      `Department: ${row.department}\n` +
-      `Designation: ${row.designation}\n` +
-      `Status: ${row.status}`
+        `ID: ${row.empId}\n` +
+        `Name: ${row.name}\n` +
+        `Department: ${row.department}\n` +
+        `Designation: ${row.designation}\n` +
+        `Status: ${row.status}`
     )
   }
-  const handleform = ()=>{
+
+  const handleform = () => {
     navigate("/ui-demo")
-  } 
-  const handleEdit = (row: EmployeeRow) => {
-    const field = prompt(
-      "What do you want to edit?\n(name / designation / status)"
-    )
-
-    if (!field) return
-
-    const newValue = prompt(`Enter new value for ${field}`)
-    if (!newValue) return
-
-    setEmployees(prev =>
-      prev.map(emp =>
-        emp.id === row.id
-          ? { ...emp, [field]: newValue }
-          : emp
-      )
-    )
   }
 
+ 
+  const handleEdit = (row: EmployeeRow) => {
+    setSelectedEmployee(row)
+    setEditOpen(true)
+  }
+
+  
+  const handleSaveEdit = (updated: EmployeeRow) => {
+    setEmployees((prev) => prev.map((emp) => (emp.id === updated.id ? updated : emp)))
+  }
+
+ 
   const handleDelete = (row: EmployeeRow) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete ${row.name}?`
-    )
+    setDeleteTarget(row)
+    setDeleteOpen(true)
+  }
 
-    if (!confirmDelete) return
+  const confirmDelete = () => {
+    if (!deleteTarget) return
+    setEmployees((prev) => prev.filter((emp) => emp.id !== deleteTarget.id))
+    setDeleteOpen(false)
+    setDeleteTarget(null)
+  }
 
-    setEmployees(prev =>
-      prev.filter(emp => emp.id !== row.id)
-    )
+  const cancelDelete = () => {
+    setDeleteOpen(false)
+    setDeleteTarget(null)
   }
 
   return (
     <div className="space-y-6">
-      
       <div>
-        <h2 className="text-2xl font-semibold text-slate-800">
-          Dashboard
-        </h2>
+        <h2 className="text-2xl font-semibold text-slate-800">Dashboard</h2>
         <p className="text-sm text-slate-500">
           Example: Reusable EMS table with working actions
         </p>
       </div>
 
-      {/* Button to render table */}
-      <button
-        onClick={() => setShowTable(true)}
-        className="
-          px-6 py-3 rounded-xl
-          bg-indigo-600 text-white
-          font-medium
-          hover:bg-indigo-700
-          transition
-        "
-      >
-        Load Employees
-      </button>
-      <button
-        onClick={() => handleform()}
-        className="
-          px-6 py-3 rounded-xl
-          bg-indigo-600 text-white
-          font-medium
-          hover:bg-indigo-700
-          transition
-        "
-      >
-        Load Form
-      </button>
+      <div className="flex gap-3">
+        <button
+          onClick={() => setShowTable(true)}
+          className="
+            px-6 py-3 rounded-xl
+            bg-indigo-600 text-white
+            font-medium
+            hover:bg-indigo-700
+            transition
+          "
+        >
+          Load Employees
+        </button>
 
-      {/* Table renders only after click */}
+        <button
+          onClick={handleform}
+          className="
+            px-6 py-3 rounded-xl
+            bg-indigo-600 text-white
+            font-medium
+            hover:bg-indigo-700
+            transition
+          "
+        >
+          Load Form
+        </button>
+      </div>
+
       {showTable && (
         <DataTable
           columns={columns}
@@ -151,6 +147,29 @@ const Dashboard = () => {
           ]}
         />
       )}
+
+      <EditEmployeeModal
+        key={selectedEmployee?.id}
+        open={editOpen}
+        employee={selectedEmployee}
+        onClose={() => setEditOpen(false)}
+        onSave={handleSaveEdit}
+      />
+
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete Employee"
+        message={
+          deleteTarget
+            ? `Are you sure you want to delete "${deleteTarget.name}" (${deleteTarget.empId})?`
+            : "Are you sure you want to delete this employee?"
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   )
 }
