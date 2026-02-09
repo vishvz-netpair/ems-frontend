@@ -21,8 +21,7 @@ type DatePickerProps = {
   id?: string;
   className?: string;
 };
-
-export const DatePicker: React.FC<DatePickerProps> = ({
+ const DatePicker: React.FC<DatePickerProps> = ({
   label,
   value,
   onChange,
@@ -80,3 +79,4 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     </div>
   );
 };
+export default DatePicker;

@@ -22,7 +22,7 @@ const sizeClasses: Record<Size, string> = {
   lg: "h-11 px-5 text-base",
 };
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       variant = "primary",
@@ -60,3 +60,4 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   },
 );
 Button.displayName = "Button";
+export default Button;

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import DataTable from "../components/table/DataTable"
 import type { Column } from "../components/table/DataTable"
+import { useNavigate } from "react-router-dom"
 
 /* EMS-style data type */
 type EmployeeRow = {
@@ -49,6 +50,7 @@ const columns: Column<EmployeeRow>[] = [
 ]
 
 const Dashboard = () => {
+  const navigate = useNavigate()
   const [showTable, setShowTable] = useState(false)
   const [employees, setEmployees] =
     useState<EmployeeRow[]>(initialEmployees)
@@ -65,7 +67,9 @@ const Dashboard = () => {
       `Status: ${row.status}`
     )
   }
-
+  const handleform = ()=>{
+    navigate("/ui-demo")
+  } 
   const handleEdit = (row: EmployeeRow) => {
     const field = prompt(
       "What do you want to edit?\n(name / designation / status)"
@@ -121,6 +125,18 @@ const Dashboard = () => {
         "
       >
         Load Employees
+      </button>
+      <button
+        onClick={() => handleform()}
+        className="
+          px-6 py-3 rounded-xl
+          bg-indigo-600 text-white
+          font-medium
+          hover:bg-indigo-700
+          transition
+        "
+      >
+        Load Form
       </button>
 
       {/* Table renders only after click */}

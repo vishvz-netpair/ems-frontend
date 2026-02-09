@@ -1,28 +1,27 @@
-<<<<<<< HEAD
-import UiDemo from "./pages/UiDemo";
-=======
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+
 import Layout from "./components/layout/Layout"
 import Dashboard from "./pages/Dashboard"
->>>>>>> 7ebfb7930f73326835c4b87ce8def36bf64c0edb
+import UiDemo from "./pages/UiDemo"
 
 function App() {
+  // TEMP user (later this will come from login)
   const user = {
     name: "Admin",
     role: "admin",
   }
 
   return (
-<<<<<<< HEAD
-    <>
-      <UiDemo />
-    </>
-  );
-=======
-    <Layout user={user}>
-      <Dashboard />
-    </Layout>
+    <BrowserRouter>
+      <Layout user={user}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/ui-demo" element={<UiDemo />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   )
->>>>>>> 7ebfb7930f73326835c4b87ce8def36bf64c0edb
 }
 
 export default App

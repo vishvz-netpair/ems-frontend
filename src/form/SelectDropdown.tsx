@@ -25,7 +25,7 @@ type SelectDropdownProps = {
   className?: string;
 };
 
-export const SelectDropdown: React.FC<SelectDropdownProps> = ({
+ const SelectDropdown: React.FC<SelectDropdownProps> = ({
   label,
   value,
   onChange,
@@ -88,3 +88,4 @@ export const SelectDropdown: React.FC<SelectDropdownProps> = ({
     </div>
   );
 };
+export default SelectDropdown;

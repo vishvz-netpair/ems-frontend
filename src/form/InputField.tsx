@@ -1,13 +1,28 @@
 import React from "react";
 
-type InputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
+type InputFieldProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "onChange"
+> & {
   label?: string;
   helperText?: string;
   error?: string;
+  onChange?: (value: string) => void; // 🔥 VALUE-BASED API
 };
 
-export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
-  ({ label, helperText, error, className = "", id, ...props }, ref) => {
+const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
+  (
+    {
+      label,
+      helperText,
+      error,
+      className = "",
+      id,
+      onChange,
+      ...props
+    },
+    ref
+  ) => {
     const inputId = id || React.useId();
 
     return (
@@ -35,6 +50,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
             ${className}
           `}
           {...props}
+          onChange={(e) => onChange?.(e.target.value)} // 🔥 FIX
         />
 
         {error ? (
@@ -46,6 +62,8 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
         )}
       </div>
     );
-  },
+  }
 );
+
 InputField.displayName = "InputField";
+export default InputField;

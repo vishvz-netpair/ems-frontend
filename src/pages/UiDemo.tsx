@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { InputField } from "../components/form/InputField";
-import {
-  SelectDropdown,
-  type SelectOption,
-} from "../components/form/SelectDropdown";
-import { DatePicker } from "../components/form/DatePicker";
-import { Button } from "../components/common/Button";
+
+import InputField from "../form/InputField";
+import SelectDropdown from "../form/SelectDropdown";
+import type { SelectOption } from "../form/SelectDropdown";
+import DatePicker from "../form/DatePicker";
+import Button from "../components/common/Button";
 
 export default function UiDemo() {
   const [name, setName] = useState("");
@@ -20,85 +19,67 @@ export default function UiDemo() {
     { label: "Accounts", value: "accounts" },
   ];
 
-  const nameError =
-    name && name.length < 3 ? "Name must be at least 3 characters" : "";
-  const emailError =
-    email && !email.includes("@") ? "Please enter a valid email" : "";
-  const deptError = !department ? "Department is required" : "";
-  const dateError = !joiningDate ? "Joining date is required" : "";
-
-  const handleSubmit = () => {
-    const payload = {
-      name,
-      email,
-      department,
-      joiningDate,
-    };
-
-    console.log("Employee Data:", payload);
-    alert("Employee saved (check console)");
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-2xl p-6">
-        <div className="rounded-xl border border-slate-200 bg-white p-6">
-          <h1 className="text-xl font-semibold text-slate-900">Add Employee</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Fill employee details below
-          </p>
+    <div className="max-w-2xl space-y-8">
+      {/* Page Header */}
+      <div>
+        <h2 className="text-2xl font-semibold text-slate-800">
+          UI Components Demo
+        </h2>
+        <p className="text-sm text-slate-500">
+          Reusable EMS form components
+        </p>
+      </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-4">
-            <InputField
-              label="Employee Name"
-              placeholder="Enter full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              error={nameError}
-              required
-            />
+      {/* Form */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <InputField
+          label="Full Name"
+          value={name}
+          onChange={setName}
+          placeholder="Enter full name"
+          required
+        />
 
-            <InputField
-              label="Email Address"
-              placeholder="name@company.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={emailError}
-            />
+        <InputField
+          label="Email Address"
+          value={email}
+          onChange={setEmail}
+          placeholder="Enter email"
+        />
 
-            <SelectDropdown
-              label="Department"
-              value={department}
-              onChange={setDepartment}
-              options={departmentOptions}
-              placeholder="Select department"
-              error={deptError}
-              required
-            />
+        <SelectDropdown
+          label="Department"
+          options={departmentOptions}
+          value={department}
+          onChange={setDepartment}
+        />
 
-            <DatePicker
-              label="Joining Date"
-              value={joiningDate}
-              onChange={setJoiningDate}
-              error={dateError}
-              required
-              max={new Date().toISOString().slice(0, 10)}
-            />
-          </div>
+        <DatePicker
+          label="Joining Date"
+          value={joiningDate}
+          onChange={setJoiningDate}
+        />
+      </div>
 
-          <div className="mt-6 flex gap-3">
-            <Button
-              onClick={handleSubmit}
-              disabled={
-                !!nameError || !!emailError || !department || !joiningDate
-              }
-            >
-              Save Employee
-            </Button>
+      {/* Actions */}
+      <div className="flex gap-4">
+        <Button
+          onClick={() =>
+            console.log({
+              name,
+              email,
+              department,
+              joiningDate,
+            })
+          }
+        >
+          Save
+        </Button>
 
-            <Button variant="outline">Cancel</Button>
-          </div>
-        </div>
+        <Button className="bg-slate-100 text-slate-800 hover:bg-slate-200">
+          Cancel
+        </Button>
       </div>
     </div>
   );
