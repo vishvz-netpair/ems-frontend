@@ -1,4 +1,6 @@
 import { menuItems } from "./menuConfig"
+import { Link } from "react-router-dom"
+
 
 type SidebarProps = {
   role: string
@@ -20,7 +22,8 @@ const Sidebar = ({ role }: SidebarProps) => {
         {menuItems
           .filter(item => item.roles.includes(role))
           .map(item => (
-            <div
+            <Link
+              to={item.path}
               key={item.path}
               className="
                 px-4 py-3 rounded-xl cursor-pointer
@@ -31,7 +34,7 @@ const Sidebar = ({ role }: SidebarProps) => {
               "
             >
               {item.label}
-            </div>
+            </Link>
           ))}
       </nav>
     </aside>
