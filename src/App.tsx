@@ -4,6 +4,7 @@ import Layout from "./components/layout/Layout"
 import Dashboard from "./pages/Dashboard"
 import UiDemo from "./pages/UiDemo"
 import DepartmentMaster from "./pages/DepartmentMaster"
+import DesignationMaster from "./pages/DesignationMaster"
 
 function App() {
   // TEMP user (later this will come from login)
@@ -20,6 +21,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/ui-demo" element={<UiDemo />} />
           <Route path="/masters/department" element={<DepartmentMaster/>}/>
+          <Route path="/masters/designation" element={<DesignationMaster/>}/>
         </Routes>
       </Layout>
     </BrowserRouter>
