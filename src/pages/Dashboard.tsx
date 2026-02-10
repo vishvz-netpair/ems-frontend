@@ -4,6 +4,7 @@ import type { Column } from "../components/table/DataTable"
 import { useNavigate } from "react-router-dom"
 import EditEmployeeModal, { type EmployeeRow } from "../components/common/EditEmployeeModal"
 import ConfirmDialog from "../components/common/ConfirmDialog"
+import Button from "../components/common/Button"
 
 
 const initialEmployees: EmployeeRow[] = [
@@ -109,7 +110,7 @@ const Dashboard = () => {
       </div>
 
       <div className="flex gap-3">
-        <button
+        <Button
           onClick={() => setShowTable(true)}
           className="
             px-6 py-3 rounded-xl
@@ -120,20 +121,17 @@ const Dashboard = () => {
           "
         >
           Load Employees
-        </button>
-
-        <button
-          onClick={handleform}
-          className="
+        </Button>
+        <Button onClick={handleform}
+        className="
             px-6 py-3 rounded-xl
             bg-indigo-600 text-white
             font-medium
             hover:bg-indigo-700
             transition
           "
-        >
-          Load Form
-        </button>
+        >Load Form</Button>
+       
       </div>
 
       {showTable && (
