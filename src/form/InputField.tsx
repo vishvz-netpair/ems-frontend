@@ -2,26 +2,19 @@ import React from "react";
 
 type InputFieldProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
-  "onChange"
+  "value" | "onChange"
 > & {
   label?: string;
   helperText?: string;
   error?: string;
-  onChange?: (value: string) => void; // 🔥 VALUE-BASED API
+  value: string;
+  onChange: (value: string) => void;
 };
 
-const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
+export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   (
-    {
-      label,
-      helperText,
-      error,
-      className = "",
-      id,
-      onChange,
-      ...props
-    },
-    ref
+    { label, helperText, error, className = "", id, value, onChange, ...props },
+    ref,
   ) => {
     const inputId = id || React.useId();
 
@@ -39,8 +32,10 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
         <input
           ref={ref}
           id={inputId}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
           className={`
-            h-11 w-full rounded-lg border bg-white px-3 text-sm text-slate-900 outline-none
+            h-11 w-full rounded-lg border bg-white px-3 text-sm text-slate-900 outline-none transition
             placeholder:text-slate-400
             ${
               error
@@ -50,20 +45,15 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
             ${className}
           `}
           {...props}
-          onChange={(e) => onChange?.(e.target.value)} // 🔥 FIX
         />
 
         {error ? (
           <p className="mt-1.5 text-sm text-red-600">{error}</p>
-        ) : (
-          helperText && (
-            <p className="mt-1.5 text-sm text-slate-500">{helperText}</p>
-          )
-        )}
+        ) : helperText ? (
+          <p className="mt-1.5 text-sm text-slate-500">{helperText}</p>
+        ) : null}
       </div>
     );
-  }
+  },
 );
-
 InputField.displayName = "InputField";
-export default InputField;
