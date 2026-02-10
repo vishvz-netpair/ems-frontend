@@ -6,6 +6,8 @@ import UiDemo from "./pages/UiDemo"
 import DepartmentMaster from "./pages/DepartmentMaster"
 import DesignationMaster from "./pages/DesignationMaster"
 import { DepartmentProvider } from "./context/DepartmentContext";
+import { DesignationProvider } from "./context/DesignationContext";
+
 
 
 function App() {
@@ -18,6 +20,7 @@ function App() {
   return (
     <BrowserRouter>
     <DepartmentProvider>
+      <DesignationProvider>
       <Layout user={user}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />
@@ -27,6 +30,7 @@ function App() {
           <Route path="/masters/designation" element={<DesignationMaster/>}/>
         </Routes>
       </Layout>
+      </DesignationProvider>
       </DepartmentProvider>
     </BrowserRouter>
   )

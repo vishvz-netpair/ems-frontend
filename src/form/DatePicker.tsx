@@ -36,13 +36,14 @@ type DatePickerProps = {
   id,
   className = "",
 }) => {
-  const inputId = id || React.useId();
+  const generatedId = React.useId();
+    const selectId = id ?? generatedId;
 
   return (
     <div className="w-full">
       {label ? (
         <label
-          htmlFor={inputId}
+          htmlFor={selectId}
           className="mb-1.5 block text-sm font-medium text-slate-900"
         >
           {label} {required ? <span className="text-red-500">*</span> : null}
@@ -50,7 +51,7 @@ type DatePickerProps = {
       ) : null}
 
       <input
-        id={inputId}
+        id={selectId}
         name={name}
         type="date"
         value={value}

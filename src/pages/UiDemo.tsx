@@ -4,23 +4,27 @@ import SelectDropdown from "../form/SelectDropdown";
 import DatePicker from "../form/DatePicker";
 import Button from "../components/common/Button";
 import { useDepartments } from "../context/useDepartment";
+import { useDesignations } from "../context/useDesignation";
+
 
 
 type EmployeeForm = {
   name: string;
   email: string;
   department: string;
+  designation:string;
   joiningDate: string;
 };
 
 export default function AddEmployeeAllController() {
+  const { designations } = useDesignations();
   const { departments } = useDepartments();
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<EmployeeForm>({
-    defaultValues: { name: "", email: "", department: "", joiningDate: "" },
+    defaultValues: { name: "", email: "", department: "", designation: "",joiningDate: "" },
     mode: "onChange",
   });
 
@@ -34,7 +38,12 @@ export default function AddEmployeeAllController() {
     label: d.name,
     value: d.name
   }));
-
+const designationOptions = designations
+  .filter(d => d.status === "Active")
+  .map(d => ({
+    label: d.name,
+    value: d.name
+  }));
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
@@ -105,7 +114,23 @@ export default function AddEmployeeAllController() {
           />
         )}
       />
+        <Controller
+        name="designation"
+        control={control}
+        rules={{ required: "designation required" }}
+        render={({ field }) => (
+          <SelectDropdown
+            label="Designation"
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.designation?.message}
+            placeholder="Select Designation"
+           options={designationOptions}
 
+
+          />
+        )}
+      />
       <Controller
         name="joiningDate"
         control={control}

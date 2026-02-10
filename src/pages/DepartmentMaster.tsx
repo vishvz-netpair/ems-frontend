@@ -18,14 +18,14 @@ type DepartmentRow = {
 const DepartmentMaster = () => {
 const { departments, addDepartment, updateDepartment, deleteDepartment } = useDepartments();
 
-  // Add modal
+ 
   const [addOpen, setAddOpen] = useState(false)
 
-  // Edit modal
+
   const [editOpen, setEditOpen] = useState(false)
   const [selected, setSelected] = useState<DepartmentRow | null>(null)
 
-  // Delete dialog
+  
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<DepartmentRow | null>(null)
 
@@ -98,7 +98,6 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
         ]}
       />
 
-      {/* ✅ Add Modal */}
       <MasterFormModal
        key={addOpen ? "add-open" : "add-closed"}
         open={addOpen}
@@ -109,7 +108,6 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
         onSave={saveAdd}
       />
 
-      {/* ✅ Edit Modal */}
       <MasterFormModal
        key={selected?.id ?? "edit-none"}
         open={editOpen}
@@ -120,7 +118,6 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
         onSave={saveEdit}
       />
 
-      {/* ✅ Delete Confirm */}
       <ConfirmDialog
         open={deleteOpen}
         title="Delete Department"

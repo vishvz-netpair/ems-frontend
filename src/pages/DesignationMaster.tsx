@@ -3,6 +3,9 @@ import DataTable from "../components/table/DataTable"
 import type { Column } from "../components/table/DataTable"
 import MasterFormModal from "../components/common/MasterFormModal"
 import ConfirmDialog from "../components/common/ConfirmDialog"
+import { useDesignations } from "../context/useDesignation";
+//import type { Designation } from "../context/DesignationContext";
+
 
 type DesignationRow = {
   id: number
@@ -10,25 +13,19 @@ type DesignationRow = {
   status: "Active" | "Inactive"
 }
 
-const initialDesignations: DesignationRow[] = [
-  { id: 1, name: "Frontend Developer", status: "Active" },
-  { id: 2, name: "Backend Developer", status: "Active" },
-  { id: 3, name: "HR Executive", status: "Active" },
-  { id: 4, name: "Accountant", status: "Inactive" },
-]
+
 
 const DesignationMaster = () => {
-  const [designations, setDesignations] =
-    useState<DesignationRow[]>(initialDesignations)
+  //const [designations, setDesignations] =
+    //useState<DesignationRow[]>(initialDesignations)
+const { designations, addDesignation, updateDesignation, deleteDesignation } = useDesignations();
 
-  // Add modal
   const [addOpen, setAddOpen] = useState(false)
 
-  // Edit modal
+  
   const [editOpen, setEditOpen] = useState(false)
   const [selected, setSelected] = useState<DesignationRow | null>(null)
 
-  // Delete dialog
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<DesignationRow | null>(null)
 
@@ -52,28 +49,20 @@ const DesignationMaster = () => {
     setDeleteOpen(true)
   }
 
-  const saveAdd = (payload: { name: string; status: "Active" | "Inactive" }) => {
-    setDesignations((prev) => {
-      const nextId = prev.length ? Math.max(...prev.map((d) => d.id)) + 1 : 1
-      return [...prev, { id: nextId, name: payload.name, status: payload.status }]
-    })
-  }
+ const saveAdd = (payload: { name: string; status: "Active" | "Inactive" }) => {
+  addDesignation(payload);
+};
 
-  const saveEdit = (payload: { name: string; status: "Active" | "Inactive" }) => {
-    if (!selected) return
-    setDesignations((prev) =>
-      prev.map((d) =>
-        d.id === selected.id ? { ...d, name: payload.name, status: payload.status } : d
-      )
-    )
-  }
-
+ const saveEdit = (payload: { name: string; status: "Active" | "Inactive" }) => {
+  if (!selected) return;
+  updateDesignation(selected.id, payload);
+};
   const confirmDelete = () => {
-    if (!deleteTarget) return
-    setDesignations((prev) => prev.filter((d) => d.id !== deleteTarget.id))
-    setDeleteOpen(false)
-    setDeleteTarget(null)
-  }
+  if (!deleteTarget) return;
+  deleteDesignation(deleteTarget.id);
+  setDeleteOpen(false);
+  setDeleteTarget(null);
+};
 
   const cancelDelete = () => {
     setDeleteOpen(false)
@@ -109,7 +98,6 @@ const DesignationMaster = () => {
         ]}
       />
 
-      {/* ✅ Add Modal */}
       <MasterFormModal
         key={addOpen ? "add-open" : "add-closed"}
         open={addOpen}
@@ -120,7 +108,6 @@ const DesignationMaster = () => {
         onSave={saveAdd}
       />
 
-      {/* ✅ Edit Modal */}
       <MasterFormModal
         key={selected?.id ?? "edit-none"}
         open={editOpen}
@@ -131,7 +118,6 @@ const DesignationMaster = () => {
         onSave={saveEdit}
       />
 
-      {/* ✅ Delete Confirm */}
       <ConfirmDialog
         open={deleteOpen}
         title="Delete Designation"
