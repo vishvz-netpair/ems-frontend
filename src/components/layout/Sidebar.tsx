@@ -22,6 +22,7 @@ const Sidebar = ({ role }: SidebarProps) => {
         {menuItems
           .filter(item => item.roles.includes(role))
           .map(item => (
+
             <Link
               to={item.path}
               key={item.path}
@@ -34,7 +35,12 @@ const Sidebar = ({ role }: SidebarProps) => {
               "
             >
               {item.label}
+              <br></br>
+              <br>
+              </br>
             </Link>
+            
+            
           ))}
       </nav>
     </aside>
