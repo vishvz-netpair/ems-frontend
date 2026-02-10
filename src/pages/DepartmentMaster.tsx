@@ -3,6 +3,9 @@ import DataTable from "../components/table/DataTable"
 import type { Column } from "../components/table/DataTable"
 import MasterFormModal from "../components/common/MasterFormModal"
 import ConfirmDialog from "../components/common/ConfirmDialog"
+import { useDepartments } from "../context/useDepartment"
+
+
 
 type DepartmentRow = {
   id: number
@@ -10,14 +13,10 @@ type DepartmentRow = {
   status: "Active" | "Inactive"
 }
 
-const initialDepartments: DepartmentRow[] = [
-  { id: 1, name: "Engineering", status: "Active" },
-  { id: 2, name: "HR", status: "Active" },
-  { id: 3, name: "Finance", status: "Inactive" },
-]
+
 
 const DepartmentMaster = () => {
-  const [departments, setDepartments] = useState<DepartmentRow[]>(initialDepartments)
+const { departments, addDepartment, updateDepartment, deleteDepartment } = useDepartments();
 
   // Add modal
   const [addOpen, setAddOpen] = useState(false)
@@ -51,25 +50,22 @@ const DepartmentMaster = () => {
   }
 
   const saveAdd = (payload: { name: string; status: "Active" | "Inactive" }) => {
-    setDepartments((prev) => {
-      const nextId = prev.length ? Math.max(...prev.map((d) => d.id)) + 1 : 1
-      return [...prev, { id: nextId, name: payload.name, status: payload.status }]
-    })
-  }
+  addDepartment(payload);
+};
 
-  const saveEdit = (payload: { name: string; status: "Active" | "Inactive" }) => {
-    if (!selected) return
-    setDepartments((prev) =>
-      prev.map((d) => (d.id === selected.id ? { ...d, name: payload.name, status: payload.status } : d))
-    )
-  }
+
+ const saveEdit = (payload: { name: string; status: "Active" | "Inactive" }) => {
+  if (!selected) return;
+  updateDepartment(selected.id, payload);
+};
+
 
   const confirmDelete = () => {
-    if (!deleteTarget) return
-    setDepartments((prev) => prev.filter((d) => d.id !== deleteTarget.id))
-    setDeleteOpen(false)
-    setDeleteTarget(null)
-  }
+  if (!deleteTarget) return;
+  deleteDepartment(deleteTarget.id);
+  setDeleteOpen(false);
+  setDeleteTarget(null);
+};
 
   const cancelDelete = () => {
     setDeleteOpen(false)

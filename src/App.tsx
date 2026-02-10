@@ -5,6 +5,8 @@ import Dashboard from "./pages/Dashboard"
 import UiDemo from "./pages/UiDemo"
 import DepartmentMaster from "./pages/DepartmentMaster"
 import DesignationMaster from "./pages/DesignationMaster"
+import { DepartmentProvider } from "./context/DepartmentContext";
+
 
 function App() {
   // TEMP user (later this will come from login)
@@ -15,6 +17,7 @@ function App() {
 
   return (
     <BrowserRouter>
+    <DepartmentProvider>
       <Layout user={user}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />
@@ -24,6 +27,7 @@ function App() {
           <Route path="/masters/designation" element={<DesignationMaster/>}/>
         </Routes>
       </Layout>
+      </DepartmentProvider>
     </BrowserRouter>
   )
 }

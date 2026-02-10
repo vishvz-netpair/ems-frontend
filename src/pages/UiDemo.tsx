@@ -3,6 +3,8 @@ import { InputField } from "../form/InputField";
 import SelectDropdown from "../form/SelectDropdown";
 import DatePicker from "../form/DatePicker";
 import Button from "../components/common/Button";
+import { useDepartments } from "../context/useDepartment";
+
 
 type EmployeeForm = {
   name: string;
@@ -12,6 +14,7 @@ type EmployeeForm = {
 };
 
 export default function AddEmployeeAllController() {
+  const { departments } = useDepartments();
   const {
     control,
     handleSubmit,
@@ -24,6 +27,13 @@ export default function AddEmployeeAllController() {
   const onSubmit = (data: EmployeeForm) => {
     console.log(data);
   };
+
+ const departmentOptions = departments
+  .filter(d => d.status === "Active")
+  .map(d => ({
+    label: d.name,
+    value: d.name
+  }));
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -89,10 +99,9 @@ export default function AddEmployeeAllController() {
             onChange={field.onChange}
             error={errors.department?.message}
             placeholder="Select department"
-            options={[
-              { label: "HR", value: "hr" },
-              { label: "Engineering", value: "engineering" },
-            ]}
+           options={departmentOptions}
+
+
           />
         )}
       />
