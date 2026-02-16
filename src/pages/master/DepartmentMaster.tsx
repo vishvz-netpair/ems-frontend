@@ -1,11 +1,9 @@
 import { useMemo, useState } from "react"
-import DataTable from "../components/table/DataTable"
-import type { Column } from "../components/table/DataTable"
-import MasterFormModal from "../components/common/MasterFormModal"
-import ConfirmDialog from "../components/common/ConfirmDialog"
-import { useDepartments } from "../context/useDepartment"
-
-
+import DataTable from "../../components/table/DataTable"
+import type { Column } from "../../components/table/DataTable"
+import MasterFormModal from "../../components/common/MasterFormModal"
+import ConfirmDialog from "../../components/common/ConfirmDialog"
+import { useDepartments } from "../../context/useDepartment"
 
 type DepartmentRow = {
   id: number
@@ -13,14 +11,11 @@ type DepartmentRow = {
   status: "Active" | "Inactive"
 }
 
-
-
 const DepartmentMaster = () => {
 const { departments, addDepartment, updateDepartment, deleteDepartment } = useDepartments();
 
  
   const [addOpen, setAddOpen] = useState(false)
-
 
   const [editOpen, setEditOpen] = useState(false)
   const [selected, setSelected] = useState<DepartmentRow | null>(null)

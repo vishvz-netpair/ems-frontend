@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react"
-import DataTable from "../components/table/DataTable"
-import type { Column } from "../components/table/DataTable"
-import MasterFormModal from "../components/common/MasterFormModal"
-import ConfirmDialog from "../components/common/ConfirmDialog"
-import { useDesignations } from "../context/useDesignation";
+import DataTable from "../../components/table/DataTable"
+import type { Column } from "../../components/table/DataTable"
+import MasterFormModal from "../../components/common/MasterFormModal"
+import ConfirmDialog from "../../components/common/ConfirmDialog"
+import { useDesignations } from "../../context/useDesignation";
 //import type { Designation } from "../context/DesignationContext";
 
 

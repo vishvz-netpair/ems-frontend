@@ -20,4 +20,9 @@ export const menuItems: MenuItem[] = [
     path:"/masters/designation",
     roles:["admin"],
   },
+  {
+    label:"Role",
+    path:"/masters/roles",
+    roles:["admin"],
+  },
 ]

@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import Layout from "./components/layout/Layout"
 import Dashboard from "./pages/Dashboard"
 import UiDemo from "./pages/UiDemo"
-import DepartmentMaster from "./pages/DepartmentMaster"
-import DesignationMaster from "./pages/DesignationMaster"
+import DepartmentMaster from "./pages/master/DepartmentMaster"
+import DesignationMaster from "./pages/master/DesignationMaster"
 import { DepartmentProvider } from "./context/DepartmentContext";
 import { DesignationProvider } from "./context/DesignationContext";
 
