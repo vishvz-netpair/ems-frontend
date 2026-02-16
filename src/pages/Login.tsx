@@ -1,5 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import ConfirmDialog from "../components/common/ConfirmDialog";
+
+type User={
+  username:string;
+  password:string;
+};
 
 const Login = () => {
   const navigate = useNavigate();
@@ -8,7 +14,11 @@ const Login = () => {
     password: "",
   });
 
-  const [error, setError] = useState("");
+  const [dialogOpen,setDialogOpen]=useState(false)
+  const [dialogMessage,setDialogMessage]=useState("")
+  const [isSuccess,setIsSuccess]=useState(false)
+
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,22 +27,36 @@ const Login = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const users:User[] = JSON.parse(localStorage.getItem("users") || "[]");
 
     const foundUser = users.find(
-      (u: any) =>
+      (u) =>
         u.username === form.username && u.password === form.password
     );
 
     if (foundUser) {
       localStorage.setItem("user", JSON.stringify(foundUser));
-      navigate("/dashboard");
+      setDialogMessage("Login Successfull")
+       setIsSuccess(true)
+       setDialogOpen(true)
+
+      //navigate("/dashboard");
     } else {
-      setError("Invalid credentials");
+      setDialogMessage("Invalid username or password.");
+      setIsSuccess(false);
+      setDialogOpen(true);
     }
   };
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+
+    if (isSuccess) {
+      navigate("/dashboard");
+    }
+  }
 
   return (
+    <>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
       <div className="bg-slate-950 p-8 rounded-2xl shadow-2xl w-[380px] border border-slate-700">
 
@@ -60,9 +84,7 @@ const Login = () => {
             required
           />
 
-          {error && (
-            <p className="text-red-400 text-sm text-center">{error}</p>
-          )}
+       
 
           <button
             type="submit"
@@ -81,6 +103,15 @@ const Login = () => {
         </form>
       </div>
     </div>
+     <ConfirmDialog
+        open={dialogOpen}
+        title={isSuccess ? "Success" : "Login Failed"}
+        message={dialogMessage}
+        mode="Success"
+        onConfirm={handleDialogClose}
+        onCancel={handleDialogClose}
+      />
+      </>
   );
 };
 
