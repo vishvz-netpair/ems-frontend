@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DesignationContext, type Designation } from "./Designation-context";
+import { DesignationContext, type Designation } from "./designation-context";
 
 const initialDesignations: Designation[] = [
   { id: 1, name: "Frontend Developer", status: "Active" },

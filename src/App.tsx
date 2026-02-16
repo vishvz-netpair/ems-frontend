@@ -5,8 +5,8 @@ import Dashboard from "./pages/Dashboard"
 import UiDemo from "./pages/UiDemo"
 import DepartmentMaster from "./pages/master/DepartmentMaster"
 import DesignationMaster from "./pages/master/DesignationMaster"
-import { DepartmentProvider } from "./context/DepartmentContext";
-import { DesignationProvider } from "./context/DesignationContext";
+import { DepartmentProvider } from "./context/department-context";
+import { DesignationProvider } from "./context/designation-provider";
 
 
 

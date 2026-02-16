@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { DesignationContext } from "./Designation-context";
+import { DesignationContext } from "./designation-context";
 
 export const useDesignations = () => {
   const ctx = useContext(DesignationContext);
