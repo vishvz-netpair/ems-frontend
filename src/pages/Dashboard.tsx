@@ -134,6 +134,9 @@ const Dashboard = () => {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<EmployeeRow | null>(null)
 
+  const [sauccessOpen,setSuccessOpen]=useState(false)
+  const [successMessage,setSuccessMessage]=useState(" ")
+
 
   const handleView = (row: EmployeeRow) => {
     
@@ -160,12 +163,17 @@ const Dashboard = () => {
   
   const handleSaveEdit = (updated: EmployeeRow) => {
     setEmployees((prev) => prev.map((emp) => (emp.id === updated.id ? updated : emp)))
+    setEditOpen(false)
+    setSelectedEmployee(null)
+    setSuccessMessage("Employee updated successfully")
+    setSuccessOpen(true)
   }
 
  
   const handleDelete = (row: EmployeeRow) => {
     setDeleteTarget(row)
     setDeleteOpen(true)
+    
   }
 
   const confirmDelete = () => {
@@ -173,6 +181,9 @@ const Dashboard = () => {
     setEmployees((prev) => prev.filter((emp) => emp.id !== deleteTarget.id))
     setDeleteOpen(false)
     setDeleteTarget(null)
+
+    setSuccessMessage("Employee deleted successfully.")
+    setSuccessOpen(true)
   }
 
   const cancelDelete = () => {
@@ -247,6 +258,14 @@ const Dashboard = () => {
         danger
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+      />
+      <ConfirmDialog
+      open={sauccessOpen}
+      title="Success"
+      message={successMessage}
+      mode="Success"
+      onConfirm={()=>setSuccessOpen(false)}
+      onCancel={()=>setSuccessOpen(false)}
       />
     </div>
   )

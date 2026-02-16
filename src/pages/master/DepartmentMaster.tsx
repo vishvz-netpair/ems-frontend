@@ -24,6 +24,9 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<DepartmentRow | null>(null)
 
+  const [successOpen,setSuccessOpen]=useState(false)
+  const [successMessage,setSuccessMessage]=useState("")
+
   const columns: Column<DepartmentRow>[] = useMemo(
     () => [
       { key: "name", label: "Department" },
@@ -46,12 +49,21 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
 
   const saveAdd = (payload: { name: string; status: "Active" | "Inactive" }) => {
   addDepartment(payload);
+  setAddOpen(false)
+
+  setSuccessMessage("Department addedd successfully.")
+  setSuccessOpen(true)
 };
 
 
  const saveEdit = (payload: { name: string; status: "Active" | "Inactive" }) => {
   if (!selected) return;
   updateDepartment(selected.id, payload);
+  setEditOpen(false)
+  setSelected(null)
+
+  setSuccessMessage("Department updated successfully.")
+  setSuccessOpen(true)
 };
 
 
@@ -60,6 +72,9 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
   deleteDepartment(deleteTarget.id);
   setDeleteOpen(false);
   setDeleteTarget(null);
+
+  setSuccessMessage("Department deleted successfully.")
+  setSuccessOpen(true)
 };
 
   const cancelDelete = () => {
@@ -125,6 +140,14 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
+      <ConfirmDialog
+        open={successOpen}
+        title="Success"
+        message={successMessage}
+        mode="Success"
+        onConfirm={()=>setSuccessOpen(false)}
+        onCancel={()=>setSuccessOpen(false)}
+        />
     </div>
   )
 }
