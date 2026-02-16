@@ -1,13 +1,13 @@
-import Sidebar from "./Sidebar"
-import Header from "./Header"
+import Sidebar from "./Sidebar";
+import Header from "./Header";
 
 type LayoutProps = {
-  children: React.ReactNode
+  children: React.ReactNode;
   user: {
-    name: string
-    role: string
-  }
-}
+    name: string;
+    role: string;
+  };
+};
 
 const Layout = ({ children, user }: LayoutProps) => {
   return (
@@ -19,7 +19,7 @@ const Layout = ({ children, user }: LayoutProps) => {
         <main className="p-8">{children}</main>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

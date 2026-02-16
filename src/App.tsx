@@ -1,39 +1,86 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-
-import Layout from "./components/layout/Layout"
-import Dashboard from "./pages/Dashboard"
-import UiDemo from "./pages/UiDemo"
-import DepartmentMaster from "./pages/DepartmentMaster"
-import DesignationMaster from "./pages/DesignationMaster"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Layout from "./components/layout/Layout";
+import Dashboard from "./pages/Dashboard";
+import UiDemo from "./pages/UiDemo";
+import DepartmentMaster from "./pages/DepartmentMaster";
+import DesignationMaster from "./pages/DesignationMaster";
 import { DepartmentProvider } from "./context/DepartmentContext";
 import { DesignationProvider } from "./context/DesignationContext";
 
-
-
 function App() {
-  // TEMP user (later this will come from login)
-  const user = {
-    name: "Admin",
-    role: "admin",
-  }
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
   return (
     <BrowserRouter>
-    <DepartmentProvider>
-      <DesignationProvider>
-      <Layout user={user}>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/ui-demo" element={<UiDemo />} />
-          <Route path="/masters/department" element={<DepartmentMaster/>}/>
-          <Route path="/masters/designation" element={<DesignationMaster/>}/>
-        </Routes>
-      </Layout>
-      </DesignationProvider>
+      <DepartmentProvider>
+        <DesignationProvider>
+          <Routes>
+
+            {/* Public Routes */}
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            {/* Protected Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                user ? (
+                  <Layout user={user}>
+                    <Dashboard />
+                  </Layout>
+                ) : (
+                  <Navigate to="/" />
+                )
+              }
+            />
+
+            <Route
+              path="/ui-demo"
+              element={
+                user ? (
+                  <Layout user={user}>
+                    <UiDemo />
+                  </Layout>
+                ) : (
+                  <Navigate to="/" />
+                )
+              }
+            />
+
+            <Route
+              path="/masters/department"
+              element={
+                user ? (
+                  <Layout user={user}>
+                    <DepartmentMaster />
+                  </Layout>
+                ) : (
+                  <Navigate to="/" />
+                )
+              }
+            />
+
+            <Route
+              path="/masters/designation"
+              element={
+                user ? (
+                  <Layout user={user}>
+                    <DesignationMaster />
+                  </Layout>
+                ) : (
+                  <Navigate to="/" />
+                )
+              }
+            />
+
+          </Routes>
+        </DesignationProvider>
       </DepartmentProvider>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
