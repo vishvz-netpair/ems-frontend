@@ -65,15 +65,19 @@ const Register = () => {
           />
 
           <select
-            name="role"
-            onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600"
-          >
-            <option value="admin">Admin</option>
-            <option value="hr">HR</option>
-            <option value="employee">Employee</option>
-          </select>
-
+  name="role"
+  onChange={handleChange}
+  className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600"
+  required
+>
+  <option value="">Select Role</option>
+  <option value="admin">Admin</option>
+  <option value="ceo">CEO</option>
+  <option value="hr">HR</option>
+  <option value="manager">Project Manager</option>
+  <option value="employee">Employee</option>
+  <option value="intern">Intern</option>
+</select>
           <button
             type="submit"
             className="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold"

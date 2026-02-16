@@ -12,6 +12,7 @@ const Login = () => {
   const [form, setForm] = useState({
     username: "",
     password: "",
+    role: "",
   });
 
   const [dialogOpen,setDialogOpen]=useState(false)

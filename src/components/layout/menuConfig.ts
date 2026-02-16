@@ -8,21 +8,42 @@ export const menuItems: MenuItem[] = [
   {
     label: "Dashboard",
     path: "/dashboard",
-    roles: ["admin", "employee"],
+    roles: ["admin", "hr", "manager", "employee", "intern"],
   },
+
   {
-    label:"Departments",
-    path:"/masters/department",
-    roles:['admin'],
+    label: "Users",
+    path: "/users",
+    roles: ["admin", "hr", "ceo"],
   },
+
   {
-    label:"Designation",
-    path:"/masters/designation",
-    roles:["admin"],
+    label: "Attendance",
+    path: "/attendance",
+    roles: ["admin", "hr", "manager", "employee", "intern"],
   },
+
   {
-    label:"Role",
-    path:"/masters/roles",
-    roles:["admin"],
+    label: "Projects",
+    path: "/projects",
+    roles: ["admin", "manager", "employee", "intern", "ceo"],
+  },
+
+  {
+    label: "Assets",
+    path: "/assets",
+    roles: ["admin", "hr", "ceo"],
+  },
+
+  {
+    label: "Communication",
+    path: "/communication",
+    roles: ["admin", "hr", "manager", "employee", "intern", "ceo"],
+  },
+
+  {
+    label: "Reports",
+    path: "/reports",
+    roles: ["admin", "hr", "manager", "ceo"],
   },
 ]

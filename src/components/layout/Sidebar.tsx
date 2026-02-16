@@ -1,14 +1,13 @@
-import { menuItems } from "./menuConfig"
-import { Link } from "react-router-dom"
-
+import { menuItems } from "./menuConfig";
+import { NavLink } from "react-router-dom";
 
 type SidebarProps = {
-  role: string
-}
+  role: string;
+};
 
 const Sidebar = ({ role }: SidebarProps) => {
   return (
-    <aside className="w-64 min-h-screen bg-gradient-to-br from-[#0f172a] to-[#020617] text-slate-200">
+    <aside className="w-64 min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-slate-200 flex flex-col shadow-xl">
       
       {/* Brand */}
       <div className="h-16 flex items-center px-6 border-b border-white/10">
@@ -18,33 +17,34 @@ const Sidebar = ({ role }: SidebarProps) => {
       </div>
 
       {/* Menu */}
-      <nav className="p-4 space-y-2">
+      <nav className="flex-1 px-4 py-6 space-y-3">
         {menuItems
-          .filter(item => item.roles.includes(role))
-          .map(item => (
-
-            <Link
+          .filter((item) => item.roles.includes(role))
+          .map((item) => (
+            <NavLink
               to={item.path}
               key={item.path}
-              className="
-                px-4 py-3 rounded-xl cursor-pointer
-                bg-white/5 backdrop-blur
-                hover:bg-white/10
+              className={({ isActive }) =>
+                `
+                flex items-center
+                px-4 py-3
+                rounded-lg
+                text-sm font-medium
                 transition-all duration-200
-                font-medium
-              "
+                ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md"
+                    : "hover:bg-white/10"
+                }
+                `
+              }
             >
               {item.label}
-              <br></br>
-              <br>
-              </br>
-            </Link>
-            
-            
+            </NavLink>
           ))}
       </nav>
     </aside>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;
