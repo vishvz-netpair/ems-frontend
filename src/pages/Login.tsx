@@ -1,118 +1,127 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import ConfirmDialog from "../components/common/ConfirmDialog";
+import Button from "../components/common/Button";
+import { useState } from "react";
 
-type User={
-  username:string;
-  password:string;
+type LoginFormData = {
+  username: string;
+  password: string;
+};
+
+type User = {
+  name: string;
+  username: string;
+  password: string;
+  role: string;
 };
 
 const Login = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    username: "",
-    password: "",
-    role: "",
-  });
 
-  const [dialogOpen,setDialogOpen]=useState(false)
-  const [dialogMessage,setDialogMessage]=useState("")
-  const [isSuccess,setIsSuccess]=useState(false)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>();
 
-  
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const users:User[] = JSON.parse(localStorage.getItem("users") || "[]");
+  const onSubmit = (data: LoginFormData) => {
+    const users: User[] = JSON.parse(localStorage.getItem("users") || "[]");
 
     const foundUser = users.find(
       (u) =>
-        u.username === form.username && u.password === form.password
+        u.username === data.username &&
+        u.password === data.password
     );
 
     if (foundUser) {
       localStorage.setItem("user", JSON.stringify(foundUser));
-      setDialogMessage("Login Successfull")
-       setIsSuccess(true)
-       setDialogOpen(true)
-
-      //navigate("/dashboard");
+      setDialogMessage("Login Successful");
+      setIsSuccess(true);
+      setDialogOpen(true);
     } else {
-      setDialogMessage("Invalid username or password.");
+      setDialogMessage("Invalid Username or Password");
       setIsSuccess(false);
       setDialogOpen(true);
     }
   };
+
   const handleDialogClose = () => {
     setDialogOpen(false);
-
     if (isSuccess) {
       navigate("/dashboard");
     }
-  }
+  };
 
   return (
     <>
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
-      <div className="bg-slate-950 p-8 rounded-2xl shadow-2xl w-[380px] border border-slate-700">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="bg-slate-950 p-8 rounded-2xl shadow-2xl w-[400px] border border-slate-700">
 
-        <h2 className="text-3xl font-bold text-white text-center mb-6">
-          EMS Login
-        </h2>
+          <h2 className="text-3xl font-bold text-white text-center mb-8">
+            EMS Login
+          </h2>
 
-        <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-2 focus:ring-blue-500"
-            required
-          />
+            {/* Username */}
+            <div>
+              <input
+                type="text"
+                placeholder="Username"
+                {...register("username", { required: "Username is required" })}
+                className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-2 focus:ring-indigo-500"
+              />
+              {errors.username && (
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.username.message}
+                </p>
+              )}
+            </div>
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-2 focus:ring-blue-500"
-            required
-          />
+            {/* Password */}
+            <div>
+              <input
+                type="password"
+                placeholder="Password"
+                {...register("password", { required: "Password is required" })}
+                className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-2 focus:ring-indigo-500"
+              />
+              {errors.password && (
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
 
-       
+            <Button
+              type="submit"
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-semibold"
+            >
+              Login
+            </Button>
+          </form>
 
-          <button
-            type="submit"
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 transition-all rounded-lg text-white font-semibold"
-          >
-            Login
-          </button>
-
-          <p className="text-center text-slate-400 text-sm">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-blue-400 hover:underline">
-              Register
-            </Link>
+          <p className="text-center text-slate-400 text-xs mt-6">
+            Contact HR for account credentials.
           </p>
 
-        </form>
+        </div>
       </div>
-    </div>
-     <ConfirmDialog
+
+      <ConfirmDialog
         open={dialogOpen}
         title={isSuccess ? "Success" : "Login Failed"}
         message={dialogMessage}
-        mode="Success"
+        mode={isSuccess ? "Success" : "Confirm"}
         onConfirm={handleDialogClose}
         onCancel={handleDialogClose}
       />
-      </>
+    </>
   );
 };
 
