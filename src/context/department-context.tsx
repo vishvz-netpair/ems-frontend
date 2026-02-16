@@ -4,7 +4,7 @@ export type Department = {
   id: number;
   name: string;
   status: "Active" | "Inactive";
-};
+};  
 
 type DepartmentContextType = {
   departments: Department[];
