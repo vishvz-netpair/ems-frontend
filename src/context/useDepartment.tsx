@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { DepartmentContext } from "./DepartmentContext";
+import { DepartmentContext } from "./department-context";
 
 export const useDepartments = () => {
   const ctx = useContext(DepartmentContext);

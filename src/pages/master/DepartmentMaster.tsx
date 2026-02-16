@@ -1,11 +1,9 @@
 import { useMemo, useState } from "react"
-import DataTable from "../components/table/DataTable"
-import type { Column } from "../components/table/DataTable"
-import MasterFormModal from "../components/common/MasterFormModal"
-import ConfirmDialog from "../components/common/ConfirmDialog"
-import { useDepartments } from "../context/useDepartment"
-
-
+import DataTable from "../../components/table/DataTable"
+import type { Column } from "../../components/table/DataTable"
+import MasterFormModal from "../../components/common/MasterFormModal"
+import ConfirmDialog from "../../components/common/ConfirmDialog"
+import { useDepartments } from "../../context/useDepartment"
 
 type DepartmentRow = {
   id: number
@@ -13,14 +11,11 @@ type DepartmentRow = {
   status: "Active" | "Inactive"
 }
 
-
-
 const DepartmentMaster = () => {
 const { departments, addDepartment, updateDepartment, deleteDepartment } = useDepartments();
 
  
   const [addOpen, setAddOpen] = useState(false)
-
 
   const [editOpen, setEditOpen] = useState(false)
   const [selected, setSelected] = useState<DepartmentRow | null>(null)
@@ -28,6 +23,9 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
   
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<DepartmentRow | null>(null)
+
+  const [successOpen,setSuccessOpen]=useState(false)
+  const [successMessage,setSuccessMessage]=useState("")
 
   const columns: Column<DepartmentRow>[] = useMemo(
     () => [
@@ -51,12 +49,21 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
 
   const saveAdd = (payload: { name: string; status: "Active" | "Inactive" }) => {
   addDepartment(payload);
+  setAddOpen(false)
+
+  setSuccessMessage("Department addedd successfully.")
+  setSuccessOpen(true)
 };
 
 
  const saveEdit = (payload: { name: string; status: "Active" | "Inactive" }) => {
   if (!selected) return;
   updateDepartment(selected.id, payload);
+  setEditOpen(false)
+  setSelected(null)
+
+  setSuccessMessage("Department updated successfully.")
+  setSuccessOpen(true)
 };
 
 
@@ -65,6 +72,9 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
   deleteDepartment(deleteTarget.id);
   setDeleteOpen(false);
   setDeleteTarget(null);
+
+  setSuccessMessage("Department deleted successfully.")
+  setSuccessOpen(true)
 };
 
   const cancelDelete = () => {
@@ -130,6 +140,14 @@ const { departments, addDepartment, updateDepartment, deleteDepartment } = useDe
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
+      <ConfirmDialog
+        open={successOpen}
+        title="Success"
+        message={successMessage}
+        mode="Success"
+        onConfirm={()=>setSuccessOpen(false)}
+        onCancel={()=>setSuccessOpen(false)}
+        />
     </div>
   )
 }

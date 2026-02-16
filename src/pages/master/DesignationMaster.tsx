@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react"
-import DataTable from "../components/table/DataTable"
-import type { Column } from "../components/table/DataTable"
-import MasterFormModal from "../components/common/MasterFormModal"
-import ConfirmDialog from "../components/common/ConfirmDialog"
-import { useDesignations } from "../context/useDesignation";
+import DataTable from "../../components/table/DataTable"
+import type { Column } from "../../components/table/DataTable"
+import MasterFormModal from "../../components/common/MasterFormModal"
+import ConfirmDialog from "../../components/common/ConfirmDialog"
+import { useDesignations } from "../../context/useDesignation";
 //import type { Designation } from "../context/DesignationContext";
 
 
@@ -29,6 +29,9 @@ const { designations, addDesignation, updateDesignation, deleteDesignation } = u
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<DesignationRow | null>(null)
 
+  const [successOpen,setSuccessOpen]=useState(false)
+  const [successMessage,setSuccessMessage]=useState("")
+
   const columns: Column<DesignationRow>[] = useMemo(
     () => [
       { key: "name", label: "Designation" },
@@ -51,17 +54,29 @@ const { designations, addDesignation, updateDesignation, deleteDesignation } = u
 
  const saveAdd = (payload: { name: string; status: "Active" | "Inactive" }) => {
   addDesignation(payload);
+  setAddOpen(false)
+
+  setSuccessMessage("Designation addedd successfully.")
+  setSuccessOpen(true)
 };
 
  const saveEdit = (payload: { name: string; status: "Active" | "Inactive" }) => {
   if (!selected) return;
   updateDesignation(selected.id, payload);
+  setEditOpen(false)
+  setSelected(null)
+
+  setSuccessMessage("Designation updated successfully.")
+  setSuccessOpen(true)
 };
   const confirmDelete = () => {
   if (!deleteTarget) return;
   deleteDesignation(deleteTarget.id);
   setDeleteOpen(false);
   setDeleteTarget(null);
+
+  setSuccessMessage("Designation Deleted Successfully.")
+  setSuccessOpen(true)
 };
 
   const cancelDelete = () => {
@@ -132,6 +147,17 @@ const { designations, addDesignation, updateDesignation, deleteDesignation } = u
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
+      <ConfirmDialog
+        open={successOpen}
+        title="Success"
+        message={successMessage}
+        mode="Success"
+        onConfirm={()=>setSuccessOpen(false)}
+        onCancel={()=>setSuccessOpen(false)}
+
+      >
+
+      </ConfirmDialog>
     </div>
   )
 }

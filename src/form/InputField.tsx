@@ -16,8 +16,9 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
     { label, helperText, error, className = "", id, value, onChange, ...props },
     ref,
   ) => {
-    const inputId = id || React.useId();
-
+    const generatedId = React.useId();
+        const inputId = id ?? generatedId;
+        
     return (
       <div className="w-full">
         {label && (
@@ -46,7 +47,6 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
           `}
           {...props}
         />
-
         {error ? (
           <p className="mt-1.5 text-sm text-red-600">{error}</p>
         ) : helperText ? (

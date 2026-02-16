@@ -1,3 +1,5 @@
+import { useMemo, useState } from "react"
+
 export type Column<T> = {
   key: keyof T
   label: string
@@ -19,11 +21,40 @@ function DataTable<T extends { id: number }>({
   data,
   actions,
 }: DataTableProps<T>) {
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+
+  const totalPages = Math.ceil(data.length / rowsPerPage) || 1
+  const safePage = currentPage > totalPages ? 1 : currentPage
+
+  const paginatedData = useMemo(() => {
+    const startIndex = (safePage - 1) * rowsPerPage
+    return data.slice(startIndex, startIndex + rowsPerPage)
+  }, [data, safePage, rowsPerPage])
+
+  const goPrevious = () => {
+    if (safePage > 1) {
+      setCurrentPage(prev => prev - 1)
+    }
+  }
+
+  const goNext = () => {
+    if (safePage < totalPages) {
+      setCurrentPage(prev => prev + 1)
+    }
+  }
+
+  const handlePageSizeChange = (value: number) => {
+    setRowsPerPage(value)
+    setCurrentPage(1) 
+  }
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
+      
       <table className="w-full text-sm">
         
-        {/* Header */}
         <thead className="bg-slate-100">
           <tr>
             {columns.map(col => (
@@ -43,9 +74,8 @@ function DataTable<T extends { id: number }>({
           </tr>
         </thead>
 
-        {/* Body */}
         <tbody>
-          {data.map(row => (
+          {paginatedData.map(row => (
             <tr
               key={row.id}
               className="border-t hover:bg-slate-50 transition"
@@ -84,8 +114,58 @@ function DataTable<T extends { id: number }>({
               )}
             </tr>
           ))}
+
+          {paginatedData.length === 0 && (
+            <tr>
+              <td
+                colSpan={columns.length + (actions ? 1 : 0)}
+                className="px-5 py-6 text-center text-slate-500"
+              >
+                No data available
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
+
+      <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-5 py-4 border-t bg-slate-50">
+
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <span>Rows per page:</span>
+          <select
+            value={rowsPerPage}
+            onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+            className="h-8 rounded-lg border border-slate-300 px-2 text-sm"
+          >
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
+
+        <div className="text-sm text-slate-600">
+          Page {safePage} of {totalPages}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={goPrevious}
+            disabled={safePage === 1}
+            className="px-3 py-1 text-sm rounded-lg border border-slate-300 disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <button
+            onClick={goNext}
+            disabled={safePage === totalPages}
+            className="px-3 py-1 text-sm rounded-lg border border-slate-300 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+
+      </div>
     </div>
   )
 }

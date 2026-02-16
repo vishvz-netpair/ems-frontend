@@ -32,6 +32,86 @@ const initialEmployees: EmployeeRow[] = [
     designation: "Accountant",
     status: "Inactive",
   },
+  {
+  id: 4,
+  empId: "EMP004",
+  name: "Sneha Kapoor",
+  department: "Engineering",
+  designation: "Backend Developer",
+  status: "Active",
+},
+{
+  id: 5,
+  empId: "EMP005",
+  name: "Rohit Mehta",
+  department: "HR",
+  designation: "HR Executive",
+  status: "Active",
+},
+{
+  id: 6,
+  empId: "EMP006",
+  name: "Neha Shah",
+  department: "Finance",
+  designation: "Accountant",
+  status: "Active",
+},
+{
+  id: 7,
+  empId: "EMP007",
+  name: "Arjun Patel",
+  department: "Engineering",
+  designation: "Frontend Developer",
+  status: "Inactive",
+},
+{
+  id: 8,
+  empId: "EMP008",
+  name: "Kavya Desai",
+  department: "Engineering",
+  designation: "Project Manager",
+  status: "Active",
+},
+{
+  id: 9,
+  empId: "EMP009",
+  name: "Manish Kumar",
+  department: "Finance",
+  designation: "Accountant",
+  status: "Inactive",
+},
+{
+  id: 10,
+  empId: "EMP010",
+  name: "Pooja Singh",
+  department: "HR",
+  designation: "HR Executive",
+  status: "Active",
+},
+{
+  id: 11,
+  empId: "EMP011",
+  name: "Vikas Nair",
+  department: "Engineering",
+  designation: "Backend Developer",
+  status: "Active",
+},
+{
+  id: 12,
+  empId: "EMP012",
+  name: "Anjali Rao",
+  department: "Finance",
+  designation: "Accountant",
+  status: "Active",
+},
+{
+  id: 13,
+  empId: "EMP013",
+  name: "Saurabh Jain",
+  department: "Engineering",
+  designation: "Frontend Developer",
+  status: "Inactive",
+},
 ]
 
 const columns: Column<EmployeeRow>[] = [
@@ -53,6 +133,9 @@ const Dashboard = () => {
 
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<EmployeeRow | null>(null)
+
+  const [sauccessOpen,setSuccessOpen]=useState(false)
+  const [successMessage,setSuccessMessage]=useState(" ")
 
 
   const handleView = (row: EmployeeRow) => {
@@ -80,12 +163,17 @@ const Dashboard = () => {
   
   const handleSaveEdit = (updated: EmployeeRow) => {
     setEmployees((prev) => prev.map((emp) => (emp.id === updated.id ? updated : emp)))
+    setEditOpen(false)
+    setSelectedEmployee(null)
+    setSuccessMessage("Employee updated successfully")
+    setSuccessOpen(true)
   }
 
  
   const handleDelete = (row: EmployeeRow) => {
     setDeleteTarget(row)
     setDeleteOpen(true)
+    
   }
 
   const confirmDelete = () => {
@@ -93,6 +181,9 @@ const Dashboard = () => {
     setEmployees((prev) => prev.filter((emp) => emp.id !== deleteTarget.id))
     setDeleteOpen(false)
     setDeleteTarget(null)
+
+    setSuccessMessage("Employee deleted successfully.")
+    setSuccessOpen(true)
   }
 
   const cancelDelete = () => {
@@ -167,6 +258,14 @@ const Dashboard = () => {
         danger
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+      />
+      <ConfirmDialog
+      open={sauccessOpen}
+      title="Success"
+      message={successMessage}
+      mode="Success"
+      onConfirm={()=>setSuccessOpen(false)}
+      onCancel={()=>setSuccessOpen(false)}
       />
     </div>
   )

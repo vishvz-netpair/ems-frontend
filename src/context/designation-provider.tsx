@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { DesignationContext, type Designation } from "./Designation-context";
+import { DesignationContext, type Designation } from "./designation-context";
 
 const initialDesignations: Designation[] = [
   { id: 1, name: "Frontend Developer", status: "Active" },
   { id: 2, name: "Backend Developer", status: "Active" },
   { id: 3, name: "HR Executive", status: "Active" },
   { id: 4, name: "Accountant", status: "Inactive" },
+  { id: 5, name:"project manager", status: "Active"}
 ];
 
 export const DesignationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

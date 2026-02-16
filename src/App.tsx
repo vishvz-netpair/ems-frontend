@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -8,6 +9,17 @@ import DepartmentMaster from "./pages/DepartmentMaster";
 import DesignationMaster from "./pages/DesignationMaster";
 import { DepartmentProvider } from "./context/DepartmentContext";
 import { DesignationProvider } from "./context/DesignationContext";
+=======
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+
+import Layout from "./components/layout/Layout"
+import Dashboard from "./pages/Dashboard"
+import UiDemo from "./pages/UiDemo"
+import DepartmentMaster from "./pages/master/DepartmentMaster"
+import DesignationMaster from "./pages/master/DesignationMaster"
+import { DepartmentProvider } from "./context/department-context";
+import { DesignationProvider } from "./context/designation-provider";
+>>>>>>> da655b4e7b1764899eb4aa20382a3477c6f51acf
 
 function App() {
   const storedUser = localStorage.getItem("user");
