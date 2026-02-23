@@ -1,10 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import ConfirmDialog from "../components/common/ConfirmDialog";
+import Button from "../components/common/Button";
+import { useState } from "react";
+import { apiRequest } from "../services/api";
+import { saveSession } from "../services/auth";
 
-type User={
-  username:string;
-  password:string;
+type LoginFormData = {
+  username: string;
+  password: string;
 };
 
 const Login = () => {
@@ -16,58 +20,51 @@ const Login = () => {
     formState: { errors },
   } = useForm<LoginFormData>();
 
-  const [dialogOpen,setDialogOpen]=useState(false)
-  const [dialogMessage,setDialogMessage]=useState("")
-  const [isSuccess,setIsSuccess]=useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const res = await apiRequest<{ token: string }>(
+        "/api/auth/login",
+        "POST",
+        {
+          username: data.username,
+          password: data.password,
+        }
+      );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+      saveSession({ username: data.username, token: res.token });
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+      setDialogMessage("Login Successful");
+      setIsSuccess(true);
+      setDialogOpen(true);
+    } catch (e: unknown) {
+      let message = "Login Failed";
+      if (e instanceof Error) message = e.message;
+      else if (typeof e === "string") message = e;
 
-    const users:User[] = JSON.parse(localStorage.getItem("users") || "[]");
-
-    const foundUser = users.find(
-      (u) =>
-        u.username === form.username && u.password === form.password
-    );
-
-    if (foundUser) {
-      localStorage.setItem("user", JSON.stringify(foundUser));
-      setDialogMessage("Login Successfull")
-       setIsSuccess(true)
-       setDialogOpen(true)
-
-      //navigate("/dashboard");
-    } else {
-      setDialogMessage("Invalid username or password.");
+      setDialogMessage(message);
       setIsSuccess(false);
       setDialogOpen(true);
     }
   };
+
   const handleDialogClose = () => {
     setDialogOpen(false);
-    if (isSuccess) {
-      navigate("/dashboard");
-    }
+    if (isSuccess) navigate("/dashboard");
   };
 
   return (
     <>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
         <div className="bg-slate-950 p-8 rounded-2xl shadow-2xl w-[400px] border border-slate-700">
-
           <h2 className="text-3xl font-bold text-white text-center mb-8">
             EMS Login
           </h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
-            {/* Username */}
             <div>
               <input
                 type="text"
@@ -82,7 +79,6 @@ const Login = () => {
               )}
             </div>
 
-            {/* Password */}
             <div>
               <input
                 type="password"
@@ -108,7 +104,6 @@ const Login = () => {
           <p className="text-center text-slate-400 text-xs mt-6">
             Contact HR for account credentials.
           </p>
-
         </div>
       </div>
 
