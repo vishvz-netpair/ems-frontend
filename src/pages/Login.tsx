@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import ConfirmDialog from "../components/common/ConfirmDialog";
+import { apiRequest } from "../services/api";
+import { saveSession } from "../services/auth";
 
-type User={
-  username:string;
-  password:string;
-};
+
 
 const Login = () => {
   const navigate = useNavigate();
@@ -25,29 +24,34 @@ const Login = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const users:User[] = JSON.parse(localStorage.getItem("users") || "[]");
-
-    const foundUser = users.find(
-      (u) =>
-        u.username === form.username && u.password === form.password
+  try {
+    const data = await apiRequest<{ message: string; token: string }>(
+      "/api/auth/login",
+      "POST",
+      { username: form.username, password: form.password }
     );
 
-    if (foundUser) {
-      localStorage.setItem("user", JSON.stringify(foundUser));
-      setDialogMessage("Login Successfull")
-       setIsSuccess(true)
-       setDialogOpen(true)
+    saveSession({ username: form.username, token: data.token });
 
-      //navigate("/dashboard");
-    } else {
-      setDialogMessage("Invalid username or password.");
-      setIsSuccess(false);
-      setDialogOpen(true);
-    }
-  };
+    setDialogMessage("Login Successful");
+    setIsSuccess(true);
+    setDialogOpen(true);
+  } catch (e: unknown) {
+     let message="Login Failed"
+        if(e instanceof Error){
+            message=e.message
+        }
+        else if(typeof e==="string"){
+            message=e
+        }
+    setDialogMessage(message);
+    setIsSuccess(false);
+    setDialogOpen(true);
+  }
+};
   const handleDialogClose = () => {
     setDialogOpen(false);
 

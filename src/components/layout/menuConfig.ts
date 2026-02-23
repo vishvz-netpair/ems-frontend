@@ -8,13 +8,24 @@ export const menuItems: MenuItem[] = [
   {
     label: "Dashboard",
     path: "/dashboard",
-    roles: ["admin", "hr", "manager", "employee", "intern"],
+    roles: ["admin", "superadmin","hr", "manager", "employee", "intern"],
   },
 
   {
     label: "Users",
     path: "/users",
-    roles: ["admin", "hr", "ceo"],
+    roles: ["superadmin", "hr", "ceo"],
+  },
+   {
+    label: "Department",
+    path: "/masters/department",
+    roles: ["superadmin"],
+  },
+
+  {
+    label: "Designation",
+    path: "/masters/designation",
+    roles: ["superadmin"],
   },
 
   {
@@ -26,7 +37,7 @@ export const menuItems: MenuItem[] = [
   {
     label: "Projects",
     path: "/projects",
-    roles: ["admin", "manager", "employee", "intern", "ceo"],
+    roles: ["superadmin", "manager", "employee", "intern", "ceo"],
   },
 
   {

@@ -9,9 +9,7 @@ import DepartmentMaster from "./pages/master/DepartmentMaster";
 import DesignationMaster from "./pages/master/DesignationMaster";
 import { DepartmentProvider } from "./context/department-context";
 import { DesignationProvider } from "./context/designation-provider";
-
-
-
+import Projects from './pages/Projects';
 
 function App() {
   const storedUser = localStorage.getItem("user");
@@ -79,7 +77,18 @@ function App() {
                 )
               }
             />
-
+            <Route
+             path="/projects"
+             element={
+                  user ? (
+                   <Layout user={user}>
+                     <Projects />
+                   </Layout>
+               ) : (
+                <Navigate to="/" />
+               )
+             }
+            />
           </Routes>
         </DesignationProvider>
       </DepartmentProvider>
