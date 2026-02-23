@@ -20,6 +20,7 @@ type Props = {
   projectId: string | null;
   onClose: () => void;
   onSuccess: () => void;
+  
 };
 
 const ProjectFormModal = ({ open, mode, projectId, onClose, onSuccess }: Props) => {
@@ -59,8 +60,8 @@ const ProjectFormModal = ({ open, mode, projectId, onClose, onSuccess }: Props) 
 
   const loadUsers = async () => {
     try {
-      const res = await fetchUsers();
-      setUsers(res);
+      const res = await fetchUsers(1, 100); // large limit for dropdown
+setUsers(res.items);
     } catch (e: unknown) {
         let message="Failed to load employee"
         if(e instanceof Error){
@@ -220,6 +221,7 @@ const loadProject = async () => {
         title={mode === "add" ? "Add Project" : "Edit Project"}
         onClose={onClose}
         footer={footer}
+        size="lg"
       >
         <div className="space-y-4">
           <InputField

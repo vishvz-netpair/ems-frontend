@@ -1,3 +1,5 @@
+// src/pages/Login.tsx
+
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import ConfirmDialog from "../components/common/ConfirmDialog";
@@ -10,6 +12,19 @@ type LoginFormData = {
   username: string;
   password: string;
 };
+
+type JwtPayload = {
+  id: string;
+  role: "superadmin" | "admin" | "employee";
+  iat: number;
+  exp: number;
+};
+
+function decodeJwt(token: string): JwtPayload {
+  const base64 = token.split(".")[1];
+  const json = atob(base64);
+  return JSON.parse(json);
+}
 
 const Login = () => {
   const navigate = useNavigate();
@@ -26,7 +41,7 @@ const Login = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const res = await apiRequest<{ token: string }>(
+      const res = await apiRequest<{ token: string; message: string }>(
         "/api/auth/login",
         "POST",
         {
@@ -35,7 +50,18 @@ const Login = () => {
         }
       );
 
-      saveSession({ username: data.username, token: res.token });
+      // ✅ token decode to get id/role
+      const payload = decodeJwt(res.token);
+
+      // ✅ save token + user properly
+      saveSession({
+        token: res.token,
+        user: {
+          username: data.username,
+          id: payload.id,
+          role: payload.role,
+        },
+      });
 
       setDialogMessage("Login Successful");
       setIsSuccess(true);
@@ -53,7 +79,7 @@ const Login = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
-    if (isSuccess) navigate("/dashboard");
+    if (isSuccess) navigate("/dashboard", { replace: true });
   };
 
   return (

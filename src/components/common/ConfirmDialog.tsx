@@ -29,6 +29,7 @@ const ConfirmDialog = ({
       open={open}
       title={title}
       onClose={isSuccess?onConfirm:(onCancel??onConfirm)}
+      size="sm"
       footer={
         <div className="flex items-center justify-end gap-3">
           { !isSuccess&&(

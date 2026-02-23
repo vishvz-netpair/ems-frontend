@@ -8,7 +8,13 @@ export type UserItem = {
   status?: "Active" | "Inactive";
   isDeleted?: boolean;
 };
-
-export async function fetchUsers(): Promise<UserItem[]> {
-  return apiRequest<UserItem[]>("/api/users", "GET");
-} 
+type UsersResponse = {
+  items: UserItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+export async function fetchUsers(page = 1, limit = 10): Promise<UsersResponse> {
+  return apiRequest<UsersResponse>(`/api/users?page=${page}&limit=${limit}`);
+}

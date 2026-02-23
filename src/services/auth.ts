@@ -1,55 +1,26 @@
-type JwtPayload = {
-  id: string;
-  role: string;
-  iat?: number;
-  exp?: number;
+// src/services/auth.ts
+
+export type SessionUser = {
+  username: string;
+  role?: "superadmin" | "admin" | "employee";
+  id?: string;
 };
 
-function base64UrlDecode(input: string) {
-  // JWT uses base64url
-  const base64 = input.replace(/-/g, "+").replace(/_/g, "/");
-  const pad = base64.length % 4;
-  const padded = base64 + (pad ? "=".repeat(4 - pad) : "");
-  return atob(padded);
-}
-
-export function decodeJwt(token: string): JwtPayload | null {
-  try {
-    const [, payload] = token.split(".");
-    if (!payload) return null;
-    const json = base64UrlDecode(payload);
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
-
-export function saveSession(params: { username: string; token: string }) {
-  const payload = decodeJwt(params.token);
-  if (!payload) throw new Error("Invalid token");
-
-  const user = {
-    name: params.username, // backend login only returns token; we show username in header
-    username: params.username,
-    token: params.token,
-    id: payload.id,
-    role: payload.role
-  };
-
-  localStorage.setItem("user", JSON.stringify(user));
-  return user;
+export function saveSession(payload: { token: string; user: SessionUser }) {
+  localStorage.setItem("token", payload.token);          // ✅ IMPORTANT
+  localStorage.setItem("user", JSON.stringify(payload.user)); // ✅ IMPORTANT
 }
 
 export function getSession() {
-  const raw = localStorage.getItem("user");
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  const token = localStorage.getItem("token");
+  const userRaw = localStorage.getItem("user");
+
+  const user: SessionUser | null = userRaw ? JSON.parse(userRaw) : null;
+
+  return { token, user };
 }
 
 export function clearSession() {
+  localStorage.removeItem("token");
   localStorage.removeItem("user");
 }

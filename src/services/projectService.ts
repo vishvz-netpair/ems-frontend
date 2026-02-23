@@ -64,7 +64,15 @@ export async function listProjects(params: { page: number; limit: number }) {
 export async function getProjectById(id: string) {
   return apiRequest<ProjectItem>(`/api/projects/${id}`, "GET");
 }
-
+export async function getProjects(page = 1, limit = 10) {
+  return apiRequest<{
+    items: ProjectItem[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>(`/api/projects?page=${page}&limit=${limit}`);
+}
 export async function updateProject(id: string, payload: ProjectPayload) {
   return apiRequest<{ message: string; project: ProjectItem }>(
     `/api/projects/${id}`,

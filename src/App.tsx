@@ -1,3 +1,4 @@
+// src/App.tsx
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
@@ -9,85 +10,79 @@ import DepartmentMaster from "./pages/master/DepartmentMaster";
 import DesignationMaster from "./pages/master/DesignationMaster";
 import { DepartmentProvider } from "./context/department-context";
 import { DesignationProvider } from "./context/designation-provider";
-import Projects from './pages/Projects';
+import Projects from "./pages/Projects";
+import { getSession } from "./services/auth";
+
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { user, token } = getSession();
+
+  if (!token || !user) {
+    return <Navigate to="/" replace />;
+  }
+
+  // convert to Layout required shape
+  const safeUser = {
+    name: user.username,
+    role: user.role ?? "employee",
+  };
+
+  return <Layout user={safeUser}>{children}</Layout>;
+}
 
 function App() {
-  const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
-
   return (
     <BrowserRouter>
       <DepartmentProvider>
         <DesignationProvider>
           <Routes>
-
-            {/* Public Routes */}
+            {/* Public */}
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Protected Routes */}
+            {/* Protected */}
             <Route
               path="/dashboard"
               element={
-                user ? (
-                  <Layout user={user}>
-                    <Dashboard />
-                  </Layout>
-                ) : (
-                  <Navigate to="/" />
-                )
+                <RequireAuth>
+                  <Dashboard />
+                </RequireAuth>
               }
             />
 
             <Route
               path="/ui-demo"
               element={
-                user ? (
-                  <Layout user={user}>
-                    <UiDemo />
-                  </Layout>
-                ) : (
-                  <Navigate to="/" />
-                )
+                <RequireAuth>
+                  <UiDemo />
+                </RequireAuth>
               }
             />
 
             <Route
               path="/masters/department"
               element={
-                user ? (
-                  <Layout user={user}>
-                    <DepartmentMaster />
-                  </Layout>
-                ) : (
-                  <Navigate to="/" />
-                )
+                <RequireAuth>
+                  <DepartmentMaster />
+                </RequireAuth>
               }
             />
 
             <Route
               path="/masters/designation"
               element={
-                user ? (
-                  <Layout user={user}>
-                    <DesignationMaster />
-                  </Layout>
-                ) : (
-                  <Navigate to="/" />
-                )
+                <RequireAuth>
+                  <DesignationMaster />
+                </RequireAuth>
               }
             />
+
             <Route
-             path="/projects"
-             element={
-                  user ? (
-                   <Layout user={user}>
-                     <Projects />
-                   </Layout>
-               ) : (
-                <Navigate to="/" />
-               )
-             }
+              path="/projects"
+              element={
+                <RequireAuth>
+                  <Projects />
+                </RequireAuth>
+              }
             />
           </Routes>
         </DesignationProvider>
