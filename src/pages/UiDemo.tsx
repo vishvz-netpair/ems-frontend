@@ -5,14 +5,13 @@ import DatePicker from "../form/DatePicker";
 import Button from "../components/common/Button";
 import { useDepartments } from "../context/useDepartment";
 import { useDesignations } from "../context/useDesignation";
-
-
+import { useNavigate } from "react-router-dom";
 
 type EmployeeForm = {
   name: string;
   email: string;
   department: string;
-  designation:string;
+  designation: string;
   joiningDate: string;
 };
 
@@ -24,26 +23,35 @@ export default function AddEmployeeAllController() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<EmployeeForm>({
-    defaultValues: { name: "", email: "", department: "", designation: "",joiningDate: "" },
+    defaultValues: {
+      name: "",
+      email: "",
+      department: "",
+      designation: "",
+      joiningDate: "",
+    },
     mode: "onChange",
   });
+  const navigate = useNavigate();
 
   const onSubmit = (data: EmployeeForm) => {
     console.log(data);
   };
-
- const departmentOptions = departments
-  .filter(d => d.status === "Active")
-  .map(d => ({
-    label: d.name,
-    value: d.name
-  }));
-const designationOptions = designations
-  .filter(d => d.status === "Active")
-  .map(d => ({
-    label: d.name,
-    value: d.name
-  }));
+  const onCancel = () => {
+    navigate("/dashboard");
+  };
+  const departmentOptions = departments
+    .filter((d) => d.status === "Active")
+    .map((d) => ({
+      label: d.name,
+      value: d.name,
+    }));
+  const designationOptions = designations
+    .filter((d) => d.status === "Active")
+    .map((d) => ({
+      label: d.name,
+      value: d.name,
+    }));
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
@@ -108,13 +116,11 @@ const designationOptions = designations
             onChange={field.onChange}
             error={errors.department?.message}
             placeholder="Select department"
-           options={departmentOptions}
-
-
+            options={departmentOptions}
           />
         )}
       />
-        <Controller
+      <Controller
         name="designation"
         control={control}
         rules={{ required: "designation required" }}
@@ -125,9 +131,7 @@ const designationOptions = designations
             onChange={field.onChange}
             error={errors.designation?.message}
             placeholder="Select Designation"
-           options={designationOptions}
-
-
+            options={designationOptions}
           />
         )}
       />
@@ -150,7 +154,7 @@ const designationOptions = designations
         <Button type="submit" isLoading={isSubmitting}>
           Save Employee
         </Button>
-        <Button type="button" variant="outline">
+        <Button type="button" variant="outline" onClick={() => onCancel()}>
           Cancel
         </Button>
       </div>
