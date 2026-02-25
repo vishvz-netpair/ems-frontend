@@ -161,7 +161,6 @@ const loadProject = async () => {
 
   const submit = async () => {
     if (!validate()) return;
-
     const payload: ProjectPayload = {
       name: name.trim(),
       description: description.trim(),

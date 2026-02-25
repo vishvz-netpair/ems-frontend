@@ -30,4 +30,9 @@ export const menuItems: MenuItem[] = [
     path: "/projects",
     roles: ["superadmin", "employee"],
   },
+   {
+    label: "My Tasks",
+    path: "/my-tasks",
+    roles: ["superadmin", "admin", "employee"],
+  },
 ];

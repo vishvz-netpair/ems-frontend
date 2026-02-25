@@ -12,6 +12,8 @@ import { DepartmentProvider } from "./context/department-context";
 import { DesignationProvider } from "./context/designation-provider";
 import Projects from "./pages/Projects";
 import { getSession } from "./services/auth";
+import ProjectDetails from "./pages/projects/ProjectDetails";
+import MyTasksPage from "./pages/tasks/MyTasksPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, token } = getSession();
@@ -84,7 +86,27 @@ function App() {
                 </RequireAuth>
               }
             />
-          </Routes>
+         
+            {/* ✅ Project detail page */}
+            <Route
+              path="/projects/:projectId"
+              element={
+                <RequireAuth>
+                  <ProjectDetails />
+                </RequireAuth>
+              }
+            />
+
+            {/* ✅ My Tasks */}
+            <Route
+              path="/my-tasks"
+              element={
+                <RequireAuth>
+                  <MyTasksPage />
+                </RequireAuth>
+              }
+            />
+           </Routes>
         </DesignationProvider>
       </DepartmentProvider>
     </BrowserRouter>

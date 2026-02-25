@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import DataTable from "../../components/table/DataTable";
 import type { Column } from "../../components/table/DataTable";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import { useNavigate } from "react-router-dom";
 
 import {
   listProjects,
@@ -24,6 +25,7 @@ type Row = {
 };
 
 const ProjectsAdmin = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const [page, setPage] = useState(1); // backend pagination
@@ -107,10 +109,10 @@ const ProjectsAdmin = () => {
     return rows.filter((r) => r.name.toLowerCase().includes(q));
   }, [rows, search]);
 
-  const openView = (row: Row) => {
+  /*const openView = (row: Row) => {
     setViewId(row._id);
     setViewOpen(true);
-  };
+  };*/
 
   const openEdit = (row: Row) => {
     setEditId(row._id);
@@ -143,6 +145,9 @@ const ProjectsAdmin = () => {
       setErrorOpen(true);
     }
   };
+  const openProject = (row: Row) => {
+  navigate(`/projects/${row._id}`);
+};
 
   return (
     <div className="space-y-6">
@@ -221,7 +226,7 @@ const ProjectsAdmin = () => {
           columns={columns}
           data={filteredRows}
           actions={[
-            { label: "View", onClick: openView },
+            { label: "View", onClick: openProject },
             { label: "Edit", onClick: openEdit },
             { label: "Delete", onClick: openDelete },
           ]}
