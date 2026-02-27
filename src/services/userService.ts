@@ -8,13 +8,41 @@ export type UserItem = {
   status?: "Active" | "Inactive";
   isDeleted?: boolean;
 };
-type UsersResponse = {
+
+export type UsersResponse = {
   items: UserItem[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
 };
-export async function fetchUsers(page = 1, limit = 10): Promise<UsersResponse> {
-  return apiRequest<UsersResponse>(`/api/users?page=${page}&limit=${limit}`);
+
+export type FetchUsersParams = Partial<{
+  page: number;
+  limit: number;
+  role: "superadmin" | "admin" | "employee";
+  status: "Active" | "Inactive";
+  q: string;
+}>;
+
+export async function fetchUsers(
+  params: FetchUsersParams = {},
+): Promise<UsersResponse> {
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 10;
+
+  const qs = new URLSearchParams();
+  qs.set("page", String(page));
+  qs.set("limit", String(limit));
+
+  if (params.role) qs.set("role", params.role);
+
+  if (params.status) qs.set("status", params.status);
+  if (params.q) qs.set("q", params.q);
+
+  return apiRequest<UsersResponse>(`/api/users?${qs.toString()}`, "GET");
+}
+
+export async function fetchActiveUsers(page = 1, limit = 50, q?: string) {
+  return fetchUsers({ page, limit, status: "Active", q });
 }

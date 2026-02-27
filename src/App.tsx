@@ -14,6 +14,7 @@ import Projects from "./pages/Projects";
 import { getSession } from "./services/auth";
 import ProjectDetails from "./pages/projects/ProjectDetails";
 import MyTasksPage from "./pages/tasks/MyTasksPage";
+import AssetMaster from "./pages/master/AssetMaster";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, token } = getSession();
@@ -86,7 +87,15 @@ function App() {
                 </RequireAuth>
               }
             />
-         
+            <Route
+              path="/masters/assets"
+              element={
+                <RequireAuth>
+                  <AssetMaster />
+                </RequireAuth>
+              }
+            />
+
             {/* ✅ Project detail page */}
             <Route
               path="/projects/:projectId"
@@ -106,7 +115,7 @@ function App() {
                 </RequireAuth>
               }
             />
-           </Routes>
+          </Routes>
         </DesignationProvider>
       </DepartmentProvider>
     </BrowserRouter>

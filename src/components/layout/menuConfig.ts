@@ -1,8 +1,8 @@
 export type MenuItem = {
-  label: string
-  path: string
-  roles: string[]
-}
+  label: string;
+  path: string;
+  roles: string[];
+};
 
 export const menuItems: MenuItem[] = [
   {
@@ -26,11 +26,16 @@ export const menuItems: MenuItem[] = [
     roles: ["superadmin"],
   },
   {
+    label: "Asset",
+    path: "/masters/assets",
+    roles: ["superadmin"],
+  },
+  {
     label: "Projects",
     path: "/projects",
     roles: ["superadmin", "employee"],
   },
-   {
+  {
     label: "My Tasks",
     path: "/my-tasks",
     roles: ["superadmin", "admin", "employee"],
