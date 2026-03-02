@@ -1,0 +1,163 @@
+import { useForm, Controller } from "react-hook-form";
+import { InputField } from "./components/ui/InputField";
+import SelectDropdown from "./components/ui/SelectDropdown";
+import DatePicker from "./components/ui/DatePicker";
+import Button from "./components/ui/Button";
+import { useDepartments } from "./features/department/context/useDepartment";
+import { useDesignations } from "./features/designation/context/useDesignation";
+import { useNavigate } from "react-router-dom";
+
+type EmployeeForm = {
+  name: string;
+  email: string;
+  department: string;
+  designation: string;
+  joiningDate: string;
+};
+
+export default function AddEmployeeAllController() {
+  const { designations } = useDesignations();
+  const { departments } = useDepartments();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<EmployeeForm>({
+    defaultValues: {
+      name: "",
+      email: "",
+      department: "",
+      designation: "",
+      joiningDate: "",
+    },
+    mode: "onChange",
+  });
+  const navigate = useNavigate();
+
+  const onSubmit = (data: EmployeeForm) => {
+    console.log(data);
+  };
+  const onCancel = () => {
+    navigate("/dashboard");
+  };
+  const departmentOptions = departments
+    .filter((d) => d.status === "Active")
+    .map((d) => ({
+      label: d.name,
+      value: d.name,
+    }));
+  const designationOptions = designations
+    .filter((d) => d.status === "Active")
+    .map((d) => ({
+      label: d.name,
+      value: d.name,
+    }));
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div>
+        <h2 className="text-2xl font-semibold text-slate-800">
+          UI Components Demo
+        </h2>
+        <p className="text-sm text-slate-500">Reusable EMS form components</p>
+      </div>
+
+      <Controller
+        name="name"
+        control={control}
+        rules={{
+          required: "Name is required",
+          minLength: { value: 3, message: "Min 3 chars" },
+        }}
+        render={({ field }) => (
+          <InputField
+            label="Employee Name"
+            placeholder="Enter full name"
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            name={field.name}
+            ref={field.ref}
+            error={errors.name?.message}
+          />
+        )}
+      />
+
+      <Controller
+        name="email"
+        control={control}
+        rules={{
+          pattern: {
+            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Invalid email",
+          },
+        }}
+        render={({ field }) => (
+          <InputField
+            label="Email"
+            placeholder="name@company.com"
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            name={field.name}
+            ref={field.ref}
+            error={errors.email?.message}
+          />
+        )}
+      />
+
+      <Controller
+        name="department"
+        control={control}
+        rules={{ required: "Department required" }}
+        render={({ field }) => (
+          <SelectDropdown
+            label="Department"
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.department?.message}
+            placeholder="Select department"
+            options={departmentOptions}
+          />
+        )}
+      />
+      <Controller
+        name="designation"
+        control={control}
+        rules={{ required: "designation required" }}
+        render={({ field }) => (
+          <SelectDropdown
+            label="Designation"
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.designation?.message}
+            placeholder="Select Designation"
+            options={designationOptions}
+          />
+        )}
+      />
+      <Controller
+        name="joiningDate"
+        control={control}
+        rules={{ required: "Joining date required" }}
+        render={({ field }) => (
+          <DatePicker
+            label="Joining Date"
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.joiningDate?.message}
+            max={new Date().toISOString().slice(0, 10)}
+          />
+        )}
+      />
+
+      <div className="mt-2 flex gap-3">
+        <Button type="submit" isLoading={isSubmitting}>
+          Save Employee
+        </Button>
+        <Button type="button" variant="outline" onClick={() => onCancel()}>
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+}
