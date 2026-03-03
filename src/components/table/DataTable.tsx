@@ -1,8 +1,9 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 
 export type Column<T> = {
   key: keyof T;
   label: string;
+  render?: (value: T[keyof T], row: T) => React.ReactNode;
 };
 
 export type Action<T> = {
@@ -23,8 +24,6 @@ type DataTableProps<T> = {
   columns: Column<T>[];
   data: T[];
   actions?: Action<T>[];
-
-  // ✅ optional: if not provided, works exactly like before (client-side)
   serverPagination?: ServerPagination;
 };
 
@@ -34,48 +33,41 @@ function DataTable<T extends { id: string | number }>({
   actions,
   serverPagination,
 }: DataTableProps<T>) {
-  // Client-side state (only used when serverPagination not enabled)
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const isServer = !!serverPagination?.enabled;
 
-  // keep local state in sync if switching modes
-  useEffect(() => {
-    if (isServer) return;
-    // if data changes and current page becomes invalid
-    const totalPages = Math.ceil(data.length / rowsPerPage) || 1;
-    if (currentPage > totalPages) setCurrentPage(1);
-  }, [data, rowsPerPage, currentPage, isServer]);
-
-  const effectivePage = isServer ? serverPagination.page : currentPage;
-  const effectiveLimit = isServer ? serverPagination.limit : rowsPerPage;
-
   const totalItems = isServer ? serverPagination.total : data.length;
+  const effectiveLimit = isServer ? serverPagination.limit : rowsPerPage;
   const totalPages = Math.ceil(totalItems / effectiveLimit) || 1;
 
+  const effectivePage = isServer
+    ? serverPagination.page
+    : Math.min(currentPage, totalPages);
+
   const paginatedData = useMemo(() => {
-    if (isServer) return data; // ✅ server already paginated
-    const startIndex = (effectivePage - 1) * effectiveLimit;
-    return data.slice(startIndex, startIndex + effectiveLimit);
+    if (isServer) return data;
+    const start = (effectivePage - 1) * effectiveLimit;
+    return data.slice(start, start + effectiveLimit);
   }, [data, isServer, effectivePage, effectiveLimit]);
 
   const goPrevious = () => {
     if (effectivePage <= 1) return;
     if (isServer) serverPagination.onPageChange(effectivePage - 1);
-    else setCurrentPage((prev) => prev - 1);
+    else setCurrentPage((p) => p - 1);
   };
 
   const goNext = () => {
     if (effectivePage >= totalPages) return;
     if (isServer) serverPagination.onPageChange(effectivePage + 1);
-    else setCurrentPage((prev) => prev + 1);
+    else setCurrentPage((p) => p + 1);
   };
 
-  const handlePageSizeChange = (value: number) => {
+  const handleLimitChange = (value: number) => {
     if (isServer) {
       serverPagination.onLimitChange(value);
-      serverPagination.onPageChange(1); // reset to page 1
+      serverPagination.onPageChange(1);
     } else {
       setRowsPerPage(value);
       setCurrentPage(1);
@@ -88,10 +80,7 @@ function DataTable<T extends { id: string | number }>({
         <thead className="bg-slate-100">
           <tr>
             {columns.map((col) => (
-              <th
-                key={String(col.key)}
-                className="px-5 py-3 text-left font-semibold text-slate-700"
-              >
+              <th key={String(col.key)} className="px-5 py-3 text-left font-semibold text-slate-700">
                 {col.label}
               </th>
             ))}
@@ -105,33 +94,30 @@ function DataTable<T extends { id: string | number }>({
 
         <tbody>
           {paginatedData.map((row) => (
-            <tr
-              key={String(row.id)}
-              className="border-t hover:bg-slate-50 transition"
-            >
-              {columns.map((col) => (
-                <td key={String(col.key)} className="px-5 py-4 text-slate-700">
-                  {String((row as any)[col.key] ?? "")}
-                </td>
-              ))}
+            <tr key={String(row.id)} className="border-t hover:bg-slate-50 transition">
+              {columns.map((col) => {
+                const value = row[col.key];
+                return (
+                  <td key={String(col.key)} className="px-5 py-4 text-slate-700">
+                    {col.render ? col.render(value, row) : String(value ?? "")}
+                  </td>
+                );
+              })}
 
               {actions && (
                 <td className="px-5 py-4 text-center">
-                  <div className="flex flex-wrap items-center justify-center gap-3">
-                    {actions.map((action) => (
+                  <div className="flex gap-3 justify-center">
+                    {actions.map((a) => (
                       <button
-                        key={action.label}
-                        onClick={() => action.onClick(row)}
-                        className={`
-                          text-sm font-medium underline-offset-2 hover:underline
-                          ${
-                            action.label.toLowerCase().includes("delete")
-                              ? "text-red-600 hover:text-red-700"
-                              : "text-indigo-600 hover:text-indigo-700"
-                          }
-                        `}
+                        key={a.label}
+                        onClick={() => a.onClick(row)}
+                        className={`text-sm underline ${
+                          a.label.toLowerCase().includes("delete")
+                            ? "text-red-600"
+                            : "text-indigo-600"
+                        }`}
                       >
-                        {action.label}
+                        {a.label}
                       </button>
                     ))}
                   </div>
@@ -153,13 +139,13 @@ function DataTable<T extends { id: string | number }>({
         </tbody>
       </table>
 
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-5 py-4 border-t bg-slate-50">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <span>Rows per page:</span>
+      <div className="flex justify-between items-center px-5 py-4 border-t bg-slate-50">
+        <div className="flex items-center gap-2 text-sm">
+          Rows:
           <select
             value={effectiveLimit}
-            onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-            className="h-8 rounded-lg border border-slate-300 px-2 text-sm"
+            onChange={(e) => handleLimitChange(Number(e.target.value))}
+            className="border rounded px-2 py-1"
           >
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -167,24 +153,15 @@ function DataTable<T extends { id: string | number }>({
           </select>
         </div>
 
-        <div className="text-sm text-slate-600">
+        <div className="text-sm">
           Page {effectivePage} of {totalPages}
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={goPrevious}
-            disabled={effectivePage === 1}
-            className="px-3 py-1 text-sm rounded-lg border border-slate-300 disabled:opacity-50"
-          >
+        <div className="flex gap-2">
+          <button onClick={goPrevious} disabled={effectivePage === 1} className="border px-3 py-1 rounded disabled:opacity-50">
             Previous
           </button>
-
-          <button
-            onClick={goNext}
-            disabled={effectivePage === totalPages}
-            className="px-3 py-1 text-sm rounded-lg border border-slate-300 disabled:opacity-50"
-          >
+          <button onClick={goNext} disabled={effectivePage === totalPages} className="border px-3 py-1 rounded disabled:opacity-50">
             Next
           </button>
         </div>

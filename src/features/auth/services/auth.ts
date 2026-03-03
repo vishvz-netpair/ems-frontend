@@ -1,7 +1,7 @@
 // src/services/auth.ts
 
 export type SessionUser = {
-  username: string;
+  email: string;
   role?: "superadmin" | "admin" | "employee";
   id?: string;
 };

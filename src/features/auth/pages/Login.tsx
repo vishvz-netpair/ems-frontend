@@ -1,5 +1,3 @@
-// src/pages/Login.tsx
-
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
@@ -9,7 +7,7 @@ import { apiRequest } from "../../../services/api";
 import { saveSession } from "../services/auth";
 
 type LoginFormData = {
-  username: string;
+  email: string;
   password: string;
 };
 
@@ -39,25 +37,26 @@ const Login = () => {
   const [dialogMessage, setDialogMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const onSubmit = async (data: LoginFormData) => {
+    setLoading(true);
     try {
       const res = await apiRequest<{ token: string; message: string }>(
         "/api/auth/login",
         "POST",
         {
-          username: data.username,
+          email: data.email,
           password: data.password,
-        },
+        }
       );
 
-      // ✅ token decode to get id/role
       const payload = decodeJwt(res.token);
 
-      // ✅ save token + user properly
       saveSession({
         token: res.token,
         user: {
-          username: data.username,
+          email: data.email,
           id: payload.id,
           role: payload.role,
         },
@@ -74,6 +73,8 @@ const Login = () => {
       setDialogMessage(message);
       setIsSuccess(false);
       setDialogOpen(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,14 +94,14 @@ const Login = () => {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <input
-                type="text"
-                placeholder="Username"
-                {...register("username", { required: "Username is required" })}
+                type="email"
+                placeholder="Email"
+                {...register("email", { required: "Email is required" })}
                 className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-2 focus:ring-indigo-500"
               />
-              {errors.username && (
+              {errors.email && (
                 <p className="text-red-400 text-sm mt-1">
-                  {errors.username.message}
+                  {errors.email.message}
                 </p>
               )}
             </div>
@@ -121,9 +122,10 @@ const Login = () => {
 
             <Button
               type="submit"
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-semibold"
+              disabled={loading}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-semibold disabled:opacity-60"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
 

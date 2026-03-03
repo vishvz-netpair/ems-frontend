@@ -6,7 +6,8 @@ export type UserItem = {
   email: string;
   role: "superadmin" | "admin" | "employee";
   status?: "Active" | "Inactive";
-  isDeleted?: boolean;
+  department?: string;
+  designation?: string;
 };
 
 export type UsersResponse = {
@@ -17,32 +18,40 @@ export type UsersResponse = {
   totalPages: number;
 };
 
-export type FetchUsersParams = Partial<{
-  page: number;
-  limit: number;
-  role: "superadmin" | "admin" | "employee";
-  status: "Active" | "Inactive";
-  q: string;
-}>;
-
-export async function fetchUsers(
-  params: FetchUsersParams = {},
-): Promise<UsersResponse> {
+export async function fetchUsers(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<UsersResponse> {
   const page = params.page ?? 1;
   const limit = params.limit ?? 10;
+  const search = (params.search ?? "").trim();
 
   const qs = new URLSearchParams();
   qs.set("page", String(page));
   qs.set("limit", String(limit));
+  if (search) qs.set("search", search);
 
-  if (params.role) qs.set("role", params.role);
-
-  if (params.status) qs.set("status", params.status);
-  if (params.q) qs.set("q", params.q);
-
-  return apiRequest<UsersResponse>(`/api/users?${qs.toString()}`, "GET");
+  return apiRequest<UsersResponse>(`/api/users?${qs.toString()}`);
 }
 
-export async function fetchActiveUsers(page = 1, limit = 50, q?: string) {
-  return fetchUsers({ page, limit, status: "Active", q });
+export async function createUser(payload: {
+  name: string;
+  email: string;
+  role: "superadmin" | "admin" | "employee";
+  departmentId: string;
+  designationId: string;
+}) {
+  return apiRequest<{ id: string; message: string }>(`/api/users`, "POST", payload);
+}
+export async function fetchActiveUsers() {
+  return apiRequest<{
+    items: {
+      _id: string;
+      name: string;
+      email: string;
+      role: string;
+      status?: string;
+    }[];
+  }>("/api/users?status=Active&limit=1000");
 }

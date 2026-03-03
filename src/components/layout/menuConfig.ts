@@ -12,7 +12,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     label: "Users",
-    path: "/users",
+    path: "/user",
     roles: ["superadmin"],
   },
   {

@@ -15,6 +15,8 @@ import { getSession } from "../features/auth/services/auth";
 import ProjectDetails from "../features/projects/pages/ProjectDetails";
 import MyTasksPage from "../features/tasks/pages/MyTasksPage";
 import AssetMaster from "../features/assets/pages/AssetMaster";
+import Users from "../features/users/pages/Users";
+
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, token } = getSession();
@@ -24,10 +26,10 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   }
 
   // convert to Layout required shape
-  const safeUser = {
-    name: user.username,
-    role: user.role ?? "employee",
-  };
+ const safeUser = {
+  name: user.email,
+  role: user.role ?? "employee",
+};
 
   return <Layout user={safeUser}>{children}</Layout>;
 }
@@ -51,7 +53,15 @@ function App() {
                 </RequireAuth>
               }
             />
-
+ {/* Protected */}
+            <Route
+              path="/user"
+              element={
+                <RequireAuth>
+                  <Users />
+                </RequireAuth>
+              }
+            />
             <Route
               path="/ui-demo"
               element={

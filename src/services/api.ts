@@ -33,3 +33,8 @@ export async function apiRequest<T>(
 
   return data.data ?? data;
 }
+export type ApiResponse<T> = {
+  success: boolean;
+  message?: string;
+  data: T;
+};

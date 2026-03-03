@@ -1,163 +1,439 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DataTable from "../../../components/table/DataTable";
 import type { Column } from "../../../components/table/DataTable";
-import MasterFormModal from "../../../components/ui/MasterFormModal";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
-import { useDesignations } from "../context/useDesignation";
-//import type { Designation } from "../context/DesignationContext";
+import Modal from "../../../components/ui/Modal";
+import Button from "../../../components/ui/Button";
 
-type DesignationRow = {
+import {
+  listDesignations,
+  createDesignation,
+  updateDesignation,
+  deleteDesignation,
+  type DesignationItem,
+} from "../../../services/designationService";
+
+import { listDepartments } from "../../../services/departmentService";
+
+type Row = {
   id: number;
+  _id: string;
   name: string;
+  department: string;
+  departmentId: string | null;
   status: "Active" | "Inactive";
 };
 
 const DesignationMaster = () => {
-  //const [designations, setDesignations] =
-  //useState<DesignationRow[]>(initialDesignations)
-  const { designations, addDesignation, updateDesignation, deleteDesignation } =
-    useDesignations();
+  const [rows, setRows] = useState<Row[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0); // ✅ total items
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [deptOptions, setDeptOptions] = useState<{ id: string; name: string }[]>([]);
 
   const [addOpen, setAddOpen] = useState(false);
+  const [editRow, setEditRow] = useState<Row | null>(null);
+  const [viewRow, setViewRow] = useState<Row | null>(null);
+  const [deleteRow, setDeleteRow] = useState<Row | null>(null);
 
-  const [editOpen, setEditOpen] = useState(false);
-  const [selected, setSelected] = useState<DesignationRow | null>(null);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<DesignationRow | null>(null);
+  // ✅ Add/Edit form
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [form, setForm] = useState<{
+    name: string;
+    departmentId: string;
+    status: "Active" | "Inactive";
+  }>({
+    name: "",
+    departmentId: "",
+    status: "Active",
+  });
 
-  const [successOpen, setSuccessOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-
-  const columns: Column<DesignationRow>[] = useMemo(
+  const columns: Column<Row>[] = useMemo(
     () => [
       { key: "name", label: "Designation" },
+      { key: "department", label: "Department" },
       { key: "status", label: "Status" },
     ],
-    [],
+    []
   );
 
-  const openAdd = () => setAddOpen(true);
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await listDesignations({ page, limit, search });
 
-  const openEdit = (row: DesignationRow) => {
-    setSelected(row);
-    setEditOpen(true);
+      const mapped: Row[] = res.items.map((d: DesignationItem, idx) => ({
+        id: idx + 1 + (page - 1) * limit,
+        _id: d.id,
+        name: d.name,
+        department: d.department ?? "",
+        departmentId: d.departmentId ?? null,
+        status: d.status,
+      }));
+
+      setRows(mapped);
+      setTotal(res.total ?? 0); // ✅ correct
+    } catch (e: unknown) {
+      setErrorMsg(e instanceof Error ? e.message : "Failed to load designation");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const openDelete = (row: DesignationRow) => {
-    setDeleteTarget(row);
-    setDeleteOpen(true);
+  const loadDepartments = async () => {
+  const res = await listDepartments({ page: 1, limit: 1000 });
+
+  setDeptOptions(
+    res.items.map((d) => ({
+      id: d.id,   // ✅ strict typed
+      name: d.name
+    }))
+  );
+};
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit]);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPage(1);
+      load();
+    }, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  useEffect(() => {
+    loadDepartments();
+  }, []);
+
+  const openAdd = () => {
+    setFormError("");
+    setForm({ name: "", departmentId: "", status: "Active" });
+    setAddOpen(true);
   };
 
-  const saveAdd = (payload: {
-    name: string;
-    status: "Active" | "Inactive";
-  }) => {
-    addDesignation(payload);
-    setAddOpen(false);
-
-    setSuccessMessage("Designation addedd successfully.");
-    setSuccessOpen(true);
+  const openEdit = (r: Row) => {
+    setFormError("");
+    setForm({
+      name: r.name,
+      departmentId: r.departmentId ?? "",
+      status: r.status,
+    });
+    setEditRow(r);
   };
 
-  const saveEdit = (payload: {
-    name: string;
-    status: "Active" | "Inactive";
-  }) => {
-    if (!selected) return;
-    updateDesignation(selected.id, payload);
-    setEditOpen(false);
-    setSelected(null);
-
-    setSuccessMessage("Designation updated successfully.");
-    setSuccessOpen(true);
-  };
-  const confirmDelete = () => {
-    if (!deleteTarget) return;
-    deleteDesignation(deleteTarget.id);
-    setDeleteOpen(false);
-    setDeleteTarget(null);
-
-    setSuccessMessage("Designation Deleted Successfully.");
-    setSuccessOpen(true);
+  const validate = () => {
+    const name = form.name.trim();
+    if (!name) return "Name is required";
+    if (name.length < 2) return "Name must be at least 2 characters";
+    if (!form.departmentId) return "Department is required"; // ✅ important
+    return "";
   };
 
-  const cancelDelete = () => {
-    setDeleteOpen(false);
-    setDeleteTarget(null);
+  const saveAdd = async () => {
+    const err = validate();
+    if (err) {
+      setFormError(err);
+      return;
+    }
+    setSaving(true);
+    try {
+       console.log("Sending:", form);
+      await createDesignation({
+        name: form.name.trim(),
+        departmentId: form.departmentId, // ✅ selected department
+        status: form.status,
+      });
+     
+      setAddOpen(false);
+      setSuccessMsg("Designation added successfully.");
+      setPage(1);
+      load();
+    } catch (e: unknown) {
+      setErrorMsg(e instanceof Error ? e.message : "Add failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveEdit = async () => {
+    if (!editRow) return;
+
+    const err = validate();
+    if (err) {
+      setFormError(err);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await updateDesignation(editRow._id, {
+        name: form.name.trim(),
+        departmentId: form.departmentId, // ✅ selected department
+        status: form.status,
+      });
+      setEditRow(null);
+      setSuccessMsg("Designation updated successfully.");
+      load();
+    } catch (e: unknown) {
+      setErrorMsg(e instanceof Error ? e.message : "Update failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteRow) return;
+    try {
+      await deleteDesignation(deleteRow._id);
+      setDeleteRow(null);
+      setSuccessMsg("Designation deleted successfully.");
+      setPage(1);
+      load();
+    } catch (e: unknown) {
+      setErrorMsg(e instanceof Error ? e.message : "Delete failed");
+    }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-800">
-            Designation Master
-          </h2>
-          <p className="text-sm text-slate-500">
-            Manage designations (Add / Edit / Delete)
-          </p>
-        </div>
+      <div className="flex justify-between">
+        <h2 className="text-2xl font-semibold">Designation Master</h2>
 
         <button
           onClick={openAdd}
-          className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition"
+          className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700"
         >
           Add Designation
         </button>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={designations}
-        actions={[
-          { label: "Edit", onClick: openEdit },
-          { label: "Delete", onClick: openDelete },
-        ]}
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search designation..."
+        className="border px-3 py-2 rounded w-64"
       />
 
-      <MasterFormModal
-        key={addOpen ? "add-open" : "add-closed"}
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={rows}
+          actions={[
+            { label: "View", onClick: (r) => setViewRow(r) },
+            { label: "Edit", onClick: openEdit },
+            { label: "Delete", onClick: (r) => setDeleteRow(r) },
+          ]}
+          serverPagination={{
+            enabled: true,
+            page,
+            limit,
+            total, // ✅ correct
+            onPageChange: setPage,
+            onLimitChange: setLimit,
+          }}
+        />
+      )}
+
+      {/* ✅ ADD MODAL (with Department dropdown) */}
+      <Modal
         open={addOpen}
         title="Add Designation"
-        initialName=""
-        initialStatus="Active"
-        onClose={() => setAddOpen(false)}
-        onSave={saveAdd}
-      />
-
-      <MasterFormModal
-        key={selected?.id ?? "edit-none"}
-        open={editOpen}
-        title="Edit Designation"
-        initialName={selected?.name ?? ""}
-        initialStatus={selected?.status ?? "Active"}
-        onClose={() => setEditOpen(false)}
-        onSave={saveEdit}
-      />
-
-      <ConfirmDialog
-        open={deleteOpen}
-        title="Delete Designation"
-        message={
-          deleteTarget
-            ? `Are you sure you want to delete "${deleteTarget.name}"?`
-            : "Are you sure you want to delete?"
+        onClose={() => (saving ? null : setAddOpen(false))}
+        footer={
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              onClick={() => setAddOpen(false)}
+              disabled={saving}
+              className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={saveAdd}
+              disabled={saving}
+              className="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60"
+            >
+              {saving ? "Saving..." : "Save"}
+            </Button>
+          </div>
         }
-        confirmText="Delete"
-        cancelText="Cancel"
-        danger
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
-      />
+      >
+        <div className="space-y-4">
+          {formError ? <p className="text-sm text-red-600">{formError}</p> : null}
+
+          <div>
+            <label className="text-sm font-medium text-slate-700">Designation Name</label>
+            <input
+              value={form.name}
+              onChange={(e) => {
+                setForm((p) => ({ ...p, name: e.target.value }));
+                setFormError("");
+              }}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
+              placeholder="Enter designation"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700">Department</label>
+            <select
+              value={form.departmentId}
+              onChange={(e) => {
+                setForm((p) => ({ ...p, departmentId: e.target.value }));
+                setFormError("");
+              }}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
+            >
+              <option value="">Select department</option>
+              {deptOptions.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700">Status</label>
+            <select
+              value={form.status}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, status: e.target.value as "Active" | "Inactive" }))
+              }
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ✅ EDIT MODAL (same fields) */}
+      <Modal
+        open={!!editRow}
+        title="Edit Designation"
+        onClose={() => (saving ? null : setEditRow(null))}
+        footer={
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              onClick={() => setEditRow(null)}
+              disabled={saving}
+              className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={saveEdit}
+              disabled={saving}
+              className="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60"
+            >
+              {saving ? "Updating..." : "Update"}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          {formError ? <p className="text-sm text-red-600">{formError}</p> : null}
+
+          <div>
+            <label className="text-sm font-medium text-slate-700">Designation Name</label>
+            <input
+              value={form.name}
+              onChange={(e) => {
+                setForm((p) => ({ ...p, name: e.target.value }));
+                setFormError("");
+              }}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
+              placeholder="Enter designation"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700">Department</label>
+            <select
+              value={form.departmentId}
+              onChange={(e) => {
+                setForm((p) => ({ ...p, departmentId: e.target.value }));
+                setFormError("");
+              }}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
+            >
+              <option value="">Select department</option>
+              {deptOptions.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700">Status</label>
+            <select
+              value={form.status}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, status: e.target.value as "Active" | "Inactive" }))
+              }
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+      </Modal>
+
+      {/* View */}
+      <Modal open={!!viewRow} title="View Designation" onClose={() => setViewRow(null)}>
+        <div className="space-y-2">
+          <div><b>Name:</b> {viewRow?.name}</div>
+          <div><b>Department:</b> {viewRow?.department}</div>
+          <div><b>Status:</b> {viewRow?.status}</div>
+        </div>
+      </Modal>
+
+      {/* Delete */}
       <ConfirmDialog
-        open={successOpen}
+        open={!!deleteRow}
+        title="Delete Designation"
+        message={deleteRow ? `Are you sure you want to delete "${deleteRow.name}"?` : "Are you sure?"}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteRow(null)}
+      />
+
+      {/* Success */}
+      <ConfirmDialog
+        open={!!successMsg}
         title="Success"
-        message={successMessage}
+        message={successMsg}
         mode="Success"
-        onConfirm={() => setSuccessOpen(false)}
-        onCancel={() => setSuccessOpen(false)}
-      ></ConfirmDialog>
+        onConfirm={() => setSuccessMsg("")}
+        onCancel={() => setSuccessMsg("")}
+      />
+
+      {/* Error */}
+      <ConfirmDialog
+        open={!!errorMsg}
+        title="Error"
+        message={errorMsg}
+        mode="Confirm"
+        onConfirm={() => setErrorMsg("")}
+        onCancel={() => setErrorMsg("")}
+      />
     </div>
   );
 };
