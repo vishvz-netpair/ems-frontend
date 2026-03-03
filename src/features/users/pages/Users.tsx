@@ -96,7 +96,30 @@ const Users = () => {
       setLoading(false);
     }
   };
+useEffect(() => {
+  if (!form.departmentId) {
+    setDesigOptions([]);
+    setForm((p) => ({ ...p, designationId: "" }));
+    return;
+  }
 
+  const loadDesignations = async () => {
+    const res = await listDesignations({
+      page: 1,
+      limit: 1000,
+      departmentId: form.departmentId   // ✅ pass department
+    });
+
+    setDesigOptions(
+      res.items.map((d) => ({
+        id: d.id,
+        name: d.name
+      }))
+    );
+  };
+
+  loadDesignations();
+}, [form.departmentId]);
   const loadDropdowns = async () => {
     try {
       const dep = await listDepartments({ page: 1, limit: 1000 });
@@ -104,6 +127,7 @@ const Users = () => {
 
       const des = await listDesignations({ page: 1, limit: 1000 });
       setDesigOptions(des.items.map((d) => ({ id: d.id, name: d.name })));
+      
     } catch {
       // ignore
     }

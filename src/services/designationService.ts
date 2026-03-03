@@ -21,6 +21,7 @@ export async function listDesignations(params: {
   page?: number;
   limit?: number;
   search?: string;
+  departmentId?:string;
 }) {
   const page = params.page ?? 1;
   const limit = params.limit ?? 10;
@@ -30,6 +31,9 @@ export async function listDesignations(params: {
   qs.set("page", String(page));
   qs.set("limit", String(limit));
   if (search) qs.set("search", search);
+  if (params.departmentId) {
+  qs.set("departmentId", params.departmentId);
+}
 
   return apiRequest<DesignationListResponse>(
     `/api/designations?${qs.toString()}`
