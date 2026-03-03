@@ -1,10 +1,11 @@
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { Controller, useForm } from "react-hook-form";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Button from "../../../components/ui/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiRequest } from "../../../services/api";
 import { saveSession } from "../services/auth";
+import { InputField } from "../../../components/ui/InputField";
 
 type LoginFormData = {
   email: string;
@@ -28,10 +29,12 @@ const Login = () => {
   const navigate = useNavigate();
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>();
+  } = useForm<LoginFormData>({
+    defaultValues: { email: "", password: "" },
+  });
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
@@ -48,7 +51,7 @@ const Login = () => {
         {
           email: data.email,
           password: data.password,
-        }
+        },
       );
 
       const payload = decodeJwt(res.token);
@@ -83,6 +86,16 @@ const Login = () => {
     if (isSuccess) navigate("/dashboard", { replace: true });
   };
 
+  // ✅ Success dialog should auto-close + redirect (no user confirmation)
+  useEffect(() => {
+    if (!dialogOpen || !isSuccess) return;
+    const t = window.setTimeout(() => {
+      setDialogOpen(false);
+      navigate("/dashboard", { replace: true });
+    }, 900);
+    return () => window.clearTimeout(t);
+  }, [dialogOpen, isSuccess, navigate]);
+
   return (
     <>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
@@ -92,32 +105,45 @@ const Login = () => {
           </h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div>
-              <input
-                type="email"
-                placeholder="Email"
-                {...register("email", { required: "Email is required" })}
-                className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-2 focus:ring-indigo-500"
-              />
-              {errors.email && (
-                <p className="text-red-400 text-sm mt-1">
-                  {errors.email.message}
-                </p>
+            <Controller
+              control={control}
+              name="email"
+              rules={{ required: "Email is required" }}
+              render={({ field }) => (
+                <InputField
+                  type="email"
+                  placeholder="Email"
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  error={errors.email?.message}
+                  className="bg-slate-800 border-slate-600 placeholder:text-slate-400 focus:ring-indigo-500"
+                />
               )}
-            </div>
+            />
 
-            <div>
-              <input
-                type="password"
-                placeholder="Password"
-                {...register("password", { required: "Password is required" })}
-                className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-2 focus:ring-indigo-500"
-              />
-              {errors.password && (
-                <p className="text-red-400 text-sm mt-1">
-                  {errors.password.message}
-                </p>
+            <Controller
+              control={control}
+              name="password"
+              rules={{ required: "Password is required" }}
+              render={({ field }) => (
+                <InputField
+                  type="password"
+                  placeholder="Password"
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  error={errors.password?.message}
+                  className="bg-slate-800  border-slate-600 placeholder:text-slate-400 focus:ring-indigo-500"
+                />
               )}
+            />
+
+            <div className="flex items-center justify-end">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-slate-300 hover:text-white underline underline-offset-4"
+              >
+                Forgot password?
+              </Link>
             </div>
 
             <Button

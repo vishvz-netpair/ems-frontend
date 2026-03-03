@@ -2,10 +2,8 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "../features/auth/pages/Login";
-import Register from "../features/auth/pages/Register";
 import Layout from "../components/layout/Layout";
 import Dashboard from "../features/auth/pages/Dashboard";
-import UiDemo from "../UiDemo";
 import DepartmentMaster from "../features/department/pages/DepartmentMaster";
 import DesignationMaster from "../features/designation/pages/DesignationMaster";
 import { DepartmentProvider } from "../features/department/context/department-context";
@@ -16,7 +14,8 @@ import ProjectDetails from "../features/projects/pages/ProjectDetails";
 import MyTasksPage from "../features/tasks/pages/MyTasksPage";
 import AssetMaster from "../features/assets/pages/AssetMaster";
 import Users from "../features/users/pages/Users";
-
+import ForgotPassword from "../features/auth/pages/ForgotPassword";
+import ResetPassword from "../features/auth/pages/ResetPassword";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, token } = getSession();
@@ -26,10 +25,10 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   }
 
   // convert to Layout required shape
- const safeUser = {
-  name: user.email,
-  role: user.role ?? "employee",
-};
+  const safeUser = {
+    name: user.email,
+    role: user.role ?? "employee",
+  };
 
   return <Layout user={safeUser}>{children}</Layout>;
 }
@@ -42,8 +41,8 @@ function App() {
           <Routes>
             {/* Public */}
             <Route path="/" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             {/* Protected */}
             <Route
               path="/dashboard"
@@ -53,20 +52,12 @@ function App() {
                 </RequireAuth>
               }
             />
- {/* Protected */}
+            {/* Protected */}
             <Route
               path="/user"
               element={
                 <RequireAuth>
                   <Users />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/ui-demo"
-              element={
-                <RequireAuth>
-                  <UiDemo />
                 </RequireAuth>
               }
             />
