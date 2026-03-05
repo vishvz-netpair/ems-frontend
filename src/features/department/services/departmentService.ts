@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+import { apiRequest } from "../../../services/api";
 //import type { ApiResponse } from "../services/api";
 
 export type DepartmentItem = {
@@ -30,7 +30,7 @@ export async function listDepartments(params: {
   if (search) qs.set("search", search);
 
   return apiRequest<DepartmentListResponse>(
-    `/api/departments?${qs.toString()}`
+    `/api/departments?${qs.toString()}`,
   );
 }
 export async function createDepartment(payload: {
@@ -45,7 +45,7 @@ export async function updateDepartment(
   payload: {
     name: string;
     status: "Active" | "Inactive";
-  }
+  },
 ) {
   return apiRequest(`/api/departments/${id}`, "PUT", payload);
 }

@@ -5,7 +5,7 @@ import { InputField } from "../../../components/ui/InputField";
 import DatePicker from "../../../components/ui/DatePicker";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 
-import { fetchUsers, type UserItem } from "../../../services/userService";
+import { fetchUsers, type UserItem } from "../../users/services/userService";
 import {
   createProject,
   getProjectById,

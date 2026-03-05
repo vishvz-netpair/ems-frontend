@@ -7,8 +7,8 @@ import DatePicker from "../../../components/ui/DatePicker";
 import { InputField } from "../../../components/ui/InputField";
 import type { AssetItem, AllocateAssetPayload } from "../services/assetService";
 import { allocateAsset } from "../services/assetService";
-import { fetchActiveUsers } from "../../../services/userService";
-import type { UserItem } from "../../../services/userService";
+import { fetchActiveUsers } from "../../users/services/userService";
+import type { UserItem } from "../../users/services/userService";
 
 type FormValues = {
   employeeId: string;

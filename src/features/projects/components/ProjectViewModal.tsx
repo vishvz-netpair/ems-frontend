@@ -3,6 +3,7 @@ import Modal from "../../../components/ui/Modal";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import { getProjectById, type ProjectItem } from "../services/projectService";
 import { formatDate } from "../../../utils/date";
+import Loader from "../../../components/ui/Loader";
 
 type Props = {
   open: boolean;
@@ -62,7 +63,7 @@ const ProjectViewModal = ({ open, projectId, onClose }: Props) => {
         footer={footer}
       >
         {loading ? (
-          <div className="text-sm text-slate-600">Loading...</div>
+          <Loader variant="block" label="Loading Projects..." />
         ) : !project ? (
           <div className="text-sm text-slate-600">No data</div>
         ) : (

@@ -11,7 +11,8 @@ import {
   updateDepartment,
   deleteDepartment,
   type DepartmentItem,
-} from "../../../services/departmentService";
+} from "../services/departmentService";
+import Loader from "../../../components/ui/Loader";
 
 type Row = {
   id: number;
@@ -52,7 +53,7 @@ const DepartmentMaster = () => {
       { key: "name", label: "Department" },
       { key: "status", label: "Status" },
     ],
-    []
+    [],
   );
 
   const load = async () => {
@@ -109,7 +110,10 @@ const DepartmentMaster = () => {
     setDeleteOpen(true);
   };
 
-  const saveAdd = async (payload: { name: string; status: "Active" | "Inactive" }) => {
+  const saveAdd = async (payload: {
+    name: string;
+    status: "Active" | "Inactive";
+  }) => {
     try {
       await createDepartment(payload);
       setAddOpen(false);
@@ -125,7 +129,10 @@ const DepartmentMaster = () => {
     }
   };
 
-  const saveEdit = async (payload: { name: string; status: "Active" | "Inactive" }) => {
+  const saveEdit = async (payload: {
+    name: string;
+    status: "Active" | "Inactive";
+  }) => {
     if (!selected) return;
     try {
       await updateDepartment(selected._id, payload);
@@ -164,7 +171,9 @@ const DepartmentMaster = () => {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold text-slate-800">Department Master</h2>
+          <h2 className="text-2xl font-semibold text-slate-800">
+            Department Master
+          </h2>
           <p className="text-sm text-slate-500">
             Manage departments (Add / Edit / View / Delete)
           </p>
@@ -189,9 +198,12 @@ const DepartmentMaster = () => {
       </div>
 
       {loading ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
-          Loading departments...
-        </div>
+        <Loader
+          variant="block"
+          size="md"
+          label="Loading departments..."
+          className="mb-3"
+        />
       ) : (
         <DataTable
           columns={columns}
@@ -238,8 +250,12 @@ const DepartmentMaster = () => {
         onClose={() => setViewOpen(false)}
       >
         <div className="space-y-2 text-slate-700">
-          <div><b>Name:</b> {viewRow?.name ?? "-"}</div>
-          <div><b>Status:</b> {viewRow?.status ?? "-"}</div>
+          <div>
+            <b>Name:</b> {viewRow?.name ?? "-"}
+          </div>
+          <div>
+            <b>Status:</b> {viewRow?.status ?? "-"}
+          </div>
         </div>
       </Modal>
 

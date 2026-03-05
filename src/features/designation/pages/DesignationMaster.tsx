@@ -11,9 +11,10 @@ import {
   updateDesignation,
   deleteDesignation,
   type DesignationItem,
-} from "../../../services/designationService";
+} from "../services/designationService";
 
-import { listDepartments } from "../../../services/departmentService";
+import { listDepartments } from "../../department/services/departmentService";
+import Loader from "../../../components/ui/Loader";
 
 type Row = {
   id: number;
@@ -32,7 +33,9 @@ const DesignationMaster = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [deptOptions, setDeptOptions] = useState<{ id: string; name: string }[]>([]);
+  const [deptOptions, setDeptOptions] = useState<
+    { id: string; name: string }[]
+  >([]);
 
   const [addOpen, setAddOpen] = useState(false);
   const [editRow, setEditRow] = useState<Row | null>(null);
@@ -61,7 +64,7 @@ const DesignationMaster = () => {
       { key: "department", label: "Department" },
       { key: "status", label: "Status" },
     ],
-    []
+    [],
   );
 
   const load = async () => {
@@ -81,22 +84,24 @@ const DesignationMaster = () => {
       setRows(mapped);
       setTotal(res.total ?? 0); // ✅ correct
     } catch (e: unknown) {
-      setErrorMsg(e instanceof Error ? e.message : "Failed to load designation");
+      setErrorMsg(
+        e instanceof Error ? e.message : "Failed to load designation",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const loadDepartments = async () => {
-  const res = await listDepartments({ page: 1, limit: 1000 });
+    const res = await listDepartments({ page: 1, limit: 1000 });
 
-  setDeptOptions(
-    res.items.map((d) => ({
-      id: d.id,   // ✅ strict typed
-      name: d.name
-    }))
-  );
-};
+    setDeptOptions(
+      res.items.map((d) => ({
+        id: d.id, // ✅ strict typed
+        name: d.name,
+      })),
+    );
+  };
 
   useEffect(() => {
     load();
@@ -148,13 +153,13 @@ const DesignationMaster = () => {
     }
     setSaving(true);
     try {
-       console.log("Sending:", form);
+      console.log("Sending:", form);
       await createDesignation({
         name: form.name.trim(),
         departmentId: form.departmentId, // ✅ selected department
         status: form.status,
       });
-     
+
       setAddOpen(false);
       setSuccessMsg("Designation added successfully.");
       setPage(1);
@@ -226,7 +231,7 @@ const DesignationMaster = () => {
       />
 
       {loading ? (
-        <div>Loading...</div>
+        <Loader variant="block" label="Loading designation..." />
       ) : (
         <DataTable
           columns={columns}
@@ -272,10 +277,14 @@ const DesignationMaster = () => {
         }
       >
         <div className="space-y-4">
-          {formError ? <p className="text-sm text-red-600">{formError}</p> : null}
+          {formError ? (
+            <p className="text-sm text-red-600">{formError}</p>
+          ) : null}
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Designation Name</label>
+            <label className="text-sm font-medium text-slate-700">
+              Designation Name
+            </label>
             <input
               value={form.name}
               onChange={(e) => {
@@ -288,7 +297,9 @@ const DesignationMaster = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Department</label>
+            <label className="text-sm font-medium text-slate-700">
+              Department
+            </label>
             <select
               value={form.departmentId}
               onChange={(e) => {
@@ -311,7 +322,10 @@ const DesignationMaster = () => {
             <select
               value={form.status}
               onChange={(e) =>
-                setForm((p) => ({ ...p, status: e.target.value as "Active" | "Inactive" }))
+                setForm((p) => ({
+                  ...p,
+                  status: e.target.value as "Active" | "Inactive",
+                }))
               }
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
             >
@@ -347,10 +361,14 @@ const DesignationMaster = () => {
         }
       >
         <div className="space-y-4">
-          {formError ? <p className="text-sm text-red-600">{formError}</p> : null}
+          {formError ? (
+            <p className="text-sm text-red-600">{formError}</p>
+          ) : null}
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Designation Name</label>
+            <label className="text-sm font-medium text-slate-700">
+              Designation Name
+            </label>
             <input
               value={form.name}
               onChange={(e) => {
@@ -363,7 +381,9 @@ const DesignationMaster = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Department</label>
+            <label className="text-sm font-medium text-slate-700">
+              Department
+            </label>
             <select
               value={form.departmentId}
               onChange={(e) => {
@@ -386,7 +406,10 @@ const DesignationMaster = () => {
             <select
               value={form.status}
               onChange={(e) =>
-                setForm((p) => ({ ...p, status: e.target.value as "Active" | "Inactive" }))
+                setForm((p) => ({
+                  ...p,
+                  status: e.target.value as "Active" | "Inactive",
+                }))
               }
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
             >
@@ -398,11 +421,21 @@ const DesignationMaster = () => {
       </Modal>
 
       {/* View */}
-      <Modal open={!!viewRow} title="View Designation" onClose={() => setViewRow(null)}>
+      <Modal
+        open={!!viewRow}
+        title="View Designation"
+        onClose={() => setViewRow(null)}
+      >
         <div className="space-y-2">
-          <div><b>Name:</b> {viewRow?.name}</div>
-          <div><b>Department:</b> {viewRow?.department}</div>
-          <div><b>Status:</b> {viewRow?.status}</div>
+          <div>
+            <b>Name:</b> {viewRow?.name}
+          </div>
+          <div>
+            <b>Department:</b> {viewRow?.department}
+          </div>
+          <div>
+            <b>Status:</b> {viewRow?.status}
+          </div>
         </div>
       </Modal>
 
@@ -410,7 +443,11 @@ const DesignationMaster = () => {
       <ConfirmDialog
         open={!!deleteRow}
         title="Delete Designation"
-        message={deleteRow ? `Are you sure you want to delete "${deleteRow.name}"?` : "Are you sure?"}
+        message={
+          deleteRow
+            ? `Are you sure you want to delete "${deleteRow.name}"?`
+            : "Are you sure?"
+        }
         onConfirm={confirmDelete}
         onCancel={() => setDeleteRow(null)}
       />

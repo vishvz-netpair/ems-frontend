@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import { myProjects, type ProjectItem } from "../services/projectService";
 import { formatDate } from "../../../utils/date";
+import Loader from "../../../components/ui/Loader";
 
 const MyProjects = () => {
   const [loading, setLoading] = useState(false);
@@ -43,9 +44,7 @@ const MyProjects = () => {
       </div>
 
       {loading ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
-          Loading...
-        </div>
+        <Loader variant="block" label="Loading projects..." />
       ) : items.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
           No projects assigned yet.
