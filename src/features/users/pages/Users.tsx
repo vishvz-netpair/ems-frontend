@@ -11,6 +11,7 @@ import {
   updateUser,
   deleteUser,
   type UserItem,
+  updateUserStatus,
 } from "../services/userService";
 import { listDepartments } from "../../department/services/departmentService";
 import { listDesignations } from "../../designation/services/designationService";
@@ -91,14 +92,13 @@ const Users = () => {
             value={value}
             onChange={async (e) => {
               try {
-                await updateUser(row._id, {
-                  name: row.name,
-                  email: row.email,
-                  role: row.role as "superadmin" | "admin" | "employee",
-                  departmentId: "",
-                  designationId: "",
-                  status: e.target.value as "Active" | "Inactive",
-                });
+                await updateUserStatus(
+                  row._id,
+                  e.target.value as "Active" | "Inactive",
+                );
+
+                setSuccessMsg("Status updated successfully");
+                setSuccessOpen(true);
 
                 load();
               } catch {
