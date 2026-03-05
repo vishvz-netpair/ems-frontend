@@ -1,11 +1,11 @@
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
-import type { AssetItem } from "../services/assetService";
+import type { AssetAllocationItem, AssetItem } from "../services/assetService";
 
 type Props = {
   open: boolean;
   asset: AssetItem | null;
-  items: any[];
+  items: AssetAllocationItem[];
   onClose: () => void;
 };
 
@@ -34,9 +34,8 @@ export default function AssetHistoryModal({
     >
       <div className="space-y-3">
         {items?.length ? (
-          items.map((h: any) => {
-            const allocatedTo =
-              h?.allocatedTo?.name || h?.employeeId?.name || "-";
+          items.map((h: AssetAllocationItem) => {
+            const allocatedTo = h?.allocatedTo?.name || "-";
             const allocatedOn = h?.allocatedOn
               ? new Date(h.allocatedOn).toLocaleDateString()
               : "-";
