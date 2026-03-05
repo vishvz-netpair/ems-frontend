@@ -42,7 +42,11 @@ export async function createUser(payload: {
   departmentId: string;
   designationId: string;
 }) {
-  return apiRequest<{ id: string; message: string }>(`/api/users`, "POST", payload);
+  return apiRequest<{ id: string; message: string }>(
+    `/api/users`,
+    "POST",
+    payload,
+  );
 }
 export async function fetchActiveUsers() {
   return apiRequest<{
@@ -54,4 +58,21 @@ export async function fetchActiveUsers() {
       status?: string;
     }[];
   }>("/api/users?status=Active&limit=1000");
+}
+export async function updateUser(
+  id: string,
+  payload: {
+    name: string;
+    email: string;
+    role: "superadmin" | "admin" | "employee";
+    departmentId: string;
+    designationId: string;
+    status: "Active" | "Inactive";
+  },
+) {
+  return apiRequest(`/api/users/${id}`, "PUT", payload);
+}
+
+export async function deleteUser(id: string) {
+  return apiRequest(`/api/users/${id}`, "DELETE");
 }
