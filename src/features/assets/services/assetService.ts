@@ -18,7 +18,7 @@ export type AssetUser = {
 export type AssetAllocationItem = {
   _id: string;
   assetId: string;
-  allocatedTo: AssetUser;
+  employeeId: AssetUser;
   allocatedOn: string;
   expectedReturnOn?: string | null;
   returnedOn?: string | null;

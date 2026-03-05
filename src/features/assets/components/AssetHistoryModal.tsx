@@ -35,7 +35,7 @@ export default function AssetHistoryModal({
       <div className="space-y-3">
         {items?.length ? (
           items.map((h: AssetAllocationItem) => {
-            const allocatedTo = h?.allocatedTo?.name || "-";
+            const allocatedTo = h?.employeeId?.name || "-";
             const allocatedOn = h?.allocatedOn
               ? new Date(h.allocatedOn).toLocaleDateString()
               : "-";

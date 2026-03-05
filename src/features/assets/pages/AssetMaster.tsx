@@ -120,8 +120,7 @@ export default function AssetMaster() {
   const rows: Row[] = useMemo(() => {
     return (items || []).map((a) => {
       const ca = a.currentAllocation;
-      const allocatedTo = ca?.allocatedTo?.name || "-";
-
+      const allocatedTo = ca?.employeeId?.name || "-";
       return {
         id: a._id,
         _id: a._id,
