@@ -11,7 +11,7 @@ import {
   updateDepartment,
   deleteDepartment,
   type DepartmentItem,
-} from "../../../services/departmentService";
+} from "../services/departmentService";
 import Loader from "../../../components/ui/Loader";
 
 type Row = {

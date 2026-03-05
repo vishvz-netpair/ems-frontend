@@ -11,9 +11,9 @@ import {
   updateDesignation,
   deleteDesignation,
   type DesignationItem,
-} from "../../../services/designationService";
+} from "../services/designationService";
 
-import { listDepartments } from "../../../services/departmentService";
+import { listDepartments } from "../../department/services/departmentService";
 import Loader from "../../../components/ui/Loader";
 
 type Row = {

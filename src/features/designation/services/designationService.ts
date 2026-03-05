@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+import { apiRequest } from "../../../services/api";
 //import type { ApiResponse } from "../services/api";
 
 export type DesignationItem = {
@@ -21,7 +21,7 @@ export async function listDesignations(params: {
   page?: number;
   limit?: number;
   search?: string;
-  departmentId?:string;
+  departmentId?: string;
 }) {
   const page = params.page ?? 1;
   const limit = params.limit ?? 10;
@@ -32,11 +32,11 @@ export async function listDesignations(params: {
   qs.set("limit", String(limit));
   if (search) qs.set("search", search);
   if (params.departmentId) {
-  qs.set("departmentId", params.departmentId);
-}
+    qs.set("departmentId", params.departmentId);
+  }
 
   return apiRequest<DesignationListResponse>(
-    `/api/designations?${qs.toString()}`
+    `/api/designations?${qs.toString()}`,
   );
 }
 
@@ -54,7 +54,7 @@ export async function updateDesignation(
     name: string;
     departmentId: string;
     status: "Active" | "Inactive";
-  }
+  },
 ) {
   return apiRequest(`/api/designations/${id}`, "PUT", payload);
 }

@@ -11,10 +11,11 @@ import {
   updateUser,
   deleteUser,
   type UserItem,
-} from "../../../services/userService";
-import { listDepartments } from "../../../services/departmentService";
-import { listDesignations } from "../../../services/designationService";
+} from "../services/userService";
+import { listDepartments } from "../../department/services/departmentService";
+import { listDesignations } from "../../designation/services/designationService";
 import { getSession } from "../../auth/services/auth";
+import Loader from "../../../components/ui/Loader";
 
 type Row = {
   id: number;
@@ -314,9 +315,12 @@ const Users = () => {
       </div>
 
       {loading ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
-          Loading users...
-        </div>
+        <Loader
+          variant="block"
+          size="md"
+          label="Loading assets..."
+          className="mb-3"
+        />
       ) : (
         <DataTable
           columns={columns}
