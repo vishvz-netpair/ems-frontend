@@ -16,6 +16,7 @@ import {
 import { formatDate } from "../../../utils/date";
 import TaskBoard from "../tasks/TaskBoard";
 import TaskFormModal from "../tasks/TaskFormModal";
+import Loader from "../../../components/ui/Loader";
 
 type TabKey = "overview" | "tasks" | "team";
 
@@ -225,9 +226,12 @@ export default function ProjectDetails() {
 
       {/* Project Card */}
       {loading ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
-          Loading project...
-        </div>
+        <Loader
+          variant="block"
+          size="md"
+          label="Loading projects..."
+          className="mb-3"
+        />
       ) : !project ? (
         <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
           Project not found.

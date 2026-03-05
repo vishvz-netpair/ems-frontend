@@ -13,6 +13,7 @@ import {
 import ProjectFormModal from "../components/ProjectFormModal";
 import ProjectViewModal from "../components/ProjectViewModal";
 import { formatDate } from "../../../utils/date";
+import Loader from "../../../components/ui/Loader";
 
 type Row = {
   id: number; // DataTable needs number
@@ -214,9 +215,12 @@ const ProjectsAdmin = () => {
 
       {/* Table */}
       {loading ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
-          Loading projects...
-        </div>
+        <Loader
+          variant="block"
+          size="md"
+          label="Loading projects..."
+          className="mb-3"
+        />
       ) : (
         <DataTable
           columns={columns}

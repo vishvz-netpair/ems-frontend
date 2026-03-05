@@ -17,6 +17,7 @@ import AssetFormModal from "../components/AssetFormModal";
 import AssetAllocateModal from "../components/AssetAllocateModal";
 import AssetReturnModal from "../components/AssetReturnModal";
 import AssetHistoryModal from "../components/AssetHistoryModal";
+import Loader from "../../../components/ui/Loader";
 
 type Row = {
   id: string;
@@ -256,26 +257,33 @@ export default function AssetMaster() {
           </div>
         </div>
       </div>
+      <div className="relative">
+        {loading ? (
+          <Loader
+            variant="overlay"
+            size="md"
+            label="Loading assets..."
+            className="mb-3"
+          />
+        ) : null}
+        {error ? (
+          <div className="text-sm text-red-600 mb-3">{error}</div>
+        ) : null}
 
-      {loading ? (
-        <div className="text-sm text-slate-600 mb-3">Loading...</div>
-      ) : null}
-      {error ? <div className="text-sm text-red-600 mb-3">{error}</div> : null}
-
-      <DataTable
-        columns={columns}
-        data={rows}
-        actions={actions}
-        serverPagination={{
-          enabled: true,
-          page,
-          limit,
-          total,
-          onPageChange: setPage,
-          onLimitChange: setLimit,
-        }}
-      />
-
+        <DataTable
+          columns={columns}
+          data={rows}
+          actions={actions}
+          serverPagination={{
+            enabled: true,
+            page,
+            limit,
+            total,
+            onPageChange: setPage,
+            onLimitChange: setLimit,
+          }}
+        />
+      </div>
       <AssetFormModal
         open={openForm}
         title={editing ? "Edit Asset" : "Add Asset"}

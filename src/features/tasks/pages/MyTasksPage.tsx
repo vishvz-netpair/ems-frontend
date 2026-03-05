@@ -8,6 +8,7 @@ import {
   type TaskStatus,
 } from "../services/taskService";
 import { formatDate } from "../../../utils/date";
+import Loader from "../../../components/ui/Loader";
 
 const columns: Array<{ key: TaskStatus; label: string }> = [
   { key: "Pending", label: "Pending" },
@@ -103,9 +104,12 @@ export default function MyTasksPage() {
       </div>
 
       {loading ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
-          Loading...
-        </div>
+        <Loader
+          variant="block"
+          size="md"
+          label="Loading tasks..."
+          className="mb-3"
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           {columns.map((col) => (
