@@ -18,7 +18,7 @@ export type AssetUser = {
 export type AssetAllocationItem = {
   _id: string;
   assetId: string;
-  allocatedTo: AssetUser;
+  employeeId: AssetUser;
   allocatedOn: string;
   expectedReturnOn?: string | null;
   returnedOn?: string | null;
@@ -135,7 +135,7 @@ export async function allocateAsset(
   assetId: string,
   payload: AllocateAssetPayload,
 ) {
-  return apiRequest<{ allocation: any; message?: string }>(
+  return apiRequest<{ allocation: AssetAllocationItem; message?: string }>(
     `/api/assets/${assetId}/allocate`,
     "POST",
     payload,
@@ -146,7 +146,7 @@ export async function returnAsset(
   assetId: string,
   payload: ReturnAssetPayload,
 ) {
-  return apiRequest<{ allocation: any; message?: string }>(
+  return apiRequest<{ allocation: AssetAllocationItem; message?: string }>(
     `/api/assets/${assetId}/return`,
     "POST",
     payload,
@@ -154,5 +154,8 @@ export async function returnAsset(
 }
 
 export async function getAssetHistory(assetId: string) {
-  return apiRequest<{ items: any[] }>(`/api/assets/${assetId}/history`, "GET");
+  return apiRequest<{ items: AssetAllocationItem[] }>(
+    `/api/assets/${assetId}/history`,
+    "GET",
+  );
 }

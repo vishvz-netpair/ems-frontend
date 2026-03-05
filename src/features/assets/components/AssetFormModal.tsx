@@ -60,9 +60,9 @@ export default function AssetFormModal({
       assetCode: initial?.assetCode ?? "",
       name: initial?.name ?? "",
       category: initial?.category ?? "",
-      serialNo: (initial as any)?.serialNo ?? "",
-      brand: (initial as any)?.brand ?? "",
-      model: (initial as any)?.model ?? "",
+      serialNo: initial?.serialNo ?? "",
+      brand: initial?.brand ?? "",
+      model: initial?.model ?? "",
       status: (initial?.status as AssetStatus) ?? "IN_STOCK",
     });
   }, [open, initial, reset]);

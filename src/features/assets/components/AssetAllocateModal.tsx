@@ -59,8 +59,8 @@ export default function AssetAllocateModal({
 
     (async () => {
       try {
-        const res = await fetchActiveUsers(1, 50);
-        setUsers(res.items || []);
+        const res = await fetchActiveUsers();
+        setUsers((res.items || []) as UserItem[]);
       } catch {
         setUsers([]);
       }

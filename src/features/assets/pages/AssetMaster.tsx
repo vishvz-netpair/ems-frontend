@@ -4,7 +4,11 @@ import type { Column, Action } from "../../../components/table/DataTable";
 import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 
-import type { AssetItem, AssetStatus } from "../services/assetService";
+import type {
+  AssetAllocationItem,
+  AssetItem,
+  AssetStatus,
+} from "../services/assetService";
 import {
   deleteAsset,
   getAssets,
@@ -65,10 +69,21 @@ export default function AssetMaster() {
 
   const [openHistory, setOpenHistory] = useState(false);
   const [historyItem, setHistoryItem] = useState<AssetItem | null>(null);
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<AssetAllocationItem[]>([]);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AssetItem | null>(null);
+
+  const assetStatuses: AssetStatus[] = [
+    "IN_STOCK",
+    "ALLOCATED",
+    "REPAIR",
+    "RETIRED",
+    "LOST",
+  ];
+
+  const isAssetStatus = (v: string): v is AssetStatus =>
+    (assetStatuses as readonly string[]).includes(v);
 
   const load = async (
     p = page,
@@ -90,8 +105,9 @@ export default function AssetMaster() {
       setTotal(res.total || 0);
       setPage(res.page || p);
       setLimit(res.limit || l);
-    } catch (e: any) {
-      setError(e?.message || "Failed to load assets");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to update status";
+      setError(msg || "Failed to load assets");
     } finally {
       setLoading(false);
     }
@@ -103,9 +119,8 @@ export default function AssetMaster() {
 
   const rows: Row[] = useMemo(() => {
     return (items || []).map((a) => {
-      const ca: any = (a as any).currentAllocation;
-      const allocatedTo = ca?.allocatedTo?.name || ca?.employeeId?.name || "-";
-
+      const ca = a.currentAllocation;
+      const allocatedTo = ca?.employeeId?.name || "-";
       return {
         id: a._id,
         _id: a._id,
@@ -183,10 +198,11 @@ export default function AssetMaster() {
       setConfirmOpen(false);
       setDeleteTarget(null);
       await load(page, limit, debouncedQ, status);
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to update status";
       setConfirmOpen(false);
       setDeleteTarget(null);
-      alert(e?.message || "Delete failed");
+      alert(msg || "Delete failed");
     }
   };
 
@@ -236,7 +252,8 @@ export default function AssetMaster() {
             <select
               value={status}
               onChange={(e) => {
-                setStatus(e.target.value as any);
+                const v = e.target.value;
+                setStatus(v === "" ? "" : isAssetStatus(v) ? v : "");
                 setPage(1);
               }}
               className="mt-1 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
