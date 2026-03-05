@@ -5,7 +5,13 @@ import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 
-import { createUser, fetchUsers, type UserItem } from "../../../services/userService";
+import {
+  createUser,
+  fetchUsers,
+  updateUser,
+  deleteUser,
+  type UserItem,
+} from "../../../services/userService";
 import { listDepartments } from "../../../services/departmentService";
 import { listDesignations } from "../../../services/designationService";
 import { getSession } from "../../auth/services/auth";
@@ -51,10 +57,17 @@ const Users = () => {
     designationId: "",
   });
 
-  const [deptOptions, setDeptOptions] = useState<{ id: string; name: string }[]>([]);
-  const [desigOptions, setDesigOptions] = useState<{ id: string; name: string }[]>([]);
+  const [deptOptions, setDeptOptions] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const [desigOptions, setDesigOptions] = useState<
+    { id: string; name: string }[]
+  >([]);
 
   const [formError, setFormError] = useState("");
+
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const columns: Column<Row>[] = useMemo(
     () => [
@@ -65,8 +78,30 @@ const Users = () => {
       { key: "designation", label: "Designation" },
       { key: "status", label: "Status" },
     ],
-    []
+    [],
   );
+  const actions = [
+    {
+      label: "Edit",
+      onClick: (row: Row) => {
+        openEdit(row);
+      },
+    },
+    {
+      label: "Delete",
+      onClick: async (row: Row) => {
+        if (!confirm("Are you sure you want to delete this user?")) return;
+
+        try {
+          await deleteUser(row._id);
+          load();
+        } catch {
+          setErrorMsg("Delete failed");
+          setErrorOpen(true);
+        }
+      },
+    },
+  ];
 
   const load = async () => {
     setLoading(true);
@@ -96,30 +131,30 @@ const Users = () => {
       setLoading(false);
     }
   };
-useEffect(() => {
-  if (!form.departmentId) {
-    setDesigOptions([]);
-    setForm((p) => ({ ...p, designationId: "" }));
-    return;
-  }
+  useEffect(() => {
+    if (!form.departmentId) {
+      setDesigOptions([]);
+      setForm((p) => ({ ...p, designationId: "" }));
+      return;
+    }
 
-  const loadDesignations = async () => {
-    const res = await listDesignations({
-      page: 1,
-      limit: 1000,
-      departmentId: form.departmentId   // ✅ pass department
-    });
+    const loadDesignations = async () => {
+      const res = await listDesignations({
+        page: 1,
+        limit: 1000,
+        departmentId: form.departmentId, // ✅ pass department
+      });
 
-    setDesigOptions(
-      res.items.map((d) => ({
-        id: d.id,
-        name: d.name
-      }))
-    );
-  };
+      setDesigOptions(
+        res.items.map((d) => ({
+          id: d.id,
+          name: d.name,
+        })),
+      );
+    };
 
-  loadDesignations();
-}, [form.departmentId]);
+    loadDesignations();
+  }, [form.departmentId]);
   const loadDropdowns = async () => {
     try {
       const dep = await listDepartments({ page: 1, limit: 1000 });
@@ -127,7 +162,6 @@ useEffect(() => {
 
       const des = await listDesignations({ page: 1, limit: 1000 });
       setDesigOptions(des.items.map((d) => ({ id: d.id, name: d.name })));
-      
     } catch {
       // ignore
     }
@@ -155,6 +189,7 @@ useEffect(() => {
 
   const openAdd = () => {
     setFormError("");
+
     setForm({
       name: "",
       email: "",
@@ -162,9 +197,27 @@ useEffect(() => {
       departmentId: "",
       designationId: "",
     });
+
+    setEditingUserId(null);
+    setIsEditMode(false);
+
     setAddOpen(true);
   };
+  const openEdit = (row: Row) => {
+    setFormError("");
 
+    setForm({
+      name: row.name,
+      email: row.email,
+      role: row.role as "superadmin" | "admin" | "employee",
+      departmentId: "",
+      designationId: "",
+    });
+
+    setEditingUserId(row._id);
+    setIsEditMode(true);
+    setAddOpen(true);
+  };
   const validateForm = () => {
     const name = form.name.trim();
     const email = form.email.trim();
@@ -187,16 +240,30 @@ useEffect(() => {
 
     setSaving(true);
     try {
-      await createUser({
-        name: form.name.trim(),
-        email: form.email.trim(),
-        role: form.role,
-        departmentId: form.departmentId,
-        designationId: form.designationId,
-      });
+      if (isEditMode && editingUserId) {
+        await updateUser(editingUserId, {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          role: form.role,
+          departmentId: form.departmentId,
+          designationId: form.designationId,
+          status: "Active",
+        });
+
+        setSuccessMsg("User updated successfully.");
+      } else {
+        await createUser({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          role: form.role,
+          departmentId: form.departmentId,
+          designationId: form.designationId,
+        });
+
+        setSuccessMsg("User created successfully.");
+      }
 
       setAddOpen(false);
-      setSuccessMsg("User created successfully.");
       setSuccessOpen(true);
 
       setPage(1);
@@ -254,6 +321,7 @@ useEffect(() => {
         <DataTable
           columns={columns}
           data={rows}
+          actions={actions}
           serverPagination={{
             enabled: true,
             page,
@@ -267,7 +335,7 @@ useEffect(() => {
 
       <Modal
         open={addOpen}
-        title="Add User"
+        title={isEditMode ? "Edit User" : "Add User"}
         onClose={() => (saving ? null : setAddOpen(false))}
         footer={
           <div className="flex items-center justify-end gap-3">
@@ -283,13 +351,15 @@ useEffect(() => {
               disabled={saving}
               className="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : isEditMode ? "Update" : "Save"}
             </Button>
           </div>
         }
       >
         <div className="space-y-4">
-          {formError ? <p className="text-sm text-red-600">{formError}</p> : null}
+          {formError ? (
+            <p className="text-sm text-red-600">{formError}</p>
+          ) : null}
 
           <div>
             <label className="text-sm font-medium text-slate-700">Name</label>
@@ -336,10 +406,14 @@ useEffect(() => {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Department</label>
+            <label className="text-sm font-medium text-slate-700">
+              Department
+            </label>
             <select
               value={form.departmentId}
-              onChange={(e) => setForm((p) => ({ ...p, departmentId: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, departmentId: e.target.value }))
+              }
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
             >
               <option value="">Select department</option>
@@ -352,10 +426,14 @@ useEffect(() => {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Designation</label>
+            <label className="text-sm font-medium text-slate-700">
+              Designation
+            </label>
             <select
               value={form.designationId}
-              onChange={(e) => setForm((p) => ({ ...p, designationId: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, designationId: e.target.value }))
+              }
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
             >
               <option value="">Select designation</option>

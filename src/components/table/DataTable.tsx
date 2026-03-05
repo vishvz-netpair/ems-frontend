@@ -80,7 +80,10 @@ function DataTable<T extends { id: string | number }>({
         <thead className="bg-slate-100">
           <tr>
             {columns.map((col) => (
-              <th key={String(col.key)} className="px-5 py-3 text-left font-semibold text-slate-700">
+              <th
+                key={String(col.key)}
+                className="px-5 py-3 text-left font-semibold text-slate-700"
+              >
                 {col.label}
               </th>
             ))}
@@ -94,11 +97,17 @@ function DataTable<T extends { id: string | number }>({
 
         <tbody>
           {paginatedData.map((row) => (
-            <tr key={String(row.id)} className="border-t hover:bg-slate-50 transition">
+            <tr
+              key={String(row.id)}
+              className="border-t hover:bg-slate-50 transition"
+            >
               {columns.map((col) => {
                 const value = row[col.key];
                 return (
-                  <td key={String(col.key)} className="px-5 py-4 text-slate-700">
+                  <td
+                    key={String(col.key)}
+                    className="px-5 py-4 text-slate-700"
+                  >
                     {col.render ? col.render(value, row) : String(value ?? "")}
                   </td>
                 );
@@ -158,10 +167,18 @@ function DataTable<T extends { id: string | number }>({
         </div>
 
         <div className="flex gap-2">
-          <button onClick={goPrevious} disabled={effectivePage === 1} className="border px-3 py-1 rounded disabled:opacity-50">
+          <button
+            onClick={goPrevious}
+            disabled={effectivePage === 1}
+            className="border px-3 py-1 rounded disabled:opacity-50"
+          >
             Previous
           </button>
-          <button onClick={goNext} disabled={effectivePage === totalPages} className="border px-3 py-1 rounded disabled:opacity-50">
+          <button
+            onClick={goNext}
+            disabled={effectivePage === totalPages}
+            className="border px-3 py-1 rounded disabled:opacity-50"
+          >
             Next
           </button>
         </div>
