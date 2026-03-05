@@ -11,6 +11,7 @@ import {
   updateUser,
   deleteUser,
   type UserItem,
+  updateUserStatus,
 } from "../services/userService";
 import { listDepartments } from "../../department/services/departmentService";
 import { listDesignations } from "../../designation/services/designationService";
@@ -33,6 +34,9 @@ const Users = () => {
   const isSuperAdmin = user?.role === "superadmin";
 
   const [loading, setLoading] = useState(false);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -70,6 +74,9 @@ const Users = () => {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewUser, setViewUser] = useState<Row | null>(null);
+
   const columns: Column<Row>[] = useMemo(
     () => [
       { key: "name", label: "Name" },
@@ -77,11 +84,45 @@ const Users = () => {
       { key: "role", label: "Role" },
       { key: "department", label: "Department" },
       { key: "designation", label: "Designation" },
-      { key: "status", label: "Status" },
+      {
+        key: "status",
+        label: "Status",
+        render: (value, row) => (
+          <select
+            value={value}
+            onChange={async (e) => {
+              try {
+                await updateUserStatus(
+                  row._id,
+                  e.target.value as "Active" | "Inactive",
+                );
+
+                setSuccessMsg("Status updated successfully");
+                setSuccessOpen(true);
+
+                load();
+              } catch {
+                setErrorMsg("Status update failed");
+                setErrorOpen(true);
+              }
+            }}
+            className="border rounded px-2 py-1"
+          >
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        ),
+      },
     ],
     [],
   );
   const actions = [
+    {
+      label: "View",
+      onClick: (row: Row) => {
+        openView(row);
+      },
+    },
     {
       label: "Edit",
       onClick: (row: Row) => {
@@ -90,20 +131,12 @@ const Users = () => {
     },
     {
       label: "Delete",
-      onClick: async (row: Row) => {
-        if (!confirm("Are you sure you want to delete this user?")) return;
-
-        try {
-          await deleteUser(row._id);
-          load();
-        } catch {
-          setErrorMsg("Delete failed");
-          setErrorOpen(true);
-        }
+      onClick: (row: Row) => {
+        setSelectedUserId(row._id);
+        setDeleteOpen(true);
       },
     },
   ];
-
   const load = async () => {
     setLoading(true);
     try {
@@ -204,6 +237,10 @@ const Users = () => {
 
     setAddOpen(true);
   };
+  const openView = (row: Row) => {
+    setViewUser(row);
+    setViewOpen(true);
+  };
   const openEdit = (row: Row) => {
     setFormError("");
 
@@ -277,6 +314,24 @@ const Users = () => {
       setErrorOpen(true);
     } finally {
       setSaving(false);
+    }
+  };
+  const confirmDelete = async () => {
+    if (!selectedUserId) return;
+
+    try {
+      await deleteUser(selectedUserId);
+
+      setDeleteOpen(false);
+      setSelectedUserId(null);
+
+      setSuccessMsg("User deleted successfully.");
+      setSuccessOpen(true);
+
+      load();
+    } catch {
+      setErrorMsg("Delete failed");
+      setErrorOpen(true);
     }
   };
 
@@ -450,7 +505,44 @@ const Users = () => {
           </div>
         </div>
       </Modal>
-
+      <Modal
+        open={viewOpen}
+        title="User Details"
+        onClose={() => setViewOpen(false)}
+        footer={
+          <div className="flex justify-end">
+            <Button
+              onClick={() => setViewOpen(false)}
+              className="px-4 py-2 rounded-xl bg-indigo-600 text-white"
+            >
+              Close
+            </Button>
+          </div>
+        }
+      >
+        {viewUser && (
+          <div className="space-y-3 text-sm text-slate-700">
+            <p>
+              <b>Name:</b> {viewUser.name}
+            </p>
+            <p>
+              <b>Email:</b> {viewUser.email}
+            </p>
+            <p>
+              <b>Role:</b> {viewUser.role}
+            </p>
+            <p>
+              <b>Department:</b> {viewUser.department}
+            </p>
+            <p>
+              <b>Designation:</b> {viewUser.designation}
+            </p>
+            <p>
+              <b>Status:</b> {viewUser.status}
+            </p>
+          </div>
+        )}
+      </Modal>
       <ConfirmDialog
         open={successOpen}
         title="Success"
@@ -459,7 +551,17 @@ const Users = () => {
         onConfirm={() => setSuccessOpen(false)}
         onCancel={() => setSuccessOpen(false)}
       />
-
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete User"
+        message="Are you sure you want to delete this user?"
+        mode="Confirm"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setDeleteOpen(false);
+          setSelectedUserId(null);
+        }}
+      />
       <ConfirmDialog
         open={errorOpen}
         title="Error"

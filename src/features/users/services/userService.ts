@@ -59,6 +59,12 @@ export async function fetchActiveUsers() {
     }[];
   }>("/api/users?status=Active&limit=1000");
 }
+export async function updateUserStatus(
+  id: string,
+  status: "Active" | "Inactive",
+) {
+  return apiRequest(`/api/users/${id}/status`, "PATCH", { status });
+}
 export async function updateUser(
   id: string,
   payload: {
