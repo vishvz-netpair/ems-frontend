@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Button from "../../../components/ui/Button";
+import SelectDropdown from "../../../components/ui/SelectDropdown";
+import Loader from "../../../components/ui/Loader";
+
 import {
   getMyTasks,
   updateTaskStatus,
   type MyTaskItem,
   type TaskStatus,
 } from "../services/taskService";
+
 import { formatDate } from "../../../utils/date";
-import Loader from "../../../components/ui/Loader";
 
 const columns: Array<{ key: TaskStatus; label: string }> = [
   { key: "Pending", label: "Pending" },
@@ -20,10 +25,13 @@ const columns: Array<{ key: TaskStatus; label: string }> = [
 function isOverdue(t: MyTaskItem) {
   if (!t.dueDate) return false;
   if (t.status === "Completed") return false;
+
   const d = new Date(t.dueDate);
   const now = new Date();
+
   d.setHours(0, 0, 0, 0);
   now.setHours(0, 0, 0, 0);
+
   return d < now;
 }
 
@@ -49,11 +57,18 @@ export default function MyTasksPage() {
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const { control, setValue } = useForm();
+
   const load = async () => {
     setLoading(true);
     try {
       const res = await getMyTasks();
       setItems(res.items || []);
+
+      // set initial values in form
+      res.items?.forEach((t) => {
+        setValue(`status_${t._id}`, t.status);
+      });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed to load tasks";
       setErrorMsg(msg);
@@ -74,7 +89,9 @@ export default function MyTasksPage() {
       "In Review": [],
       Completed: [],
     };
+
     items.forEach((t) => g[t.status]?.push(t));
+
     return g;
   }, [items]);
 
@@ -98,6 +115,7 @@ export default function MyTasksPage() {
             Tasks assigned to you across projects
           </p>
         </div>
+
         <Button variant="outline" onClick={load} disabled={loading}>
           Refresh
         </Button>
@@ -134,6 +152,7 @@ export default function MyTasksPage() {
                 ) : (
                   grouped[col.key].map((t) => {
                     const overdue = isOverdue(t);
+
                     return (
                       <div
                         key={t._id}
@@ -146,12 +165,16 @@ export default function MyTasksPage() {
                             <p className="text-sm font-semibold text-slate-900 line-clamp-2">
                               {t.title}
                             </p>
+
                             <p className="text-xs text-slate-500 mt-1">
                               {t.projectId?.name ?? "Project"}
                             </p>
                           </div>
+
                           <span
-                            className={`px-2 py-1 rounded-full text-[11px] font-medium ${priorityBadge(t.priority)}`}
+                            className={`px-2 py-1 rounded-full text-[11px] font-medium ${priorityBadge(
+                              t.priority,
+                            )}`}
                           >
                             {t.priority}
                           </span>
@@ -169,11 +192,13 @@ export default function MyTasksPage() {
                               Due: {formatDate(t.dueDate)}
                             </span>
                           ) : null}
+
                           {typeof t.estimatedHours === "number" ? (
                             <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-1">
                               Est: {t.estimatedHours}h
                             </span>
                           ) : null}
+
                           {overdue ? (
                             <span className="rounded-full bg-red-100 text-red-700 px-2 py-1 font-medium">
                               Overdue
@@ -181,20 +206,33 @@ export default function MyTasksPage() {
                           ) : null}
                         </div>
 
-                        <select
-                          value={t.status}
-                          onChange={(e) =>
-                            changeStatus(t._id, e.target.value as TaskStatus)
-                          }
-                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:ring-2 focus:ring-slate-200"
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="In Review">In Review</option>
-                          <option value="Completed" disabled>
-                            Completed
-                          </option>
-                        </select>
+                        <Controller
+                          control={control}
+                          name={`status_${t._id}`}
+                          defaultValue={t.status}
+                          render={({ field }) => (
+                            <SelectDropdown
+                              value={field.value}
+                              onChange={(v) => {
+                                field.onChange(v);
+                                changeStatus(t._id, v as TaskStatus);
+                              }}
+                              options={[
+                                { label: "Pending", value: "Pending" },
+                                {
+                                  label: "In Progress",
+                                  value: "In Progress",
+                                },
+                                { label: "In Review", value: "In Review" },
+                                {
+                                  label: "Completed",
+                                  value: "Completed",
+                                  disabled: true,
+                                },
+                              ]}
+                            />
+                          )}
+                        />
                       </div>
                     );
                   })
