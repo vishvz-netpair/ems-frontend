@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import DataTable from "../../../components/table/DataTable";
 import type { Column } from "../../../components/table/DataTable";
+
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
-import { useNavigate } from "react-router-dom";
 
 import {
   listProjects,
@@ -12,11 +14,12 @@ import {
 
 import ProjectFormModal from "../components/ProjectFormModal";
 import ProjectViewModal from "../components/ProjectViewModal";
+
 import { formatDate } from "../../../utils/date";
 import Loader from "../../../components/ui/Loader";
 
 type Row = {
-  id: number; // DataTable needs number
+  id: number;
   _id: string;
   name: string;
   startDate: string;
@@ -27,16 +30,18 @@ type Row = {
 
 const ProjectsAdmin = () => {
   const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
 
-  const [page, setPage] = useState(1); // backend pagination
+  const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  const [totalPages, setTotalPages] = useState(1);
-
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const [rows, setRows] = useState<Row[]>([]);
+
+  const [total, setTotal] = useState(0);
 
   const [addOpen, setAddOpen] = useState(false);
 
@@ -68,8 +73,14 @@ const ProjectsAdmin = () => {
 
   const load = async () => {
     setLoading(true);
+
     try {
-      const res = await listProjects({ page, limit });
+      const res = await listProjects({
+        page,
+        limit,
+        search,
+        status: statusFilter,
+      });
 
       const mapped: Row[] = res.items.map((p, idx) => ({
         id: idx + 1 + (page - 1) * limit,
@@ -82,14 +93,13 @@ const ProjectsAdmin = () => {
       }));
 
       setRows(mapped);
-      setTotalPages(res.totalPages || 1);
+      setTotal(res.total);
     } catch (e: unknown) {
-      let message = "Failed to fetch  projects";
-      if (e instanceof Error) {
-        message = e.message;
-      } else if (typeof e === "string") {
-        message = e;
-      }
+      let message = "Failed to fetch projects";
+
+      if (e instanceof Error) message = e.message;
+      else if (typeof e === "string") message = e;
+
       setErrorMsg(message);
       setErrorOpen(true);
     } finally {
@@ -99,20 +109,7 @@ const ProjectsAdmin = () => {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit]);
-
-  const filteredRows = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
-    // frontend search (current page only)
-    return rows.filter((r) => r.name.toLowerCase().includes(q));
-  }, [rows, search]);
-
-  /*const openView = (row: Row) => {
-    setViewId(row._id);
-    setViewOpen(true);
-  };*/
+  }, [page, limit, search, statusFilter]);
 
   const openEdit = (row: Row) => {
     setEditId(row._id);
@@ -124,33 +121,38 @@ const ProjectsAdmin = () => {
     setDeleteOpen(true);
   };
 
+  const openProject = (row: Row) => {
+    navigate(`/projects/${row._id}`);
+  };
+
   const confirmDelete = async () => {
     if (!deleteId) return;
+
     try {
       await softDeleteProject(deleteId);
+
       setDeleteOpen(false);
       setDeleteId(null);
+
       setSuccessMsg("Project deleted successfully.");
       setSuccessOpen(true);
+
       load();
     } catch (e: unknown) {
       let message = "Delete Failed";
-      if (e instanceof Error) {
-        message = e.message;
-      } else if (typeof e === "string") {
-        message = e;
-      }
+
+      if (e instanceof Error) message = e.message;
+      else if (typeof e === "string") message = e;
+
       setErrorMsg(message);
       setErrorOpen(true);
     }
-  };
-  const openProject = (row: Row) => {
-    navigate(`/projects/${row._id}`);
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
+
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-semibold text-slate-800">Projects</h2>
@@ -167,53 +169,35 @@ const ProjectsAdmin = () => {
         </button>
       </div>
 
-      {/* Controls */}
+      {/* Search + Filter */}
+
       <div className="flex flex-col md:flex-row md:items-center gap-3">
         <input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setPage(1);
+            setSearch(e.target.value);
+          }}
           placeholder="Search by project name..."
           className="h-11 w-full md:max-w-md rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-slate-200"
         />
 
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <span>Rows:</span>
-          <select
-            value={limit}
-            onChange={(e) => {
-              setPage(1);
-              setLimit(Number(e.target.value));
-            }}
-            className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none"
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2 ml-auto">
-          <button
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            disabled={page <= 1}
-            className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <div className="text-sm text-slate-600">
-            Page {page} of {totalPages}
-          </div>
-          <button
-            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-            disabled={page >= totalPages}
-            className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setPage(1);
+            setStatusFilter(e.target.value);
+          }}
+          className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+        </select>
       </div>
 
       {/* Table */}
+
       {loading ? (
         <Loader
           variant="block"
@@ -224,16 +208,25 @@ const ProjectsAdmin = () => {
       ) : (
         <DataTable
           columns={columns}
-          data={filteredRows}
+          data={rows}
           actions={[
             { label: "View", onClick: openProject },
             { label: "Edit", onClick: openEdit },
             { label: "Delete", onClick: openDelete },
           ]}
+          serverPagination={{
+            enabled: true,
+            page,
+            limit,
+            total,
+            onPageChange: setPage,
+            onLimitChange: setLimit,
+          }}
         />
       )}
 
       {/* Modals */}
+
       <ProjectFormModal
         open={addOpen}
         mode="add"
@@ -287,7 +280,6 @@ const ProjectsAdmin = () => {
         }}
       />
 
-      {/* Success */}
       <ConfirmDialog
         open={successOpen}
         title="Success"
@@ -297,7 +289,6 @@ const ProjectsAdmin = () => {
         onCancel={() => setSuccessOpen(false)}
       />
 
-      {/* Error */}
       <ConfirmDialog
         open={errorOpen}
         title="Error"

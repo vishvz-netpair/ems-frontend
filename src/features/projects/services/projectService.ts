@@ -54,9 +54,21 @@ export async function createProject(payload: ProjectPayload) {
   );
 }
 
-export async function listProjects(params: { page: number; limit: number }) {
+export async function listProjects(params: {
+  page: number;
+  limit: number;
+  search?: string;
+  status?: string;
+}) {
+  const q = new URLSearchParams({
+    page: String(params.page),
+    limit: String(params.limit),
+    search: params.search || "",
+    status: params.status || "all",
+  });
+
   return apiRequest<ProjectListResponse>(
-    `/api/projects?page=${params.page}&limit=${params.limit}`,
+    `/api/projects?${q.toString()}`,
     "GET",
   );
 }

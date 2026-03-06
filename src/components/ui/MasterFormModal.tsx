@@ -1,90 +1,138 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+
 import Modal from "./Modal";
 import Button from "./Button";
+import { InputField } from "./InputField";
+import SelectDropdown from "./SelectDropdown";
 
-type MasterFormModalProps={
-    open:boolean
-    title:string
-    initialName:string
-    initialStatus?:"Active"| "Inactive"
-    onClose:()=>void
-    onSave:(payload:{name:string;status:"Active"|"Inactive"})=>void
-}
-const MasterFormModal=({
-    open,
-    title,
-    initialName,
-    initialStatus="Active",
-    onClose,
-    onSave,
-}:MasterFormModalProps)=>{
-    const [name, setName] = useState<string>(() => initialName)
-const [status, setStatus] = useState<"Active" | "Inactive">(() => initialStatus)
-const [error, setError] = useState("")
+type MasterFormModalProps = {
+  open: boolean;
+  title: string;
+  initialName: string;
+  initialStatus?: "Active" | "Inactive";
+  onClose: () => void;
+  onSave: (payload: { name: string; status: "Active" | "Inactive" }) => void;
+};
 
+type FormValues = {
+  name: string;
+  status: "Active" | "Inactive";
+};
 
-   
-    const handleSubmit=(e:React.FormEvent)=>{
-        e.preventDefault()
-        const trimmed=name.trim()
+const MasterFormModal = ({
+  open,
+  title,
+  initialName,
+  initialStatus = "Active",
+  onClose,
+  onSave,
+}: MasterFormModalProps) => {
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {
+      name: initialName,
+      status: initialStatus,
+    },
+  });
 
-        if(!trimmed){
-            setError("Name is required")
-            return
-        }
-        onSave({name:trimmed,status})
-        onClose()
+  // edit mode reset
+  useEffect(() => {
+    if (open) {
+      reset({
+        name: initialName,
+        status: initialStatus,
+      });
     }
-    return(
-        <Modal
-         open={open}
-         title={title}
-         onClose={onClose}
-         footer={
-            <div className="flex items-center justify-end gap-3">
-                <Button
-                  onClick={onClose}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50"
-                  >Cancel</Button>
-                  <Button
-                  type="submit"
+  }, [open, initialName, initialStatus, reset]);
+
+  const submit = (data: FormValues) => {
+    const trimmed = data.name.trim();
+
+    if (!trimmed) return;
+
+    onSave({
+      name: trimmed,
+      status: data.status,
+    });
+
+    onClose();
+  };
+
+  return (
+    <Modal
+      open={open}
+      title={title}
+      onClose={onClose}
+      footer={
+        <div className="flex items-center justify-end gap-3">
+          <Button
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50"
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
             form="master-form"
             className="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700"
-                  >
-                    Save
-                  </Button>
-            </div>
-         }
-            >
-  <form id="master-form" onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="text-sm font-medium text-slate-700">Name</label>
-          <input
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              if (error) setError("")
-            }}
-            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
-            placeholder="Enter name"
-          />
-          {error ? <p className="mt-1 text-sm text-red-600">{error}</p> : null}
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-slate-700">Status</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as "Active" | "Inactive")}
-            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
           >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+            Save
+          </Button>
         </div>
-      </form>
-        </Modal>
-    )
+      }
+    >
+      <form
+        id="master-form"
+        onSubmit={handleSubmit(submit)}
+        className="space-y-4"
+      >
+        {/* Name Field */}
+        <Controller
+          name="name"
+          control={control}
+          rules={{
+            required: "Name is required",
+            minLength: {
+              value: 2,
+              message: "Minimum 2 characters required",
+            },
+          }}
+          render={({ field }) => (
+            <InputField
+              label="Name"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.name?.message}
+              placeholder="Enter name"
+            />
+          )}
+        />
 
-}
-export default MasterFormModal
+        {/* Status */}
+        <Controller
+          name="status"
+          control={control}
+          render={({ field }) => (
+            <SelectDropdown
+              label="Status"
+              value={field.value}
+              onChange={(v) => field.onChange(v as "Active" | "Inactive")}
+              options={[
+                { label: "Active", value: "Active" },
+                { label: "Inactive", value: "Inactive" },
+              ]}
+            />
+          )}
+        />
+      </form>
+    </Modal>
+  );
+};
+
+export default MasterFormModal;
