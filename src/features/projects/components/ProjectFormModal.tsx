@@ -68,7 +68,7 @@ const ProjectFormModal = ({
 
   const loadUsers = async () => {
     try {
-      const res = await fetchUsers(1, 100); // large limit for dropdown
+      const res = await fetchUsers({ page: 1, limit: 100 }); // large limit for dropdown
       setUsers(res.items);
     } catch (e: unknown) {
       let message = "Failed to load employee";

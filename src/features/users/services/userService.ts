@@ -6,6 +6,7 @@ export type UserItem = {
   email: string;
   role: "superadmin" | "admin" | "employee";
   status?: "Active" | "Inactive";
+  isDeleted?: boolean;
   department?: string;
   designation?: string;
 };

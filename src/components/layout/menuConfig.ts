@@ -36,6 +36,26 @@ export const menuItems: MenuItem[] = [
     roles: ["superadmin", "employee"],
   },
   {
+    label: "Leaves",
+    path: "/leaves",
+    roles: ["superadmin", "admin", "employee"],
+  },
+  {
+    label: "Leave Types",
+    path: "/leaves/types",
+    roles: ["superadmin", "admin"],
+  },
+  {
+    label: "Leave Requests",
+    path: "/leaves/requests",
+    roles: ["superadmin", "admin"],
+  },
+  {
+    label: "Leave Calendar",
+    path: "/leaves/calendar",
+    roles: ["superadmin", "admin", "employee"],
+  },
+  {
     label: "My Tasks",
     path: "/my-tasks",
     roles: ["superadmin", "admin", "employee"],

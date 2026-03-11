@@ -1,5 +1,3 @@
-import React from "react";
-
 type LoaderSize = "sm" | "md" | "lg";
 type LoaderVariant = "inline" | "block" | "overlay" | "fullscreen";
 

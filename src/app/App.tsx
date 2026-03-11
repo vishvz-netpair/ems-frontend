@@ -16,6 +16,10 @@ import AssetMaster from "../features/assets/pages/AssetMaster";
 import Users from "../features/users/pages/Users";
 import ForgotPassword from "../features/auth/pages/ForgotPassword";
 import ResetPassword from "../features/auth/pages/ResetPassword";
+import Leaves from "../features/leaves/pages/Leaves";
+import LeaveTypesPage from "../features/leaves/pages/LeaveTypesPage";
+import LeaveRequestsPage from "../features/leaves/pages/LeaveRequestsPage";
+import LeaveCalendarPage from "../features/leaves/pages/LeaveCalendarPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, token } = getSession();
@@ -113,6 +117,38 @@ function App() {
               element={
                 <RequireAuth>
                   <MyTasksPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/leaves"
+              element={
+                <RequireAuth>
+                  <Leaves />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/leaves/types"
+              element={
+                <RequireAuth>
+                  <LeaveTypesPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/leaves/requests"
+              element={
+                <RequireAuth>
+                  <LeaveRequestsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/leaves/calendar"
+              element={
+                <RequireAuth>
+                  <LeaveCalendarPage />
                 </RequireAuth>
               }
             />

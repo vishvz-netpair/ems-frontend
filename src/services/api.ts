@@ -5,16 +5,20 @@ export async function apiRequest<T>(
   method: string = "GET",
   body?: unknown
 ): Promise<T> {
-
   const token = localStorage.getItem("token");
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
 
   const res = await fetch(`${API_URL}${endpoint}`, {
     method,
     headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    ...(body ? { body: JSON.stringify(body) } : {})
+    ...(body
+      ? {
+          body: isFormData ? (body as FormData) : JSON.stringify(body),
+        }
+      : {}),
   });
 
   const data = await res.json();

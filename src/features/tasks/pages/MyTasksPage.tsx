@@ -80,7 +80,7 @@ export default function MyTasksPage() {
 
   useEffect(() => {
     load();
-  });
+  }, []);
 
   const grouped = useMemo(() => {
     const g: Record<TaskStatus, MyTaskItem[]> = {
