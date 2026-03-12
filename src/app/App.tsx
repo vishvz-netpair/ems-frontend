@@ -20,6 +20,10 @@ import Leaves from "../features/leaves/pages/Leaves";
 import LeaveTypesPage from "../features/leaves/pages/LeaveTypesPage";
 import LeaveRequestsPage from "../features/leaves/pages/LeaveRequestsPage";
 import LeaveCalendarPage from "../features/leaves/pages/LeaveCalendarPage";
+import Attendance from "../features/attendance/pages/Attendance";
+import MyAttendancePage from "../features/attendance/pages/MyAttendancePage";
+import AttendanceManagementPage from "../features/attendance/pages/AttendanceManagementPage";
+import AttendancePolicyPage from "../features/attendance/pages/AttendancePolicyPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, token } = getSession();
@@ -149,6 +153,38 @@ function App() {
               element={
                 <RequireAuth>
                   <LeaveCalendarPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/attendance"
+              element={
+                <RequireAuth>
+                  <Attendance />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/my-attendance"
+              element={
+                <RequireAuth>
+                  <MyAttendancePage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/attendance/manage"
+              element={
+                <RequireAuth>
+                  <AttendanceManagementPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/attendance/policy"
+              element={
+                <RequireAuth>
+                  <AttendancePolicyPage />
                 </RequireAuth>
               }
             />
