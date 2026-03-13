@@ -12,9 +12,11 @@ import {
   cancelLeaveRequest,
   getLeaveSummary,
   getMyLeaveBalances,
+  listLeaveHolidays,
   listActiveLeaveTypes,
   listMyLeaveRequests,
   type LeaveBalanceItem,
+  type LeaveHolidayItem,
   type LeaveRequestItem,
   type LeaveTypeItem,
 } from "../services/leaveService";
@@ -28,6 +30,7 @@ export default function EmployeeLeaveDashboard() {
   const [loading, setLoading] = useState(false);
   const [balances, setBalances] = useState<LeaveBalanceItem[]>([]);
   const [leaveTypes, setLeaveTypes] = useState<LeaveTypeItem[]>([]);
+  const [holidays, setHolidays] = useState<LeaveHolidayItem[]>([]);
   const [requests, setRequests] = useState<LeaveRequestItem[]>([]);
   const [summary, setSummary] = useState<Record<string, number>>({});
 
@@ -61,16 +64,18 @@ export default function EmployeeLeaveDashboard() {
   const load = async () => {
     setLoading(true);
     try {
-      const [summaryRes, balanceRes, typeRes, requestRes] = await Promise.all([
+      const [summaryRes, balanceRes, typeRes, holidayRes, requestRes] = await Promise.all([
         getLeaveSummary(),
         getMyLeaveBalances(),
         listActiveLeaveTypes(),
+        listLeaveHolidays(),
         listMyLeaveRequests({ page, limit, status, leaveTypeId, fromDate, toDate }),
       ]);
 
       setSummary(summaryRes.summary || {});
       setBalances(balanceRes.items || []);
       setLeaveTypes(typeRes.items || []);
+      setHolidays(holidayRes.items || []);
       setRequests(requestRes.items || []);
       setTotal(requestRes.total || 0);
     } catch (e) {
@@ -215,6 +220,7 @@ export default function EmployeeLeaveDashboard() {
         open={applyOpen}
         leaveTypes={leaveTypes}
         balances={balances}
+        holidays={holidays}
         onClose={() => setApplyOpen(false)}
         onSubmit={async (payload) => {
           await applyLeave(payload);

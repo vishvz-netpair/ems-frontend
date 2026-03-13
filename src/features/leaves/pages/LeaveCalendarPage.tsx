@@ -76,16 +76,16 @@ export default function LeaveCalendarPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div>
           <h2 className="text-3xl font-semibold text-slate-900">Leave Calendar</h2>
-          <p className="mt-1 text-sm text-slate-500">Visual leave plan for approved and pending requests.</p>
+          <p className="mt-1 text-sm text-slate-500">Visual leave plan with company holidays for the selected month.</p>
         </div>
         <Button variant="outline" onClick={load}>Refresh</Button>
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
           <SelectDropdown label="Month" value={month} onChange={setMonth} options={monthOptions} />
           <SelectDropdown
             label="Year"
@@ -126,7 +126,7 @@ export default function LeaveCalendarPage() {
         <>
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold text-slate-900">{title}</h3>
-            <p className="text-sm text-slate-500">{items.length} visible leave item(s)</p>
+            <p className="text-sm text-slate-500">{items.length} visible item(s)</p>
           </div>
           <LeaveCalendarGrid year={Number(year)} month={Number(month)} items={items} />
 
@@ -134,18 +134,36 @@ export default function LeaveCalendarPage() {
             <h3 className="text-lg font-semibold text-slate-900">Calendar Feed</h3>
             <div className="mt-4 space-y-3">
               {items.length === 0 ? (
-                <p className="text-sm text-slate-500">No leave entries found for this month.</p>
+                <p className="text-sm text-slate-500">No leave or holiday entries found for this month.</p>
               ) : (
                 items.map((item) => (
                   <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-3">
                       <span className="h-4 w-4 rounded-full" style={{ backgroundColor: item.color }} />
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">{item.employeeName} · {item.leaveTypeName}</p>
-                        <p className="text-sm text-slate-500">{formatDate(item.fromDate)} - {formatDate(item.toDate)} · {item.totalDays} day(s)</p>
+                        {item.kind === "holiday" ? (
+                          <>
+                            <p className="text-sm font-semibold text-slate-900">{item.leaveTypeName}</p>
+                            <p className="text-sm text-slate-500">
+                              {formatDate(item.fromDate)}
+                              {item.description ? ` · ${item.description}` : ""}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm font-semibold text-slate-900">{item.employeeName} · {item.leaveTypeName}</p>
+                            <p className="text-sm text-slate-500">{formatDate(item.fromDate)} - {formatDate(item.toDate)} · {item.totalDays} day(s)</p>
+                          </>
+                        )}
                       </div>
                     </div>
-                    <LeaveStatusBadge status={item.status} />
+                    {item.kind === "holiday" ? (
+                      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                        Holiday
+                      </span>
+                    ) : (
+                      <LeaveStatusBadge status={item.status!} />
+                    )}
                   </div>
                 ))
               )}

@@ -65,14 +65,14 @@ export default function LeaveCalendarGrid({ year, month, items }: Props) {
                     >
                       {day}
                     </span>
-                    {dayItems.length ? <span className="text-[11px] text-slate-500">{dayItems.length} leave</span> : null}
+                    {dayItems.length ? <span className="text-[11px] text-slate-500">{dayItems.length} item(s)</span> : null}
                   </div>
 
                   <div className="space-y-2">
                     {dayItems.slice(0, 3).map((item) => (
                       <div key={`${item.id}-${day}`} className="rounded-xl px-2.5 py-2 text-xs text-white" style={{ backgroundColor: item.color }}>
-                        <p className="truncate font-semibold">{item.employeeName}</p>
-                        <p className="truncate opacity-90">{item.leaveTypeCode}</p>
+                        <p className="truncate font-semibold">{item.kind === "holiday" ? item.leaveTypeName : item.employeeName}</p>
+                        <p className="truncate opacity-90">{item.kind === "holiday" ? "Holiday" : item.leaveTypeCode}</p>
                       </div>
                     ))}
                     {dayItems.length > 3 ? (
@@ -90,6 +90,9 @@ export default function LeaveCalendarGrid({ year, month, items }: Props) {
 
       <div className="border-t border-slate-200 bg-slate-50 px-5 py-4">
         <div className="flex flex-wrap gap-3">
+          <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+            Holiday
+          </span>
           <LeaveStatusBadge status="Pending" />
           <LeaveStatusBadge status="Level 1 Approved" />
           <LeaveStatusBadge status="Approved" />

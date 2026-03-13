@@ -4,12 +4,13 @@ import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import DatePicker from "../../../components/ui/DatePicker";
-import type { LeaveBalanceItem, LeaveTypeItem } from "../services/leaveService";
+import type { LeaveBalanceItem, LeaveHolidayItem, LeaveTypeItem } from "../services/leaveService";
 
 type Props = {
   open: boolean;
   leaveTypes: LeaveTypeItem[];
   balances: LeaveBalanceItem[];
+  holidays: LeaveHolidayItem[];
   onClose: () => void;
   onSubmit: (payload: FormData) => Promise<void>;
 };
@@ -23,17 +24,39 @@ type FormValues = {
   attachment: FileList | null;
 };
 
-function calculateDays(fromDate: string, toDate: string, dayUnit: "FULL" | "HALF") {
+function calculateDays(
+  fromDate: string,
+  toDate: string,
+  dayUnit: "FULL" | "HALF",
+  holidayDateKeys: Set<string>
+) {
   if (!fromDate || !toDate) return 0;
   const from = new Date(fromDate);
   const to = new Date(toDate);
   if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || from > to) return 0;
-  if (dayUnit === "HALF") return fromDate === toDate ? 0.5 : 0;
-  const diff = Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-  return diff;
+  if (dayUnit === "HALF") {
+    if (fromDate !== toDate) return 0;
+    const dayOfWeek = from.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) return 0;
+    return holidayDateKeys.has(fromDate) ? 0 : 0.5;
+  }
+
+  let totalDays = 0;
+  const current = new Date(from);
+
+  while (current <= to) {
+    const dayOfWeek = current.getDay();
+    const dateKey = current.toISOString().slice(0, 10);
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidayDateKeys.has(dateKey)) {
+      totalDays += 1;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
+  return totalDays;
 }
 
-export default function LeaveRequestFormModal({ open, leaveTypes, balances, onClose, onSubmit }: Props) {
+export default function LeaveRequestFormModal({ open, leaveTypes, balances, holidays, onClose, onSubmit }: Props) {
   const [serverError, setServerError] = useState("");
   const {
     control,
@@ -79,8 +102,12 @@ export default function LeaveRequestFormModal({ open, leaveTypes, balances, onCl
     () => balances.find((item) => item.leaveType.id === leaveTypeId) ?? null,
     [balances, leaveTypeId],
   );
+  const holidayDateKeys = useMemo(
+    () => new Set(holidays.filter((item) => item.isActive).map((item) => item.dateKey)),
+    [holidays],
+  );
 
-  const totalDays = calculateDays(fromDate, toDate, dayUnit);
+  const totalDays = calculateDays(fromDate, toDate, dayUnit, holidayDateKeys);
 
   const submit = async (values: FormValues) => {
     setServerError("");
@@ -188,6 +215,7 @@ export default function LeaveRequestFormModal({ open, leaveTypes, balances, onCl
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Calculated Leave Days</p>
           <p className="mt-2 text-2xl font-semibold text-slate-900">{totalDays}</p>
+          <p className="mt-2 text-xs text-slate-500">Weekends and active holidays are excluded from the count.</p>
         </div>
 
         <Controller

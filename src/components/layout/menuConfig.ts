@@ -61,6 +61,11 @@ export const menuItems: MenuItem[] = [
     roles: ["superadmin", "admin", "employee"],
   },
   {
+    label: "Holiday Master",
+    path: "/leaves/holidays",
+    roles: ["superadmin"],
+  },
+  {
     label: "My Tasks",
     path: "/my-tasks",
     roles: ["superadmin", "admin", "employee"],

@@ -20,6 +20,7 @@ import Leaves from "../features/leaves/pages/Leaves";
 import LeaveTypesPage from "../features/leaves/pages/LeaveTypesPage";
 import LeaveRequestsPage from "../features/leaves/pages/LeaveRequestsPage";
 import LeaveCalendarPage from "../features/leaves/pages/LeaveCalendarPage";
+import HolidayMaster from "../features/leaves/pages/HolidayMaster";
 import Attendance from "../features/attendance/pages/Attendance";
 import MyAttendancePage from "../features/attendance/pages/MyAttendancePage";
 import AttendanceManagementPage from "../features/attendance/pages/AttendanceManagementPage";
@@ -153,6 +154,14 @@ function App() {
               element={
                 <RequireAuth>
                   <LeaveCalendarPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/leaves/holidays"
+              element={
+                <RequireAuth>
+                  <HolidayMaster />
                 </RequireAuth>
               }
             />

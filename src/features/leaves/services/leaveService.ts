@@ -92,6 +92,7 @@ export type LeaveEmployeeOption = {
 
 export type LeaveCalendarItem = {
   id: string;
+  kind: "leave" | "holiday";
   title: string;
   employeeName: string;
   leaveTypeName: string;
@@ -100,7 +101,18 @@ export type LeaveCalendarItem = {
   fromDate: string;
   toDate: string;
   totalDays: number;
-  status: LeaveRequestItem["status"];
+  status: LeaveRequestItem["status"] | null;
+  description: string;
+};
+
+export type LeaveHolidayItem = {
+  id: string;
+  name: string;
+  date: string;
+  dateKey: string;
+  description: string;
+  scope: string;
+  isActive: boolean;
 };
 
 export type LeaveSummaryResponse = {
@@ -230,6 +242,44 @@ export async function getLeaveCalendar(params: {
   });
 
   return apiRequest<{ items: LeaveCalendarItem[] }>(`/api/leaves/calendar?${qs.toString()}`, "GET");
+}
+
+export async function listLeaveHolidays(params?: { month?: number; year?: number }) {
+  const qs = new URLSearchParams();
+  if (params?.month) qs.set("month", String(params.month));
+  if (params?.year) qs.set("year", String(params.year));
+
+  return apiRequest<{ items: LeaveHolidayItem[] }>(
+    `/api/leaves/holidays${qs.toString() ? `?${qs.toString()}` : ""}`,
+    "GET"
+  );
+}
+
+export async function createLeaveHoliday(payload: {
+  name: string;
+  date: string;
+  description?: string;
+  scope?: string;
+  isActive?: boolean;
+}) {
+  return apiRequest<LeaveHolidayItem>("/api/leaves/holidays", "POST", payload);
+}
+
+export async function updateLeaveHoliday(
+  id: string,
+  payload: {
+    name: string;
+    date: string;
+    description?: string;
+    scope?: string;
+    isActive?: boolean;
+  }
+) {
+  return apiRequest<LeaveHolidayItem>(`/api/leaves/holidays/${id}`, "PUT", payload);
+}
+
+export async function deleteLeaveHoliday(id: string) {
+  return apiRequest<{ message: string }>(`/api/leaves/holidays/${id}`, "DELETE");
 }
 
 export async function runLeaveAutomation(runDate?: string) {
