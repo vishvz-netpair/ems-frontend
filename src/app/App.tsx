@@ -1,45 +1,57 @@
-// src/App.tsx
-
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "../features/auth/pages/Login";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import Dashboard from "../features/auth/pages/Dashboard";
-import DepartmentMaster from "../features/department/pages/DepartmentMaster";
-import DesignationMaster from "../features/designation/pages/DesignationMaster";
-import { DepartmentProvider } from "../features/department/context/department-context";
-import { DesignationProvider } from "../features/designation/context/designation-provider";
-import Projects from "../features/projects/pages/Projects";
-import { getSession } from "../features/auth/services/auth";
-import ProjectDetails from "../features/projects/pages/ProjectDetails";
-import MyTasksPage from "../features/tasks/pages/MyTasksPage";
-import AssetMaster from "../features/assets/pages/AssetMaster";
-import Users from "../features/users/pages/Users";
 import ForgotPassword from "../features/auth/pages/ForgotPassword";
+import Login from "../features/auth/pages/Login";
 import ResetPassword from "../features/auth/pages/ResetPassword";
-import Leaves from "../features/leaves/pages/Leaves";
-import LeaveTypesPage from "../features/leaves/pages/LeaveTypesPage";
-import LeaveRequestsPage from "../features/leaves/pages/LeaveRequestsPage";
-import LeaveCalendarPage from "../features/leaves/pages/LeaveCalendarPage";
-import HolidayMaster from "../features/leaves/pages/HolidayMaster";
+import { DepartmentProvider } from "../features/department/context/department-context";
+import DepartmentMaster from "../features/department/pages/DepartmentMaster";
+import { DesignationProvider } from "../features/designation/context/designation-provider";
+import DesignationMaster from "../features/designation/pages/DesignationMaster";
+import AssetMaster from "../features/assets/pages/AssetMaster";
 import Attendance from "../features/attendance/pages/Attendance";
-import MyAttendancePage from "../features/attendance/pages/MyAttendancePage";
 import AttendanceManagementPage from "../features/attendance/pages/AttendanceManagementPage";
 import AttendancePolicyPage from "../features/attendance/pages/AttendancePolicyPage";
+import MyAttendancePage from "../features/attendance/pages/MyAttendancePage";
+import { getSession, hasRequiredRole, type UserRole } from "../features/auth/services/auth";
+import HolidayMaster from "../features/leaves/pages/HolidayMaster";
+import LeaveCalendarPage from "../features/leaves/pages/LeaveCalendarPage";
+import LeaveRequestsPage from "../features/leaves/pages/LeaveRequestsPage";
+import Leaves from "../features/leaves/pages/Leaves";
+import LeaveTypesPage from "../features/leaves/pages/LeaveTypesPage";
+import ProjectDetails from "../features/projects/pages/ProjectDetails";
+import Projects from "../features/projects/pages/Projects";
+import MyTasksPage from "../features/tasks/pages/MyTasksPage";
+import Users from "../features/users/pages/Users";
 
-function RequireAuth({ children }: { children: React.ReactNode }) {
+type ProtectedRouteProps = {
+  children: React.ReactNode;
+  allowedRoles?: UserRole[];
+  redirectTo?: string;
+};
+
+function ProtectedRoute({ children, allowedRoles, redirectTo = "/" }: ProtectedRouteProps) {
   const { user, token } = getSession();
 
   if (!token || !user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={redirectTo} replace />;
   }
 
-  // convert to Layout required shape
-  const safeUser = {
-    name: user.email,
-    role: user.role ?? "employee",
-  };
+  const role = user.role ?? "employee";
+  if (!hasRequiredRole(role, allowedRoles)) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
-  return <Layout user={safeUser}>{children}</Layout>;
+  return (
+    <Layout
+      user={{
+        name: user.name || user.email,
+        role,
+      }}
+    >
+      {children}
+    </Layout>
+  );
 }
 
 function App() {
@@ -48,155 +60,147 @@ function App() {
       <DepartmentProvider>
         <DesignationProvider>
           <Routes>
-            {/* Public */}
             <Route path="/" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            {/* Protected */}
+
             <Route
               path="/dashboard"
               element={
-                <RequireAuth>
+                <ProtectedRoute>
                   <Dashboard />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
-            {/* Protected */}
             <Route
               path="/user"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin"]}>
                   <Users />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
-
             <Route
               path="/masters/department"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin"]}>
                   <DepartmentMaster />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
-
             <Route
               path="/masters/designation"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin"]}>
                   <DesignationMaster />
-                </RequireAuth>
-              }
-            />
-
-            <Route
-              path="/projects"
-              element={
-                <RequireAuth>
-                  <Projects />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/masters/assets"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin"]}>
                   <AssetMaster />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
-
-            {/* ✅ Project detail page */}
+            <Route
+              path="/projects"
+              element={
+                <ProtectedRoute allowedRoles={["superadmin", "employee"]}>
+                  <Projects />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/projects/:projectId"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin", "employee"]}>
                   <ProjectDetails />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
-
-            {/* ✅ My Tasks */}
             <Route
               path="/my-tasks"
               element={
-                <RequireAuth>
+                <ProtectedRoute>
                   <MyTasksPage />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/leaves"
               element={
-                <RequireAuth>
+                <ProtectedRoute>
                   <Leaves />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/leaves/types"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
                   <LeaveTypesPage />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/leaves/requests"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
                   <LeaveRequestsPage />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/leaves/calendar"
               element={
-                <RequireAuth>
+                <ProtectedRoute>
                   <LeaveCalendarPage />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/leaves/holidays"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin"]}>
                   <HolidayMaster />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/attendance"
               element={
-                <RequireAuth>
+                <ProtectedRoute>
                   <Attendance />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/my-attendance"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["employee"]}>
                   <MyAttendancePage />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/attendance/manage"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
                   <AttendanceManagementPage />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/attendance/policy"
               element={
-                <RequireAuth>
+                <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
                   <AttendancePolicyPage />
-                </RequireAuth>
+                </ProtectedRoute>
               }
             />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </DesignationProvider>
       </DepartmentProvider>

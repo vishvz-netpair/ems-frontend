@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import DataTable from "../../../components/table/DataTable";
 import type { Column } from "../../../components/table/DataTable";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
@@ -48,6 +48,7 @@ const DesignationMaster = () => {
   // ✅ Add/Edit form
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const hasMountedSearch = useRef(false);
   const [form, setForm] = useState<{
     name: string;
     departmentId: string;
@@ -109,6 +110,11 @@ const DesignationMaster = () => {
   }, [page, limit]);
 
   useEffect(() => {
+    if (!hasMountedSearch.current) {
+      hasMountedSearch.current = true;
+      return;
+    }
+
     const t = setTimeout(() => {
       setPage(1);
       load();

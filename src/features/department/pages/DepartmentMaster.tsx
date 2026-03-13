@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import DataTable from "../../../components/table/DataTable";
 import type { Column } from "../../../components/table/DataTable";
 import MasterFormModal from "../../../components/ui/MasterFormModal";
@@ -47,6 +47,7 @@ const DepartmentMaster = () => {
 
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const hasMountedSearch = useRef(false);
 
   const columns: Column<Row>[] = useMemo(
     () => [
@@ -87,6 +88,11 @@ const DepartmentMaster = () => {
   }, [page, limit]);
 
   useEffect(() => {
+    if (!hasMountedSearch.current) {
+      hasMountedSearch.current = true;
+      return;
+    }
+
     const t = setTimeout(() => {
       setPage(1);
       load();

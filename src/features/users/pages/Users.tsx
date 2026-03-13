@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import DataTable from "../../../components/table/DataTable";
@@ -68,6 +68,7 @@ const Users = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const [saving, setSaving] = useState(false);
+  const hasMountedSearch = useRef(false);
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
@@ -206,6 +207,11 @@ const Users = () => {
   }, [page, limit]);
 
   useEffect(() => {
+    if (!hasMountedSearch.current) {
+      hasMountedSearch.current = true;
+      return;
+    }
+
     const t = setTimeout(() => {
       setPage(1);
       load();
