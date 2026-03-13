@@ -11,12 +11,12 @@ type LayoutProps = {
 
 const Layout = ({ children, user }: LayoutProps) => {
   return (
-    <div className="flex bg-slate-100">
+    <div className="app-shell flex h-screen">
       <Sidebar role={user.role} />
 
-      <div className="flex-1 min-h-screen">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Header user={user} />
-        <main className="p-8">{children}</main>
+        <main className="content-shell page-enter min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-5 md:p-8">{children}</main>
       </div>
     </div>
   );

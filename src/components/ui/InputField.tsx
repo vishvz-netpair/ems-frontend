@@ -17,8 +17,8 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
     ref,
   ) => {
     const generatedId = React.useId();
-        const inputId = id ?? generatedId;
-        
+    const inputId = id ?? generatedId;
+
     return (
       <div className="w-full">
         {label && (
@@ -36,12 +36,12 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value)}
           className={`
-            h-11 w-full rounded-lg border bg-white px-3 text-sm text-slate-900 outline-none transition
+            h-11 w-full rounded-2xl border bg-[rgba(255,253,248,0.92)] px-4 text-sm text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] outline-none transition-all duration-200
             placeholder:text-slate-400
             ${
               error
-                ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-200"
-                : "border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                ? "border-red-300 focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                : "border-[rgba(123,97,63,0.15)] focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
             }
             ${className}
           `}

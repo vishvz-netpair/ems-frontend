@@ -6,11 +6,7 @@ type LoaderProps = {
   size?: LoaderSize;
   variant?: LoaderVariant;
   className?: string;
-
-  /** overlay/fullscreen ke liye background blur/opacity */
   backdropClassName?: string;
-
-  /** spinner ko customize karna ho */
   spinnerClassName?: string;
 };
 
@@ -30,16 +26,16 @@ export default function Loader({
 }: LoaderProps) {
   const spinner = (
     <div
-      className={`animate-spin rounded-full border-slate-300 border-t-slate-700 ${sizeMap[size]} ${spinnerClassName}`}
+      className={`animate-spin rounded-full border-teal-200 border-t-teal-700 ${sizeMap[size]} ${spinnerClassName}`}
       role="status"
       aria-label={label}
     />
   );
 
   const content = (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3 rounded-2xl border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,0.9)] px-4 py-3 shadow-sm">
       {spinner}
-      {label ? <span className="text-sm text-slate-600">{label}</span> : null}
+      {label ? <span className="text-sm font-medium text-slate-600">{label}</span> : null}
     </div>
   );
 
@@ -51,7 +47,6 @@ export default function Loader({
     return <div className={`w-full py-2 ${className}`}>{content}</div>;
   }
 
-  // overlay: parent container ko `relative` dena (important)
   if (variant === "overlay") {
     return (
       <div
@@ -62,7 +57,6 @@ export default function Loader({
     );
   }
 
-  // fullscreen
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center ${backdropClassName} ${className}`}

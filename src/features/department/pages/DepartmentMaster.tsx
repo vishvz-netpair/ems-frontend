@@ -4,6 +4,7 @@ import type { Column } from "../../../components/table/DataTable";
 import MasterFormModal from "../../../components/ui/MasterFormModal";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Modal from "../../../components/ui/Modal";
+import Button from "../../../components/ui/Button";
 
 import {
   listDepartments,
@@ -185,12 +186,12 @@ const DepartmentMaster = () => {
           </p>
         </div>
 
-        <button
+        <Button
           onClick={() => setAddOpen(true)}
-          className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition"
+          size="lg"
         >
           Add Department
-        </button>
+        </Button>
       </div>
 
       {/* Search only (no duplicate pagination) */}

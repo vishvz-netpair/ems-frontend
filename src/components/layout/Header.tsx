@@ -62,40 +62,47 @@ const Header = ({ user }: HeaderProps) => {
   };
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white/70 px-8 backdrop-blur">
-      <h1 className="text-lg font-semibold tracking-tight text-slate-800">
-        {pageTitle}
-      </h1>
+    <header className="px-5 pt-5 md:px-8">
+      <div className="surface-panel flex min-h-[76px] items-center justify-between rounded-[28px] px-5 py-4">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-teal-700/75">
+            Employee Management
+          </p>
+          <h1 className="mt-1 text-xl font-extrabold tracking-tight text-slate-800">
+            {pageTitle}
+          </h1>
+        </div>
 
-      <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setOpen(!open)}
-          className="flex items-center gap-3 rounded-full bg-slate-100 px-4 py-2 transition hover:bg-slate-200"
-        >
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-sky-600 text-sm font-semibold text-white">
-            {initial}
-          </div>
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setOpen(!open)}
+            className="flex items-center gap-3 rounded-full border border-white/70 bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#0f766e_0%,#d97706_100%)] text-sm font-bold text-white shadow-sm">
+              {initial}
+            </div>
 
-          <div className="text-left">
-            <p className="text-sm font-medium text-slate-800">
-              {user?.name || "User"}
-            </p>
-            <p className="text-xs capitalize text-slate-500">
-              {user?.role || "role"}
-            </p>
-          </div>
-        </button>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-slate-800">
+                {user?.name || "User"}
+              </p>
+              <p className="text-xs capitalize tracking-wide text-slate-500">
+                {user?.role || "role"}
+              </p>
+            </div>
+          </button>
 
-        {open && (
-          <div className="absolute right-0 z-50 mt-3 w-40 rounded-lg border border-slate-200 bg-white py-2 shadow-lg">
-            <button
-              onClick={handleLogout}
-              className="w-full px-4 py-2 text-left text-sm text-red-600 transition hover:bg-slate-100"
-            >
-              Logout
-            </button>
-          </div>
-        )}
+          {open && (
+            <div className="float-in absolute right-0 z-50 mt-3 w-44 rounded-2xl border border-[rgba(123,97,63,0.12)] bg-white/95 p-2 shadow-[0_20px_40px_rgba(33,29,22,0.12)] backdrop-blur">
+              <button
+                onClick={handleLogout}
+                className="w-full rounded-xl px-4 py-2.5 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

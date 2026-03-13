@@ -1,11 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Button from "../../../components/ui/Button";
-import { useEffect, useState } from "react";
+import { InputField } from "../../../components/ui/InputField";
 import { apiRequest } from "../../../services/api";
 import { saveSession, type SessionUser, type UserRole } from "../services/auth";
-import { InputField } from "../../../components/ui/InputField";
 
 type LoginFormData = {
   email: string;
@@ -83,66 +83,102 @@ const Login = () => {
 
   return (
     <>
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
-        <div className="w-[400px] rounded-2xl border border-slate-700 bg-slate-950 p-8 shadow-2xl">
-          <h2 className="mb-8 text-center text-3xl font-bold text-white">
-            EMS Login
-          </h2>
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.16),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(217,119,6,0.12),transparent_24%)]" />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <Controller
-              control={control}
-              name="email"
-              rules={{ required: "Email is required" }}
-              render={({ field }) => (
-                <InputField
-                  type="email"
-                  placeholder="Email"
-                  value={field.value ?? ""}
-                  onChange={field.onChange}
-                  error={errors.email?.message}
-                  className="border-slate-600 bg-slate-800 placeholder:text-slate-400 focus:ring-indigo-500"
-                />
-              )}
-            />
+        <div className="float-in relative grid w-full max-w-5xl overflow-hidden rounded-[34px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,252,246,0.9)] shadow-[0_30px_70px_rgba(33,29,22,0.12)] backdrop-blur lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="hidden bg-[linear-gradient(160deg,#0f766e_0%,#115e59_45%,#134e4a_100%)] p-10 text-white lg:block">
+            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/70">
+              Employee Management
+            </p>
+            <h1 className="mt-5 max-w-sm text-4xl font-extrabold leading-tight">
+              A calmer, cleaner workspace for daily operations.
+            </h1>
+            <p className="mt-5 max-w-md text-sm leading-7 text-white/78">
+              Manage people, projects, attendance, assets, and leave workflows from a single professional dashboard built for real office use.
+            </p>
 
-            <Controller
-              control={control}
-              name="password"
-              rules={{ required: "Password is required" }}
-              render={({ field }) => (
-                <InputField
-                  type="password"
-                  placeholder="Password"
-                  value={field.value ?? ""}
-                  onChange={field.onChange}
-                  error={errors.password?.message}
-                  className="border-slate-600 bg-slate-800 placeholder:text-slate-400 focus:ring-indigo-500"
-                />
-              )}
-            />
-
-            <div className="flex items-center justify-end">
-              <Link
-                to="/forgot-password"
-                className="text-sm text-slate-300 underline underline-offset-4 hover:text-white"
-              >
-                Forgot password?
-              </Link>
+            <div className="mt-10 grid gap-4">
+              <div className="rounded-3xl border border-white/12 bg-white/10 p-4 backdrop-blur">
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/60">Live Modules</p>
+                <p className="mt-2 text-lg font-semibold">Users, Attendance, Leave, Projects, Assets</p>
+              </div>
+              <div className="rounded-3xl border border-white/12 bg-white/10 p-4 backdrop-blur">
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/60">Built For Teams</p>
+                <p className="mt-2 text-sm leading-6 text-white/78">Clear workflows, role-based access, and fast admin operations without clutter.</p>
+              </div>
             </div>
+          </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-indigo-600 py-3 text-white hover:bg-indigo-700 disabled:opacity-60"
-            >
-              {loading ? "Logging in..." : "Login"}
-            </Button>
-          </form>
+          <div className="p-8 md:p-10">
+            <div className="mx-auto max-w-md">
+              <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-teal-700/75">
+                Welcome Back
+              </p>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">
+                Sign in to EMS
+              </h2>
+              <p className="mt-2 text-sm text-slate-500">
+                Continue to your workspace and resume daily operations.
+              </p>
 
-          <p className="mt-6 text-center text-xs text-slate-400">
-            Contact HR for account credentials.
-          </p>
+              <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
+                <Controller
+                  control={control}
+                  name="email"
+                  rules={{ required: "Email is required" }}
+                  render={({ field }) => (
+                    <InputField
+                      type="email"
+                      label="Email"
+                      placeholder="Enter your email"
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      error={errors.email?.message}
+                    />
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="password"
+                  rules={{ required: "Password is required" }}
+                  render={({ field }) => (
+                    <InputField
+                      type="password"
+                      label="Password"
+                      placeholder="Enter your password"
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      error={errors.password?.message}
+                    />
+                  )}
+                />
+
+                <div className="flex items-center justify-end">
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm font-semibold text-teal-700 underline underline-offset-4 hover:text-teal-800"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full"
+                  size="lg"
+                >
+                  {loading ? "Logging in..." : "Login"}
+                </Button>
+              </form>
+
+              <p className="mt-6 text-center text-xs text-slate-500">
+                Contact HR for account credentials.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

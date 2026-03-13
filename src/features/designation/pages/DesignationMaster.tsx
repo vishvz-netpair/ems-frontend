@@ -221,12 +221,12 @@ const DesignationMaster = () => {
       <div className="flex justify-between">
         <h2 className="text-2xl font-semibold">Designation Master</h2>
 
-        <button
+        <Button
           onClick={openAdd}
-          className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700"
+          size="lg"
         >
           Add Designation
-        </button>
+        </Button>
       </div>
 
       <input
@@ -275,7 +275,6 @@ const DesignationMaster = () => {
             <Button
               onClick={saveAdd}
               disabled={saving}
-              className="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60"
             >
               {saving ? "Saving..." : "Save"}
             </Button>
@@ -359,7 +358,6 @@ const DesignationMaster = () => {
             <Button
               onClick={saveEdit}
               disabled={saving}
-              className="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60"
             >
               {saving ? "Updating..." : "Update"}
             </Button>
