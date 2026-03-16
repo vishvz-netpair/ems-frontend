@@ -35,6 +35,7 @@ export const menuItems: MenuItem[] = [
     path: "/attendance",
     roles: ["superadmin", "admin", "employee"],
   },
+
   {
     label: "Leave",
     path: "/leaves",
@@ -69,6 +70,11 @@ export const menuItems: MenuItem[] = [
       {
         label: "Designation",
         path: "/masters/designation",
+        roles: ["superadmin"],
+      },
+      {
+        label: "Assets",
+        path: "/masters/assets",
         roles: ["superadmin"],
       },
       {

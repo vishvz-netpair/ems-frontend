@@ -15,13 +15,19 @@ const Sidebar = ({ role }: SidebarProps) => {
     () =>
       menuItems
         .map((item) => {
-          const children = item.children?.filter((child) => child.roles.includes(role));
+          const children = item.children?.filter((child) =>
+            child.roles.includes(role),
+          );
           return {
             ...item,
             children,
           };
         })
-        .filter((item) => item.roles.includes(role) && (!item.children || item.children.length > 0)),
+        .filter(
+          (item) =>
+            item.roles.includes(role) &&
+            (!item.children || item.children.length > 0),
+        ),
     [role],
   );
 
@@ -51,21 +57,31 @@ const Sidebar = ({ role }: SidebarProps) => {
       <nav className="relative mt-4 flex-1 space-y-2 px-4 py-7">
         {items.map((item) => {
           const hasChildren = item.children && item.children.length > 0;
-          const childActive = item.children?.some((child) => isPathActive(child.path)) ?? false;
+          const childActive =
+            item.children?.some((child) => isPathActive(child.path)) ?? false;
           const parentActive = item.path ? isPathActive(item.path) : false;
-          const isExpanded = hoveredGroup === item.label || openGroup === item.label || childActive;
+          const isExpanded =
+            hoveredGroup === item.label ||
+            openGroup === item.label ||
+            childActive;
           const baseClasses = `
             group relative flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-sm font-semibold leading-6 transition-all duration-200
-            ${parentActive || childActive
-              ? "bg-[linear-gradient(135deg,#0f766e_0%,#115e59_100%)] text-white shadow-[0_12px_28px_rgba(15,118,110,0.22)]"
-              : "text-slate-600 hover:bg-white/75 hover:text-slate-900"}
+            ${
+              parentActive || childActive
+                ? "bg-[linear-gradient(135deg,#0f766e_0%,#115e59_100%)] text-white shadow-[0_12px_28px_rgba(15,118,110,0.22)]"
+                : "text-slate-600 hover:bg-white/75 hover:text-slate-900"
+            }
           `;
 
           return (
             <div
               key={item.label}
               onMouseEnter={() => setHoveredGroup(item.label)}
-              onMouseLeave={() => setHoveredGroup((current) => (current === item.label ? null : current))}
+              onMouseLeave={() =>
+                setHoveredGroup((current) =>
+                  current === item.label ? null : current,
+                )
+              }
             >
               {item.path ? (
                 <NavLink to={item.path} className={baseClasses}>
@@ -83,7 +99,9 @@ const Sidebar = ({ role }: SidebarProps) => {
                 <button
                   type="button"
                   onClick={() =>
-                    setOpenGroup((current) => (current === item.label ? null : item.label))
+                    setOpenGroup((current) =>
+                      current === item.label ? null : item.label,
+                    )
                   }
                   className={baseClasses}
                 >
@@ -100,7 +118,9 @@ const Sidebar = ({ role }: SidebarProps) => {
               {hasChildren ? (
                 <div
                   className={`grid transition-all duration-300 ease-out ${
-                    isExpanded ? "mt-2 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    isExpanded
+                      ? "mt-2 grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
                   }`}
                 >
                   <div className="overflow-hidden">
@@ -111,12 +131,16 @@ const Sidebar = ({ role }: SidebarProps) => {
                           to={child.path}
                           className={({ isActive }) => `
                             flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200
-                            ${isActive
-                              ? "bg-white text-slate-900 shadow-sm"
-                              : "text-slate-500 hover:bg-white/70 hover:text-slate-900"}
+                            ${
+                              isActive
+                                ? "bg-white text-slate-900 shadow-sm"
+                                : "text-slate-500 hover:bg-white/70 hover:text-slate-900"
+                            }
                           `}
                           style={{
-                            transitionDelay: isExpanded ? `${index * 35}ms` : "0ms",
+                            transitionDelay: isExpanded
+                              ? `${index * 35}ms`
+                              : "0ms",
                           }}
                         >
                           <span className="h-2 w-2 rounded-full bg-teal-600/70" />
@@ -131,15 +155,6 @@ const Sidebar = ({ role }: SidebarProps) => {
           );
         })}
       </nav>
-
-      <div className="px-5 pb-5">
-        <div className="rounded-3xl border border-white/70 bg-white/70 p-4 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Panel</p>
-          <p className="mt-2 text-sm font-medium leading-6 text-slate-700">
-            Softer contrast, cleaner navigation, better long-session readability.
-          </p>
-        </div>
-      </div>
     </aside>
   );
 };
