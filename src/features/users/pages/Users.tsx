@@ -430,8 +430,10 @@ const Users = () => {
                 onChange={field.onChange}
                 options={[
                   { label: "Employee", value: "employee" },
-                  { label: "Admin", value: "admin" },
                   { label: "Superadmin", value: "superadmin" },
+                  { label: "Admin", value: "admin" },
+                  { label: "HR", value: "HR" },
+                  { label: "Team Leader", value: "teamLeader" },
                 ]}
               />
             )}

@@ -47,9 +47,6 @@ const Sidebar = ({ role }: SidebarProps) => {
             EMS Netpair
           </span>
         </div>
-        <div className="rounded-2xl border border-white/60 bg-white/70 px-3 py-2 text-xs font-semibold text-amber-700 shadow-sm">
-          Pro
-        </div>
       </div>
 
       <div className="mx-6 h-px bg-gradient-to-r from-transparent via-[rgba(15,118,110,0.28)] to-transparent" />
