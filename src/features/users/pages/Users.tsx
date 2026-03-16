@@ -111,6 +111,7 @@ const Users = () => {
         render: (value, row) => (
           <select
             value={value}
+            title="select"
             onChange={async (e) => {
               try {
                 await updateUserStatus(
