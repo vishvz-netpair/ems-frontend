@@ -5,6 +5,7 @@ import DataTable from "../../../components/table/DataTable";
 import type { Column } from "../../../components/table/DataTable";
 
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+import Button from "../../../components/ui/Button";
 
 import {
   listProjects,
@@ -151,49 +152,35 @@ const ProjectsAdmin = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-2xl">
+          <input
+            value={search}
+            onChange={(e) => {
+              setPage(1);
+              setSearch(e.target.value);
+            }}
+            placeholder="Search by project name..."
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-slate-200"
+          />
 
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-800">Projects</h2>
-          <p className="text-sm text-slate-500">
-            Create, view, edit and soft-delete projects
-          </p>
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setPage(1);
+              setStatusFilter(e.target.value);
+            }}
+            className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-slate-200"
+          >
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+          </select>
         </div>
 
-        <button
-          onClick={() => setAddOpen(true)}
-          className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition"
-        >
+        <Button onClick={() => setAddOpen(true)} size="lg">
           Add Project
-        </button>
-      </div>
-
-      {/* Search + Filter */}
-
-      <div className="flex flex-col md:flex-row md:items-center gap-3">
-        <input
-          value={search}
-          onChange={(e) => {
-            setPage(1);
-            setSearch(e.target.value);
-          }}
-          placeholder="Search by project name..."
-          className="h-11 w-full md:max-w-md rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-slate-200"
-        />
-
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setPage(1);
-            setStatusFilter(e.target.value);
-          }}
-          className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none"
-        >
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="pending">Pending</option>
-        </select>
+        </Button>
       </div>
 
       {/* Table */}

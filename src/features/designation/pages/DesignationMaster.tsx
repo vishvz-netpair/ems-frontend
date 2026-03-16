@@ -218,23 +218,20 @@ const DesignationMaster = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between">
-        <h2 className="text-2xl font-semibold">Designation Master</h2>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex w-full items-center gap-3 lg:max-w-md">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search designation..."
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
 
-        <Button
-          onClick={openAdd}
-          size="lg"
-        >
+        <Button onClick={openAdd} size="lg">
           Add Designation
         </Button>
       </div>
-
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search designation..."
-        className="border px-3 py-2 rounded w-64"
-      />
 
       {loading ? (
         <Loader variant="block" label="Loading designation..." />

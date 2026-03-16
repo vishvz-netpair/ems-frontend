@@ -176,32 +176,19 @@ const DepartmentMaster = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-800">
-            Department Master
-          </h2>
-          <p className="text-sm text-slate-500">
-            Manage departments (Add / Edit / View / Delete)
-          </p>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex w-full items-center gap-3 lg:max-w-md">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search department..."
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-slate-200"
+          />
         </div>
 
-        <Button
-          onClick={() => setAddOpen(true)}
-          size="lg"
-        >
+        <Button onClick={() => setAddOpen(true)} size="lg">
           Add Department
         </Button>
-      </div>
-
-      {/* Search only (no duplicate pagination) */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search department..."
-          className="h-11 w-full md:max-w-md rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-slate-200"
-        />
       </div>
 
       {loading ? (

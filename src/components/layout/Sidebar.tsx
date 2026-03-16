@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { menuItems } from "./menuConfig";
 
 type SidebarProps = {
@@ -6,6 +7,27 @@ type SidebarProps = {
 };
 
 const Sidebar = ({ role }: SidebarProps) => {
+  const location = useLocation();
+  const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
+
+  const items = useMemo(
+    () =>
+      menuItems
+        .map((item) => {
+          const children = item.children?.filter((child) => child.roles.includes(role));
+          return {
+            ...item,
+            children,
+          };
+        })
+        .filter((item) => item.roles.includes(role) && (!item.children || item.children.length > 0)),
+    [role],
+  );
+
+  const isPathActive = (path: string) =>
+    location.pathname === path || location.pathname.startsWith(`${path}/`);
+
   return (
     <aside className="hide-scrollbar surface-panel relative flex h-screen w-72 shrink-0 flex-col overflow-y-auto overflow-x-hidden border-r border-[rgba(123,97,63,0.12)] bg-[linear-gradient(180deg,rgba(246,241,231,0.96)_0%,rgba(239,232,219,0.98)_100%)] text-slate-700">
       <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.18),transparent_62%)]" />
@@ -27,23 +49,87 @@ const Sidebar = ({ role }: SidebarProps) => {
       <div className="mx-6 h-px bg-gradient-to-r from-transparent via-[rgba(15,118,110,0.28)] to-transparent" />
 
       <nav className="relative mt-4 flex-1 space-y-2 px-4 py-7">
-        {menuItems
-          .filter((item) => item.roles.includes(role))
-          .map((item) => (
-            <NavLink
-              to={item.path}
-              key={item.path}
-              className={({ isActive }) => `
-                group relative flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm font-semibold leading-6 transition-all duration-200
-                ${isActive
-                  ? "bg-[linear-gradient(135deg,#0f766e_0%,#115e59_100%)] text-white shadow-[0_12px_28px_rgba(15,118,110,0.22)]"
-                  : "text-slate-600 hover:bg-white/75 hover:text-slate-900"}
-              `}
+        {items.map((item) => {
+          const hasChildren = item.children && item.children.length > 0;
+          const childActive = item.children?.some((child) => isPathActive(child.path)) ?? false;
+          const parentActive = item.path ? isPathActive(item.path) : false;
+          const isExpanded = hoveredGroup === item.label || openGroup === item.label || childActive;
+          const baseClasses = `
+            group relative flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-sm font-semibold leading-6 transition-all duration-200
+            ${parentActive || childActive
+              ? "bg-[linear-gradient(135deg,#0f766e_0%,#115e59_100%)] text-white shadow-[0_12px_28px_rgba(15,118,110,0.22)]"
+              : "text-slate-600 hover:bg-white/75 hover:text-slate-900"}
+          `;
+
+          return (
+            <div
+              key={item.label}
+              onMouseEnter={() => setHoveredGroup(item.label)}
+              onMouseLeave={() => setHoveredGroup((current) => (current === item.label ? null : current))}
             >
-              <span className="h-2.5 w-2.5 rounded-full bg-current/70" />
-              {item.label}
-            </NavLink>
-          ))}
+              {item.path ? (
+                <NavLink to={item.path} className={baseClasses}>
+                  <span className="h-2.5 w-2.5 rounded-full bg-current/70" />
+                  <span className="flex-1">{item.label}</span>
+                  {hasChildren ? (
+                    <span
+                      className={`text-xs transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+                    >
+                      ▼
+                    </span>
+                  ) : null}
+                </NavLink>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenGroup((current) => (current === item.label ? null : item.label))
+                  }
+                  className={baseClasses}
+                >
+                  <span className="h-2.5 w-2.5 rounded-full bg-current/70" />
+                  <span className="flex-1">{item.label}</span>
+                  <span
+                    className={`text-xs transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+                  >
+                    ▼
+                  </span>
+                </button>
+              )}
+
+              {hasChildren ? (
+                <div
+                  className={`grid transition-all duration-300 ease-out ${
+                    isExpanded ? "mt-2 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="ml-5 space-y-2 border-l border-[rgba(15,118,110,0.18)] pl-4">
+                      {item.children?.map((child, index) => (
+                        <NavLink
+                          key={child.path}
+                          to={child.path}
+                          className={({ isActive }) => `
+                            flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200
+                            ${isActive
+                              ? "bg-white text-slate-900 shadow-sm"
+                              : "text-slate-500 hover:bg-white/70 hover:text-slate-900"}
+                          `}
+                          style={{
+                            transitionDelay: isExpanded ? `${index * 35}ms` : "0ms",
+                          }}
+                        >
+                          <span className="h-2 w-2 rounded-full bg-teal-600/70" />
+                          {child.label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
       </nav>
 
       <div className="px-5 pb-5">

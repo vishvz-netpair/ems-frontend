@@ -83,11 +83,11 @@ const Login = () => {
 
   return (
     <>
-      <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      <div className="relative flex min-h-[100dvh] items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-4 lg:py-3">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.16),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(217,119,6,0.12),transparent_24%)]" />
 
-        <div className="float-in relative grid w-full max-w-5xl overflow-hidden rounded-[34px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,252,246,0.9)] shadow-[0_30px_70px_rgba(33,29,22,0.12)] backdrop-blur lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="hidden bg-[linear-gradient(160deg,#0f766e_0%,#115e59_45%,#134e4a_100%)] p-10 text-white lg:block">
+        <div className="float-in relative my-auto grid w-full max-w-5xl overflow-hidden rounded-[34px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,252,246,0.9)] shadow-[0_30px_70px_rgba(33,29,22,0.12)] backdrop-blur lg:max-h-[calc(100dvh-1.5rem)] lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="hidden bg-[linear-gradient(160deg,#0f766e_0%,#115e59_45%,#134e4a_100%)] p-8 text-white lg:block lg:overflow-y-auto">
             <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/70">
               Employee Management
             </p>
@@ -98,7 +98,7 @@ const Login = () => {
               Manage people, projects, attendance, assets, and leave workflows from a single professional dashboard built for real office use.
             </p>
 
-            <div className="mt-10 grid gap-4">
+            <div className="mt-8 grid gap-4">
               <div className="rounded-3xl border border-white/12 bg-white/10 p-4 backdrop-blur">
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/60">Live Modules</p>
                 <p className="mt-2 text-lg font-semibold">Users, Attendance, Leave, Projects, Assets</p>
@@ -110,7 +110,7 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="p-8 md:p-10">
+          <div className="p-8 md:p-9 lg:overflow-y-auto lg:p-8">
             <div className="mx-auto max-w-md">
               <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-teal-700/75">
                 Welcome Back
@@ -122,7 +122,7 @@ const Login = () => {
                 Continue to your workspace and resume daily operations.
               </p>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5 lg:mt-5">
                 <Controller
                   control={control}
                   name="email"
@@ -174,7 +174,7 @@ const Login = () => {
                 </Button>
               </form>
 
-              <p className="mt-6 text-center text-xs text-slate-500">
+              <p className="mt-5 text-center text-xs text-slate-500">
                 Contact HR for account credentials.
               </p>
             </div>

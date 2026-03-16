@@ -3,6 +3,7 @@ import DataTable from "../../../components/table/DataTable";
 import type { Column } from "../../../components/table/DataTable";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Loader from "../../../components/ui/Loader";
+import Button from "../../../components/ui/Button";
 import LeaveTypeModal from "../components/LeaveTypeModal";
 import {
   createLeaveType,
@@ -88,12 +89,9 @@ export default function LeaveTypesPage() {
           <h2 className="text-3xl font-semibold text-slate-900">Leave Types</h2>
           <p className="mt-1 text-sm text-slate-500">Configure leave rules, workflow depth, carry forward, accrual, and attachment policies.</p>
         </div>
-        <button
-          onClick={() => setAddOpen(true)}
-          className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
-        >
+        <Button onClick={() => setAddOpen(true)} size="lg">
           Add Leave Type
-        </button>
+        </Button>
       </div>
 
       {loading ? (

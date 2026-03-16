@@ -353,18 +353,20 @@ const Users = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between">
-        <h2 className="text-2xl font-semibold text-slate-800">Users</h2>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex w-full items-center gap-3 lg:max-w-md">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search user..."
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
 
-        <Button onClick={openAdd}>Add User</Button>
+        <Button onClick={openAdd} size="lg">
+          Add User
+        </Button>
       </div>
-
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search user..."
-        className="h-11 border rounded-xl px-4"
-      />
 
       {loading ? (
         <Loader variant="block" size="md" label="Loading users..." />

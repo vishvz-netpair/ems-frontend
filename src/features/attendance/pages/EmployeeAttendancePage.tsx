@@ -18,6 +18,18 @@ function formatMinutes(totalMinutes: number) {
   return `${hours}h ${minutes}m`;
 }
 
+function getLocalPunchTimestamp() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
+
 export default function EmployeeAttendancePage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -45,7 +57,11 @@ export default function EmployeeAttendancePage() {
   const handlePunch = async (punchType: "IN" | "OUT") => {
     setSubmitting(punchType);
     try {
-      await addAttendancePunch({ punchType, source: "web" });
+      await addAttendancePunch({
+        punchType,
+        punchTime: getLocalPunchTimestamp(),
+        source: "web"
+      });
       setSuccess(`${punchType} punch added successfully.`);
       await load();
     } catch (e) {
