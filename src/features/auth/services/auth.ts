@@ -1,4 +1,28 @@
-export type UserRole = "superadmin" | "admin" | "employee";
+export type UserRole =
+  | "superadmin"
+  | "admin"
+  | "employee"
+  | "HR"
+  | "teamLeader";
+
+export const ACCESS_RULES = {
+  usersPage: ["superadmin", "HR"],
+  usersManage: ["superadmin"],
+  projectsPage: ["superadmin", "employee", "HR", "teamLeader"],
+  projectManage: ["superadmin", "admin", "teamLeader"],
+  myTasksPage: ["superadmin", "admin", "employee", "teamLeader"],
+  attendancePage: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+  attendanceManage: ["superadmin", "admin", "HR"],
+  attendancePolicy: ["superadmin", "admin", "HR"],
+  leavesPage: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+  leaveTypes: ["superadmin", "admin", "HR"],
+  leaveRequests: ["superadmin", "admin", "HR", "teamLeader"],
+  leaveCalendar: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+  leaveHolidays: ["superadmin", "HR"],
+  departmentMaster: ["superadmin", "HR"],
+  designationMaster: ["superadmin", "HR"],
+  assetMaster: ["superadmin", "HR"],
+} as const satisfies Record<string, UserRole[]>;
 
 export type SessionUser = {
   id?: string;
@@ -33,8 +57,18 @@ export function clearSession() {
   localStorage.removeItem("user");
 }
 
-export function hasRequiredRole(role: UserRole | undefined, allowedRoles?: UserRole[]) {
+export function hasRequiredRole(
+  role: UserRole | undefined,
+  allowedRoles?: readonly UserRole[],
+) {
   if (!allowedRoles || allowedRoles.length === 0) return true;
   if (!role) return false;
   return allowedRoles.includes(role);
+}
+
+export function hasAccess(
+  role: UserRole | undefined,
+  accessKey: keyof typeof ACCESS_RULES,
+) {
+  return hasRequiredRole(role, ACCESS_RULES[accessKey]);
 }

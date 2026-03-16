@@ -11,12 +11,13 @@ import {
   runLeaveAutomation,
   type LeaveRequestItem,
 } from "../services/leaveService";
-import { getSession } from "../../auth/services/auth";
+import { getSession, hasAccess } from "../../auth/services/auth";
 
 export default function AdminLeaveDashboard() {
   const navigate = useNavigate();
   const { user } = getSession();
   const isSuperadmin = user?.role === "superadmin";
+  const canManageLeaveTypes = hasAccess(user?.role, "leaveTypes");
 
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<Record<string, number>>({});
@@ -64,7 +65,9 @@ export default function AdminLeaveDashboard() {
         </div>
         <div className="flex flex-wrap gap-3">
           <Button variant="outline" onClick={() => navigate("/leaves/requests")}>Open Requests</Button>
-          <Button variant="outline" onClick={() => navigate("/leaves/types")}>Manage Leave Types</Button>
+          {canManageLeaveTypes ? (
+            <Button variant="outline" onClick={() => navigate("/leaves/types")}>Manage Leave Types</Button>
+          ) : null}
           <Button variant="outline" onClick={() => navigate("/leaves/calendar")}>Open Calendar</Button>
           {isSuperadmin ? (
             <Button onClick={async () => {

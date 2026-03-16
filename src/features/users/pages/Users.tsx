@@ -22,7 +22,11 @@ import {
 
 import { listDepartments } from "../../department/services/departmentService";
 import { listDesignations } from "../../designation/services/designationService";
-import { getSession } from "../../auth/services/auth";
+import {
+  getSession,
+  hasAccess,
+  type UserRole,
+} from "../../auth/services/auth";
 
 import Loader from "../../../components/ui/Loader";
 
@@ -40,14 +44,15 @@ type Row = {
 type FormValues = {
   name: string;
   email: string;
-  role: "superadmin" | "admin" | "employee";
+  role: UserRole;
   departmentId: string;
   designationId: string;
 };
 
 const Users = () => {
   const { user } = getSession();
-  const isSuperAdmin = user?.role === "superadmin";
+  const canViewUsers = hasAccess(user?.role, "usersPage");
+  const canManageUsers = hasAccess(user?.role, "usersManage");
 
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(false);
@@ -109,48 +114,54 @@ const Users = () => {
         key: "status",
         label: "Status",
         render: (value, row) => (
-          <select
-            value={value}
-            title="select"
-            onChange={async (e) => {
-              try {
-                await updateUserStatus(
-                  row._id,
-                  e.target.value as "Active" | "Inactive",
-                );
+          canManageUsers ? (
+            <select
+              value={value}
+              title="select"
+              onChange={async (e) => {
+                try {
+                  await updateUserStatus(
+                    row._id,
+                    e.target.value as "Active" | "Inactive",
+                  );
 
-                setSuccessMsg("Status updated successfully");
-                setSuccessOpen(true);
-                load();
-              } catch {
-                setErrorMsg("Status update failed");
-                setErrorOpen(true);
-              }
-            }}
-            className="border rounded px-2 py-1"
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+                  setSuccessMsg("Status updated successfully");
+                  setSuccessOpen(true);
+                  load();
+                } catch {
+                  setErrorMsg("Status update failed");
+                  setErrorOpen(true);
+                }
+              }}
+              className="border rounded px-2 py-1"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          ) : (
+            <span>{String(value)}</span>
+          )
         ),
       },
     ],
-    [],
+    [canManageUsers],
   );
 
-  const actions = [
-    {
-      label: "Edit",
-      onClick: (row: Row) => openEdit(row),
-    },
-    {
-      label: "Delete",
-      onClick: (row: Row) => {
-        setSelectedUserId(row._id);
-        setDeleteOpen(true);
-      },
-    },
-  ];
+  const actions = canManageUsers
+    ? [
+        {
+          label: "Edit",
+          onClick: (row: Row) => openEdit(row),
+        },
+        {
+          label: "Delete",
+          onClick: (row: Row) => {
+            setSelectedUserId(row._id);
+            setDeleteOpen(true);
+          },
+        },
+      ]
+    : undefined;
 
   const load = async () => {
     setLoading(true);
@@ -226,6 +237,8 @@ const Users = () => {
   }, [addOpen]);
 
   const openAdd = () => {
+    if (!canManageUsers) return;
+
     reset({
       name: "",
       email: "",
@@ -239,10 +252,12 @@ const Users = () => {
   };
 
   const openEdit = (row: Row) => {
+    if (!canManageUsers) return;
+
     reset({
       name: row.name,
       email: row.email,
-      role: row.role as "superadmin" | "admin" | "employee",
+      role: row.role as UserRole,
       departmentId: "",
       designationId: "",
     });
@@ -280,6 +295,12 @@ const Users = () => {
     }
   };*/
   const onSubmit = async (data: FormValues) => {
+    if (!canManageUsers) {
+      setErrorMsg("You are not authorized to manage users");
+      setErrorOpen(true);
+      return;
+    }
+
     if (!data.departmentId) {
       setErrorMsg("Department is required");
       setErrorOpen(true);
@@ -331,7 +352,7 @@ const Users = () => {
     }
   };
   const confirmDelete = async () => {
-    if (!selectedUserId) return;
+    if (!canManageUsers || !selectedUserId) return;
 
     await deleteUser(selectedUserId);
 
@@ -344,7 +365,7 @@ const Users = () => {
     load();
   };
 
-  if (!isSuperAdmin) {
+  if (!canViewUsers) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
         You are not authorized to view this page.
@@ -364,9 +385,11 @@ const Users = () => {
           />
         </div>
 
-        <Button onClick={openAdd} size="lg">
-          Add User
-        </Button>
+        {canManageUsers ? (
+          <Button onClick={openAdd} size="lg">
+            Add User
+          </Button>
+        ) : null}
       </div>
 
       {loading ? (

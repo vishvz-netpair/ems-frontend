@@ -1,17 +1,19 @@
-import Button from "./Button"
-import Modal from "./Modal"
+import { useEffect } from "react";
+import Button from "./Button";
+import Modal from "./Modal";
 
 type ConfirmDialogProps = {
-  open: boolean
-  title?: string
-  message: string
-  mode?:"Confirm"|"Success",
-  confirmText?: string
-  cancelText?: string
-  onConfirm: () => void
-  onCancel: () => void
-  danger?: boolean
-}
+  open: boolean;
+  title?: string;
+  message: string;
+  mode?: "Confirm" | "Success";
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  danger?: boolean;
+  autoCloseMs?: number;
+};
 
 const ConfirmDialog = ({
   open,
@@ -23,8 +25,19 @@ const ConfirmDialog = ({
   onConfirm,
   onCancel,
   danger = false,
+  autoCloseMs = 900,
 }: ConfirmDialogProps) => {
-  const isSuccess = mode === "Success"
+  const isSuccess = mode === "Success";
+
+  useEffect(() => {
+    if (!open || !isSuccess || autoCloseMs <= 0) return;
+
+    const timeoutId = window.setTimeout(() => {
+      onConfirm();
+    }, autoCloseMs);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [autoCloseMs, isSuccess, onConfirm, open]);
 
   return (
     <Modal
@@ -55,7 +68,7 @@ const ConfirmDialog = ({
     >
       <p className="text-sm leading-6 text-slate-700">{message}</p>
     </Modal>
-  )
-}
+  );
+};
 
-export default ConfirmDialog
+export default ConfirmDialog;

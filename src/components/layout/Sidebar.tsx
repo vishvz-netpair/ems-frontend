@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import type { UserRole } from "../../features/auth/services/auth";
 import { menuItems } from "./menuConfig";
 
 type SidebarProps = {
-  role: string;
+  role: UserRole;
 };
 
 const Sidebar = ({ role }: SidebarProps) => {

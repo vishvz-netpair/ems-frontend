@@ -17,22 +17,18 @@ import { formatDate } from "../../../utils/date";
 import TaskBoard from "../tasks/TaskBoard";
 import TaskFormModal from "../tasks/TaskFormModal";
 import Loader from "../../../components/ui/Loader";
+import { getSession, hasAccess } from "../../auth/services/auth";
 
 type TabKey = "overview" | "tasks" | "team";
-
-function getRole() {
-  const raw = localStorage.getItem("user");
-  const user = raw ? JSON.parse(raw) : null;
-  return (user?.role as string) || "employee";
-}
 
 export default function ProjectDetails() {
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const { user } = getSession();
 
-  const role = getRole();
+  const role = user?.role ?? "employee";
   const isEmployee = role === "employee";
-  const canManage = role === "superadmin" || role === "admin";
+  const canManage = hasAccess(role, "projectManage");
 
   const [tab, setTab] = useState<TabKey>("tasks");
 

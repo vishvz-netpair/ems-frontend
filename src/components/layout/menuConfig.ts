@@ -1,11 +1,13 @@
+import type { UserRole } from "../../features/auth/services/auth";
+
 export type MenuItem = {
   label: string;
   path?: string;
-  roles: string[];
+  roles: UserRole[];
   children?: Array<{
     label: string;
     path: string;
-    roles: string[];
+    roles: UserRole[];
   }>;
 };
 
@@ -13,48 +15,48 @@ export const menuItems: MenuItem[] = [
   {
     label: "Dashboard",
     path: "/dashboard",
-    roles: ["superadmin", "admin", "employee"],
+    roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
   },
   {
     label: "Users",
     path: "/user",
-    roles: ["superadmin"],
+    roles: ["superadmin", "HR"],
   },
   {
     label: "Projects",
     path: "/projects",
-    roles: ["superadmin", "employee"],
+    roles: ["superadmin", "employee", "HR", "teamLeader"],
   },
   {
     label: "My Tasks",
     path: "/my-tasks",
-    roles: ["superadmin", "admin", "employee"],
+    roles: ["superadmin", "admin", "employee", "teamLeader"],
   },
   {
     label: "Attendance",
     path: "/attendance",
-    roles: ["superadmin", "admin", "employee"],
+    roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
   },
 
   {
     label: "Leave",
     path: "/leaves",
-    roles: ["superadmin", "admin", "employee"],
+    roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
     children: [
       {
         label: "Leave Types",
         path: "/leaves/types",
-        roles: ["superadmin", "admin"],
+        roles: ["superadmin", "admin", "HR"],
       },
       {
         label: "Leave Requests",
         path: "/leaves/requests",
-        roles: ["superadmin", "admin"],
+        roles: ["superadmin", "admin", "HR", "teamLeader"],
       },
       {
         label: "Leave Calendar",
         path: "/leaves/calendar",
-        roles: ["superadmin", "admin", "employee"],
+        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
       },
     ],
   },
@@ -65,22 +67,22 @@ export const menuItems: MenuItem[] = [
       {
         label: "Department",
         path: "/masters/department",
-        roles: ["superadmin"],
+        roles: ["superadmin", "HR"],
       },
       {
         label: "Designation",
         path: "/masters/designation",
-        roles: ["superadmin"],
+        roles: ["superadmin", "HR"],
       },
       {
         label: "Assets",
         path: "/masters/assets",
-        roles: ["superadmin"],
+        roles: ["superadmin", "HR"],
       },
       {
         label: "Holiday Master",
         path: "/leaves/holidays",
-        roles: ["superadmin"],
+        roles: ["superadmin", "HR"],
       },
     ],
   },

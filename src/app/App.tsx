@@ -13,7 +13,12 @@ import Attendance from "../features/attendance/pages/Attendance";
 import AttendanceManagementPage from "../features/attendance/pages/AttendanceManagementPage";
 import AttendancePolicyPage from "../features/attendance/pages/AttendancePolicyPage";
 import MyAttendancePage from "../features/attendance/pages/MyAttendancePage";
-import { getSession, hasRequiredRole, type UserRole } from "../features/auth/services/auth";
+import {
+  ACCESS_RULES,
+  getSession,
+  hasRequiredRole,
+  type UserRole,
+} from "../features/auth/services/auth";
 import HolidayMaster from "../features/leaves/pages/HolidayMaster";
 import LeaveCalendarPage from "../features/leaves/pages/LeaveCalendarPage";
 import LeaveRequestsPage from "../features/leaves/pages/LeaveRequestsPage";
@@ -26,7 +31,7 @@ import Users from "../features/users/pages/Users";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
-  allowedRoles?: UserRole[];
+  allowedRoles?: readonly UserRole[];
   redirectTo?: string;
 };
 
@@ -75,7 +80,7 @@ function App() {
             <Route
               path="/user"
               element={
-                <ProtectedRoute allowedRoles={["superadmin"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.usersPage}>
                   <Users />
                 </ProtectedRoute>
               }
@@ -83,7 +88,7 @@ function App() {
             <Route
               path="/masters/department"
               element={
-                <ProtectedRoute allowedRoles={["superadmin"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.departmentMaster}>
                   <DepartmentMaster />
                 </ProtectedRoute>
               }
@@ -91,7 +96,7 @@ function App() {
             <Route
               path="/masters/designation"
               element={
-                <ProtectedRoute allowedRoles={["superadmin"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.designationMaster}>
                   <DesignationMaster />
                 </ProtectedRoute>
               }
@@ -99,7 +104,7 @@ function App() {
             <Route
               path="/masters/assets"
               element={
-                <ProtectedRoute allowedRoles={["superadmin"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.assetMaster}>
                   <AssetMaster />
                 </ProtectedRoute>
               }
@@ -107,7 +112,7 @@ function App() {
             <Route
               path="/projects"
               element={
-                <ProtectedRoute allowedRoles={["superadmin", "employee"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.projectsPage}>
                   <Projects />
                 </ProtectedRoute>
               }
@@ -115,7 +120,7 @@ function App() {
             <Route
               path="/projects/:projectId"
               element={
-                <ProtectedRoute allowedRoles={["superadmin", "employee"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.projectsPage}>
                   <ProjectDetails />
                 </ProtectedRoute>
               }
@@ -139,7 +144,7 @@ function App() {
             <Route
               path="/leaves/types"
               element={
-                <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.leaveTypes}>
                   <LeaveTypesPage />
                 </ProtectedRoute>
               }
@@ -147,7 +152,7 @@ function App() {
             <Route
               path="/leaves/requests"
               element={
-                <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.leaveRequests}>
                   <LeaveRequestsPage />
                 </ProtectedRoute>
               }
@@ -163,7 +168,7 @@ function App() {
             <Route
               path="/leaves/holidays"
               element={
-                <ProtectedRoute allowedRoles={["superadmin"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.leaveHolidays}>
                   <HolidayMaster />
                 </ProtectedRoute>
               }
@@ -179,7 +184,7 @@ function App() {
             <Route
               path="/my-attendance"
               element={
-                <ProtectedRoute allowedRoles={["employee"]}>
+                <ProtectedRoute allowedRoles={["employee", "teamLeader"]}>
                   <MyAttendancePage />
                 </ProtectedRoute>
               }
@@ -187,7 +192,7 @@ function App() {
             <Route
               path="/attendance/manage"
               element={
-                <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.attendanceManage}>
                   <AttendanceManagementPage />
                 </ProtectedRoute>
               }
@@ -195,7 +200,7 @@ function App() {
             <Route
               path="/attendance/policy"
               element={
-                <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.attendancePolicy}>
                   <AttendancePolicyPage />
                 </ProtectedRoute>
               }
@@ -209,3 +214,4 @@ function App() {
 }
 
 export default App;
+

@@ -9,7 +9,7 @@ import Button from "../../../components/ui/Button";
 import { InputField } from "../../../components/ui/InputField";
 import DatePicker from "../../../components/ui/DatePicker";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
-import { getSession } from "../../auth/services/auth";
+import { getSession, hasAccess } from "../../auth/services/auth";
 import { formatDate } from "../../../utils/date";
 import {
   createLeaveHoliday,
@@ -41,7 +41,7 @@ const initialForm: FormValues = {
 
 export default function HolidayMaster() {
   const { user } = getSession();
-  const isSuperadmin = user?.role === "superadmin";
+  const canManageHolidays = hasAccess(user?.role, "leaveHolidays");
 
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
@@ -86,12 +86,12 @@ export default function HolidayMaster() {
   };
 
   useEffect(() => {
-    if (isSuperadmin) {
+    if (canManageHolidays) {
       load();
     }
-  }, [isSuperadmin]);
+  }, [canManageHolidays]);
 
-  if (!isSuperadmin) {
+  if (!canManageHolidays) {
     return <Navigate to="/dashboard" replace />;
   }
 

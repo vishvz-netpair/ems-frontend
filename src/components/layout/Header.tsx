@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { clearSession } from "../../features/auth/services/auth";
+import { clearSession, type UserRole } from "../../features/auth/services/auth";
 
 type HeaderProps = {
   user?: {
     name?: string;
-    role?: string;
+    role?: UserRole;
   };
 };
 

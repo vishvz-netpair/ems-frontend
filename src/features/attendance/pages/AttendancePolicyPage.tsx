@@ -4,7 +4,7 @@ import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import { InputField } from "../../../components/ui/InputField";
 import Loader from "../../../components/ui/Loader";
-import { getSession } from "../../auth/services/auth";
+import { getSession, hasAccess } from "../../auth/services/auth";
 import { getAttendancePolicy, updateAttendancePolicy, type AttendancePolicy } from "../services/attendanceService";
 
 const weekdayOptions = [
@@ -46,7 +46,7 @@ function toFormState(policy: AttendancePolicy): PolicyFormState {
 export default function AttendancePolicyPage() {
   const { user } = getSession();
   const navigate = useNavigate();
-  const isAuthorized = user?.role === "admin" || user?.role === "superadmin";
+  const isAuthorized = hasAccess(user?.role, "attendancePolicy");
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);

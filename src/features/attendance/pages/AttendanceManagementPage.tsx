@@ -18,7 +18,7 @@ import {
 } from "../services/attendanceService";
 import { listDepartments, type DepartmentItem } from "../../department/services/departmentService";
 import { formatDate } from "../../../utils/date";
-import { getSession } from "../../auth/services/auth";
+import { getSession, hasAccess } from "../../auth/services/auth";
 
 type Row = AttendanceDailySummary & { id: string };
 
@@ -241,7 +241,7 @@ export default function AttendanceManagementPage() {
     }
   };
 
-  if (user?.role !== "admin" && user?.role !== "superadmin") {
+  if (!hasAccess(user?.role, "attendanceManage")) {
     return <Navigate to="/attendance" replace />;
   }
 

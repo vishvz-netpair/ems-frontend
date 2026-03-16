@@ -109,7 +109,7 @@ export default function MyAttendancePage() {
     }
   ];
 
-  if (user?.role !== "employee") {
+  if (user?.role !== "employee" && user?.role !== "teamLeader") {
     return <Navigate to="/attendance" replace />;
   }
 
@@ -148,3 +148,5 @@ export default function MyAttendancePage() {
     </div>
   );
 }
+
+

@@ -1,17 +1,16 @@
 import ProjectsAdmin from "./projectsAdmin.tsx";
 import MyProjects from "./MyProjects.tsx";
+import { getSession, hasAccess } from "../../auth/services/auth";
 
 const Projects = () => {
-  const raw = localStorage.getItem("user");
-  const user = raw ? JSON.parse(raw) : null;
+  const { user } = getSession();
 
   if (!user) return null;
 
-  if (user.role === "superadmin") {
+  if (hasAccess(user.role, "projectManage")) {
     return <ProjectsAdmin />;
   }
 
-  // employee
   return <MyProjects />;
 };
 

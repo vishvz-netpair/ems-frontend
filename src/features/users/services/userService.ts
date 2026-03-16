@@ -1,10 +1,11 @@
 import { apiRequest } from "../../../services/api";
+import type { UserRole } from "../../auth/services/auth";
 
 export type UserItem = {
   _id: string;
   name: string;
   email: string;
-  role: "superadmin" | "admin" | "employee";
+  role: UserRole;
   status?: "Active" | "Inactive";
   isDeleted?: boolean;
   department?: string;
@@ -39,7 +40,7 @@ export async function fetchUsers(params: {
 export async function createUser(payload: {
   name: string;
   email: string;
-  role: "superadmin" | "admin" | "employee";
+  role: UserRole;
   departmentId: string;
   designationId: string;
 }) {
@@ -71,7 +72,7 @@ export async function updateUser(
   payload: {
     name: string;
     email: string;
-    role: "superadmin" | "admin" | "employee";
+    role: UserRole;
     departmentId: string;
     designationId: string;
     status: "Active" | "Inactive";

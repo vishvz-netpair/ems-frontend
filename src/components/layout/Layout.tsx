@@ -1,11 +1,12 @@
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import type { UserRole } from "../../features/auth/services/auth";
 
 type LayoutProps = {
   children: React.ReactNode;
   user: {
     name: string;
-    role: string;
+    role: UserRole;
   };
 };
 

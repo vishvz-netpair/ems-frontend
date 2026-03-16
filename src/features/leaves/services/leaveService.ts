@@ -1,4 +1,5 @@
 import { apiRequest } from "../../../services/api";
+import type { UserRole } from "../../auth/services/auth";
 
 export type LeaveTypeItem = {
   id: string;
@@ -39,7 +40,7 @@ export type LeaveBalanceItem = {
 export type LeaveApprovalHistoryItem = {
   level: number;
   action: "Submitted" | "Approved" | "Rejected" | "Cancelled";
-  role: "superadmin" | "admin" | "employee";
+  role: UserRole;
   remarks: string;
   actedAt: string;
   by: {
