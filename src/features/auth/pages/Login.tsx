@@ -95,17 +95,28 @@ const Login = () => {
               A calmer, cleaner workspace for daily operations.
             </h1>
             <p className="mt-5 max-w-md text-sm leading-7 text-white/78">
-              Manage people, projects, attendance, assets, and leave workflows from a single professional dashboard built for real office use.
+              Manage people, projects, attendance, assets, and leave workflows
+              from a single professional dashboard built for real office use.
             </p>
 
             <div className="mt-8 grid gap-4">
               <div className="rounded-3xl border border-white/12 bg-white/10 p-4 backdrop-blur">
-                <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/60">Live Modules</p>
-                <p className="mt-2 text-lg font-semibold">Users, Attendance, Leave, Projects, Assets</p>
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/60">
+                  WORKSPACE CAPABILITIES
+                </p>
+                <p className="mt-2 text-sm leading-6 text-white/78">
+                  Manage employees and roles, Track daily attendance records,
+                  Organize projects and teams
+                </p>
               </div>
               <div className="rounded-3xl border border-white/12 bg-white/10 p-4 backdrop-blur">
-                <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/60">Built For Teams</p>
-                <p className="mt-2 text-sm leading-6 text-white/78">Clear workflows, role-based access, and fast admin operations without clutter.</p>
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/60">
+                  Built For Teams
+                </p>
+                <p className="mt-2 text-sm leading-6 text-white/78">
+                  Clear workflows, role-based access, and fast admin operations
+                  without clutter.
+                </p>
               </div>
             </div>
           </div>
@@ -122,7 +133,10 @@ const Login = () => {
                 Continue to your workspace and resume daily operations.
               </p>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5 lg:mt-5">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="mt-6 space-y-5 lg:mt-5"
+              >
                 <Controller
                   control={control}
                   name="email"
