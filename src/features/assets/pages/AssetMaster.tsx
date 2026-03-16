@@ -199,10 +199,10 @@ export default function AssetMaster() {
       setDeleteTarget(null);
       await load(page, limit, debouncedQ, status);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Failed to update status";
+      const msg = e instanceof Error ? e.message : "Delete failed";
       setConfirmOpen(false);
       setDeleteTarget(null);
-      alert(msg || "Delete failed");
+      setError(msg || "Delete failed");
     }
   };
 
