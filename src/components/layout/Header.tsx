@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { clearSession, type UserRole } from "../../features/auth/services/auth";
+import NotificationBell from "../../features/communications/components/NotificationBell";
 
 type HeaderProps = {
   user?: {
@@ -11,6 +12,10 @@ type HeaderProps = {
 
 const pageTitles: Array<{ match: RegExp; title: string }> = [
   { match: /^\/dashboard$/, title: "Dashboard" },
+  { match: /^\/communications\/announcements$/, title: "Announcements" },
+  { match: /^\/communications\/announcements\/[^/]+$/, title: "Announcement Details" },
+  { match: /^\/communications\/events$/, title: "Events" },
+  { match: /^\/communications\/events\/[^/]+$/, title: "Event Details" },
   { match: /^\/user$/, title: "Users" },
   { match: /^\/masters\/department$/, title: "Department Master" },
   { match: /^\/masters\/designation$/, title: "Designation Master" },
@@ -73,35 +78,39 @@ const Header = ({ user }: HeaderProps) => {
           </h1>
         </div>
 
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setOpen(!open)}
-            className="flex items-center gap-3 rounded-full border border-white/70 bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#0f766e_0%,#d97706_100%)] text-sm font-bold text-white shadow-sm">
-              {initial}
-            </div>
+        <div className="flex items-center gap-3">
+          <NotificationBell />
 
-            <div className="text-left">
-              <p className="text-sm font-semibold text-slate-800">
-                {user?.name || "User"}
-              </p>
-              <p className="text-xs capitalize tracking-wide text-slate-500">
-                {user?.role || "role"}
-              </p>
-            </div>
-          </button>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setOpen(!open)}
+              className="flex items-center gap-3 rounded-full border border-white/70 bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#0f766e_0%,#d97706_100%)] text-sm font-bold text-white shadow-sm">
+                {initial}
+              </div>
 
-          {open && (
-            <div className="float-in absolute right-0 z-50 mt-3 w-44 rounded-2xl border border-[rgba(123,97,63,0.12)] bg-white/95 p-2 shadow-[0_20px_40px_rgba(33,29,22,0.12)] backdrop-blur">
-              <button
-                onClick={handleLogout}
-                className="w-full rounded-xl px-4 py-2.5 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
-              >
-                Logout
-              </button>
-            </div>
-          )}
+              <div className="text-left">
+                <p className="text-sm font-semibold text-slate-800">
+                  {user?.name || "User"}
+                </p>
+                <p className="text-xs capitalize tracking-wide text-slate-500">
+                  {user?.role || "role"}
+                </p>
+              </div>
+            </button>
+
+            {open && (
+              <div className="float-in absolute right-0 z-50 mt-3 w-44 rounded-2xl border border-[rgba(123,97,63,0.12)] bg-white/95 p-2 shadow-[0_20px_40px_rgba(33,29,22,0.12)] backdrop-blur">
+                <button
+                  onClick={handleLogout}
+                  className="w-full rounded-xl px-4 py-2.5 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

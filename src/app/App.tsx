@@ -13,6 +13,10 @@ import Attendance from "../features/attendance/pages/Attendance";
 import AttendanceManagementPage from "../features/attendance/pages/AttendanceManagementPage";
 import AttendancePolicyPage from "../features/attendance/pages/AttendancePolicyPage";
 import MyAttendancePage from "../features/attendance/pages/MyAttendancePage";
+import AnnouncementDetailsPage from "../features/communications/pages/AnnouncementDetailsPage";
+import AnnouncementsPage from "../features/communications/pages/AnnouncementsPage";
+import EventDetailsPage from "../features/communications/pages/EventDetailsPage";
+import EventsPage from "../features/communications/pages/EventsPage";
 import {
   ACCESS_RULES,
   getSession,
@@ -74,6 +78,38 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/communications/announcements"
+              element={
+                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                  <AnnouncementsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/communications/announcements/:announcementId"
+              element={
+                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                  <AnnouncementDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/communications/events"
+              element={
+                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                  <EventsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/communications/events/:eventId"
+              element={
+                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                  <EventDetailsPage />
                 </ProtectedRoute>
               }
             />

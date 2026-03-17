@@ -6,6 +6,8 @@ export type UserRole =
   | "teamLeader";
 
 export const ACCESS_RULES = {
+  communicationsPage: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+  communicationsManage: ["superadmin", "admin", "HR"],
   usersPage: ["superadmin", "HR"],
   usersManage: ["superadmin"],
   projectsPage: ["superadmin", "employee", "HR", "teamLeader"],

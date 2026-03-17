@@ -18,6 +18,22 @@ export const menuItems: MenuItem[] = [
     roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
   },
   {
+    label: "Communications",
+    roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+    children: [
+      {
+        label: "Announcements",
+        path: "/communications/announcements",
+        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+      },
+      {
+        label: "Events",
+        path: "/communications/events",
+        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+      },
+    ],
+  },
+  {
     label: "Users",
     path: "/user",
     roles: ["superadmin", "HR"],
