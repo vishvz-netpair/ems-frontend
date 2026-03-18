@@ -25,9 +25,16 @@ export default function NotificationBell() {
   };
 
   useEffect(() => {
-    load();
-    const intervalId = window.setInterval(load, 60000);
-    return () => window.clearInterval(intervalId);
+    const timeoutId = window.setTimeout(() => {
+      void load();
+    }, 0);
+    const intervalId = window.setInterval(() => {
+      void load();
+    }, 60000);
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.clearInterval(intervalId);
+    };
   }, []);
 
   useEffect(() => {

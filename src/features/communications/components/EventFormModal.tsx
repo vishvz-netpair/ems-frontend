@@ -27,6 +27,12 @@ const defaultTargeting: TargetingPayload = {
   userIds: []
 };
 
+type ReminderItem = {
+  reminderType: "immediate" | "1_day_before" | "1_hour_before" | "custom";
+  channels: Array<"in_app" | "email">;
+  customDateTime: string;
+};
+
 function toIsoDateTimeOrNull(value: string) {
   if (!value) return null;
   const date = new Date(value);
@@ -55,8 +61,8 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [reminders, setReminders] = useState([
-    { reminderType: "immediate", channels: ["in_app"] as Array<"in_app" | "email">, customDateTime: "" }
+  const [reminders, setReminders] = useState<ReminderItem[]>([
+    { reminderType: "immediate", channels: ["in_app"], customDateTime: "" }
   ]);
 
   const isEdit = useMemo(() => Boolean(initial?.id), [initial]);
@@ -144,6 +150,18 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
       }
       return updated;
     });
+  };
+
+  const toggleReminderChannel = (
+    channels: ReminderItem["channels"],
+    channel: ReminderItem["channels"][number],
+    checked: boolean
+  ): ReminderItem["channels"] => {
+    if (checked) {
+      return channels.includes(channel) ? channels : [...channels, channel];
+    }
+
+    return channels.filter((currentChannel) => currentChannel !== channel);
   };
 
   const handleSubmit = async () => {
@@ -429,9 +447,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
                               entryIndex === index
                                 ? {
                                     ...entry,
-                                    channels: e.target.checked
-                                      ? Array.from(new Set([...entry.channels, "in_app"]))
-                                      : entry.channels.filter((channel) => channel !== "in_app")
+                                    channels: toggleReminderChannel(entry.channels, "in_app", e.target.checked)
                                   }
                                 : entry
                             );
@@ -452,9 +468,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
                               entryIndex === index
                                 ? {
                                     ...entry,
-                                    channels: e.target.checked
-                                      ? Array.from(new Set([...entry.channels, "email"]))
-                                      : entry.channels.filter((channel) => channel !== "email")
+                                    channels: toggleReminderChannel(entry.channels, "email", e.target.checked)
                                   }
                                 : entry
                             );

@@ -83,7 +83,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     label: "Master",
-    roles: ["superadmin"],
+    roles: ["superadmin", "HR"],
     children: [
       {
         label: "Department",

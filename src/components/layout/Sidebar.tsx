@@ -89,7 +89,7 @@ const Sidebar = ({ role }: SidebarProps) => {
                     <span
                       className={`text-xs transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
                     >
-                      ▼
+                      {"\u25BE"}
                     </span>
                   ) : null}
                 </NavLink>
@@ -108,7 +108,7 @@ const Sidebar = ({ role }: SidebarProps) => {
                   <span
                     className={`text-xs transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
                   >
-                    ▼
+                    {"\u25BE"}
                   </span>
                 </button>
               )}
