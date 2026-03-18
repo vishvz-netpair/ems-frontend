@@ -31,6 +31,11 @@ export const menuItems: MenuItem[] = [
         path: "/communications/events",
         roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
       },
+      {
+        label: "Policies",
+        path: "/communications/policies",
+        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+      },
     ],
   },
   {
@@ -41,7 +46,7 @@ export const menuItems: MenuItem[] = [
   {
     label: "Projects",
     path: "/projects",
-    roles: ["superadmin", "employee", "HR", "teamLeader"],
+    roles: ["superadmin", "employee", "teamLeader"],
   },
   {
     label: "My Tasks",

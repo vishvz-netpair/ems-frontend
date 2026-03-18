@@ -142,6 +142,62 @@ export type NotificationItem = {
   createdAt: string;
 };
 
+export type PolicyListItem = {
+  id: string;
+  title: string;
+  code: string;
+  category: string;
+  summary: string;
+  versionNumber: number;
+  isPublished: boolean;
+  effectiveDate: string | null;
+  acknowledgmentStatus: "ACKNOWLEDGED" | "PENDING";
+  acknowledgedAt: string | null;
+  acknowledgmentSummary: {
+    totalEmployees: number;
+    acknowledgedCount: number;
+    pendingCount: number;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type PolicyHistoryItem = {
+  id: string;
+  versionNumber: number;
+  title: string;
+  category: string;
+  summary: string;
+  content: string;
+  effectiveDate: string | null;
+  isPublished: boolean;
+  changeSummary: string;
+  changedAt: string;
+  changedBy: { id: string; name: string; email: string } | null;
+};
+
+export type PolicyReportItem = {
+  employeeId: string;
+  employeeName: string;
+  email: string;
+  departmentId: string | null;
+  departmentName: string;
+  versionNumber: number;
+  status: "ACKNOWLEDGED" | "PENDING";
+  acknowledgedAt: string | null;
+};
+
+export type PolicyDetail = PolicyListItem & {
+  content: string;
+  report: {
+    totalEmployees: number;
+    acknowledgedCount: number;
+    pendingCount: number;
+    items: PolicyReportItem[];
+  } | null;
+  history: PolicyHistoryItem[];
+};
+
 export type CommunicationDashboardResponse = {
   roleView: "manager" | "employee";
   totals?: {
@@ -344,4 +400,80 @@ export async function markNotificationRead(id: string) {
 
 export async function markAllNotificationsRead() {
   return apiRequest(`/api/communications/notifications/read-all`, "POST");
+}
+
+export async function listPolicies(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  isPublished?: string;
+}) {
+  const qs = new URLSearchParams({
+    page: String(params.page ?? 1),
+    limit: String(params.limit ?? 10),
+    search: params.search || "",
+    category: params.category || "all",
+    isPublished: params.isPublished || "all"
+  });
+
+  return apiRequest<{
+    items: PolicyListItem[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>(`/api/communications/policies?${qs.toString()}`, "GET");
+}
+
+export async function getPolicyById(id: string) {
+  return apiRequest<PolicyDetail>(`/api/communications/policies/${id}`, "GET");
+}
+
+export async function savePolicy(
+  payload: {
+    title: string;
+    category: string;
+    summary: string;
+    content: string;
+    effectiveDate: string;
+    isPublished: boolean;
+    changeSummary?: string;
+  },
+  id?: string
+) {
+  return apiRequest<{ id?: string }>(
+    id ? `/api/communications/policies/${id}` : "/api/communications/policies",
+    id ? "PUT" : "POST",
+    payload
+  );
+}
+
+export async function acknowledgePolicy(id: string) {
+  return apiRequest(`/api/communications/policies/${id}/acknowledge`, "POST");
+}
+
+export async function getPolicyAcknowledgmentReport(
+  id: string,
+  params?: {
+    departmentId?: string;
+    employeeId?: string;
+    status?: "all" | "ACKNOWLEDGED" | "PENDING";
+  }
+) {
+  const qs = new URLSearchParams({
+    departmentId: params?.departmentId || "",
+    employeeId: params?.employeeId || "",
+    status: params?.status || "all"
+  });
+
+  return apiRequest<{
+    policyId: string;
+    policyTitle: string;
+    versionNumber: number;
+    totalEmployees: number;
+    acknowledgedCount: number;
+    pendingCount: number;
+    items: PolicyReportItem[];
+  }>(`/api/communications/policies/${id}/acknowledgments?${qs.toString()}`, "GET");
 }

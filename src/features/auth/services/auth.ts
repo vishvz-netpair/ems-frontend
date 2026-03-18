@@ -10,7 +10,7 @@ export const ACCESS_RULES = {
   communicationsManage: ["superadmin", "admin", "HR"],
   usersPage: ["superadmin", "HR"],
   usersManage: ["superadmin"],
-  projectsPage: ["superadmin", "employee", "HR", "teamLeader"],
+  projectsPage: ["superadmin", "employee", "teamLeader"],
   projectManage: ["superadmin", "admin", "teamLeader"],
   myTasksPage: ["superadmin", "admin", "employee", "teamLeader"],
   attendancePage: ["superadmin", "admin", "employee", "HR", "teamLeader"],

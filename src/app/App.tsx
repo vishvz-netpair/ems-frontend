@@ -17,6 +17,8 @@ import AnnouncementDetailsPage from "../features/communications/pages/Announceme
 import AnnouncementsPage from "../features/communications/pages/AnnouncementsPage";
 import EventDetailsPage from "../features/communications/pages/EventDetailsPage";
 import EventsPage from "../features/communications/pages/EventsPage";
+import PoliciesPage from "../features/communications/pages/PoliciesPage";
+import PolicyDetailsPage from "../features/communications/pages/PolicyDetailsPage";
 import {
   ACCESS_RULES,
   getSession,
@@ -94,6 +96,22 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
                   <AnnouncementDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/communications/policies"
+              element={
+                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                  <PoliciesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/communications/policies/:policyId"
+              element={
+                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                  <PolicyDetailsPage />
                 </ProtectedRoute>
               }
             />
