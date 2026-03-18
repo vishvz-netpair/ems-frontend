@@ -8,6 +8,7 @@ import AudienceTargetEditor from "./AudienceTargetEditor";
 import RichTextEditor from "./RichTextEditor";
 import type { CommunicationMeta, EventItem, TargetingPayload } from "../services/communicationService";
 import type { UserRole } from "../../auth/services/auth";
+import { validateEventForm, type FormErrors } from "./formValidation";
 
 type Props = {
   open: boolean;
@@ -25,6 +26,12 @@ const defaultTargeting: TargetingPayload = {
   projectIds: [],
   userIds: []
 };
+
+function toIsoDateTimeOrNull(value: string) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
 
 export default function EventFormModal({ open, meta, initial, onClose, onSave }: Props) {
   const [title, setTitle] = useState("");
@@ -45,7 +52,8 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
   const [targeting, setTargeting] = useState<TargetingPayload>(defaultTargeting);
   const [attachments, setAttachments] = useState<FileList | null>(null);
   const [bannerImage, setBannerImage] = useState<FileList | null>(null);
-  const [serverError, setServerError] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [submitError, setSubmitError] = useState("");
   const [saving, setSaving] = useState(false);
   const [reminders, setReminders] = useState([
     { reminderType: "immediate", channels: ["in_app"] as Array<"in_app" | "email">, customDateTime: "" }
@@ -89,13 +97,64 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
     );
     setAttachments(null);
     setBannerImage(null);
-    setServerError("");
+    setErrors({});
+    setSubmitError("");
     setSaving(false);
   }, [initial, open]);
 
+  const buildValidationErrors = (overrides?: Partial<{
+    title: string;
+    description: string;
+    publishDate: string;
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
+    allDay: boolean;
+    meetingLink: string;
+    mode: string;
+    targeting: TargetingPayload;
+    reminders: typeof reminders;
+  }>) =>
+    validateEventForm({
+      title,
+      description,
+      publishDate,
+      startDate,
+      endDate,
+      startTime,
+      endTime,
+      allDay,
+      meetingLink,
+      mode,
+      targeting,
+      reminders,
+      ...overrides
+    });
+
+  const updateError = (field: string, overrides?: Parameters<typeof buildValidationErrors>[0]) => {
+    if (!errors[field]) return;
+    const nextErrors = buildValidationErrors(overrides);
+    setErrors((current) => {
+      const updated = { ...current };
+      if (nextErrors[field]) {
+        updated[field] = nextErrors[field];
+      } else {
+        delete updated[field];
+      }
+      return updated;
+    });
+  };
+
   const handleSubmit = async () => {
+    const nextErrors = buildValidationErrors();
+    setErrors(nextErrors);
+    setSubmitError("");
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
     setSaving(true);
-    setServerError("");
     try {
       const payload = new FormData();
       payload.append("title", title);
@@ -120,7 +179,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
           reminders.map((item) => ({
             reminderType: item.reminderType,
             channels: item.channels,
-            customDateTime: item.customDateTime ? new Date(item.customDateTime).toISOString() : null
+            customDateTime: item.reminderType === "custom" ? toIsoDateTimeOrNull(item.customDateTime) : null
           }))
         )
       );
@@ -132,8 +191,8 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
 
       await onSave(payload, initial?.id);
       onClose();
-    } catch (error) {
-      setServerError(error instanceof Error ? error.message : "Failed to save event");
+    } catch {
+      setSubmitError("Unable to save the event right now. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -157,10 +216,19 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
       }
     >
       <div className="space-y-5">
-        {serverError ? <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{serverError}</p> : null}
+        {submitError ? <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{submitError}</p> : null}
 
         <div className="grid gap-4 md:grid-cols-2">
-          <InputField label="Event Title" value={title} onChange={setTitle} placeholder="Event title" />
+          <InputField
+            label="Event Title"
+            value={title}
+            onChange={(value) => {
+              setTitle(value);
+              updateError("title", { title: value });
+            }}
+            placeholder="Event title"
+            error={errors.title}
+          />
           <SelectDropdown
             label="Category"
             value={category}
@@ -177,14 +245,57 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <DatePicker label="Publish Date" value={publishDate} onChange={setPublishDate} />
-          <DatePicker label="Start Date" value={startDate} onChange={setStartDate} />
-          <DatePicker label="End Date" value={endDate} onChange={setEndDate} />
+          <DatePicker
+            label="Publish Date"
+            value={publishDate}
+            onChange={(value) => {
+              setPublishDate(value);
+              updateError("publishDate", { publishDate: value });
+            }}
+            error={errors.publishDate}
+          />
+          <DatePicker
+            label="Start Date"
+            value={startDate}
+            onChange={(value) => {
+              setStartDate(value);
+              updateError("startDate", { startDate: value });
+              updateError("endDate", { startDate: value });
+            }}
+            error={errors.startDate}
+          />
+          <DatePicker
+            label="End Date"
+            value={endDate}
+            onChange={(value) => {
+              setEndDate(value);
+              updateError("endDate", { endDate: value });
+            }}
+            error={errors.endDate}
+          />
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <InputField label="Start Time" type="time" value={startTime} onChange={setStartTime} />
-          <InputField label="End Time" type="time" value={endTime} onChange={setEndTime} />
+          <InputField
+            label="Start Time"
+            type="time"
+            value={startTime}
+            onChange={(value) => {
+              setStartTime(value);
+              updateError("startTime", { startTime: value });
+            }}
+            error={errors.startTime}
+          />
+          <InputField
+            label="End Time"
+            type="time"
+            value={endTime}
+            onChange={(value) => {
+              setEndTime(value);
+              updateError("endTime", { endTime: value });
+            }}
+            error={errors.endTime}
+          />
           <SelectDropdown
             label="Status"
             value={status}
@@ -201,7 +312,10 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
           <SelectDropdown
             label="Mode"
             value={mode}
-            onChange={setMode}
+            onChange={(value) => {
+              setMode(value);
+              updateError("meetingLink", { mode: value });
+            }}
             options={[
               { label: "Offline", value: "offline" },
               { label: "Online", value: "online" },
@@ -210,18 +324,52 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
           />
           <InputField label="Location" value={location} onChange={setLocation} placeholder="Office / venue / city" />
           <label className="flex items-center gap-3 rounded-2xl border border-[rgba(123,97,63,0.12)] bg-white/80 px-4 py-3 text-sm font-semibold text-slate-900">
-            <input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={allDay}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setAllDay(checked);
+                updateError("startTime", { allDay: checked });
+                updateError("endTime", { allDay: checked });
+              }}
+            />
             All Day Event
           </label>
         </div>
 
         {(mode === "online" || mode === "hybrid") ? (
-          <InputField label="Meeting Link" value={meetingLink} onChange={setMeetingLink} placeholder="https://..." />
+          <InputField
+            label="Meeting Link"
+            value={meetingLink}
+            onChange={(value) => {
+              setMeetingLink(value);
+              updateError("meetingLink", { meetingLink: value });
+            }}
+            placeholder="https://..."
+            error={errors.meetingLink}
+          />
         ) : null}
 
-        <RichTextEditor label="Description" value={description} onChange={setDescription} />
+        <RichTextEditor
+          label="Description"
+          value={description}
+          onChange={(value) => {
+            setDescription(value);
+            updateError("description", { description: value });
+          }}
+          error={errors.description}
+        />
 
-        <AudienceTargetEditor meta={meta} value={targeting} onChange={setTargeting} />
+        <AudienceTargetEditor
+          meta={meta}
+          value={targeting}
+          onChange={(value) => {
+            setTargeting(value);
+            updateError("targeting", { targeting: value });
+          }}
+          error={errors.targeting}
+        />
 
         <div className="rounded-2xl border border-[rgba(123,97,63,0.12)] bg-white/80 p-4">
           <div className="flex items-center justify-between gap-3">
@@ -247,11 +395,19 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
                   label="Reminder Type"
                   value={item.reminderType}
                   onChange={(value) =>
-                    setReminders((current) =>
-                      current.map((entry, entryIndex) =>
-                        entryIndex === index ? { ...entry, reminderType: value as typeof entry.reminderType } : entry
-                      )
-                    )
+                    setReminders((current) => {
+                      const nextReminders = current.map((entry, entryIndex) =>
+                        entryIndex === index
+                          ? {
+                              ...entry,
+                              reminderType: value as typeof entry.reminderType,
+                              customDateTime: value === "custom" ? entry.customDateTime : ""
+                            }
+                          : entry
+                      );
+                      updateError(`reminders.${index}.customDateTime`, { reminders: nextReminders });
+                      return nextReminders;
+                    })
                   }
                   options={[
                     { label: "Immediate", value: "immediate" },
@@ -268,8 +424,8 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
                         type="checkbox"
                         checked={item.channels.includes("in_app")}
                         onChange={(e) =>
-                          setReminders((current) =>
-                            current.map((entry, entryIndex) =>
+                          setReminders((current) => {
+                            const nextReminders = current.map((entry, entryIndex) =>
                               entryIndex === index
                                 ? {
                                     ...entry,
@@ -278,8 +434,10 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
                                       : entry.channels.filter((channel) => channel !== "in_app")
                                   }
                                 : entry
-                            )
-                          )
+                            );
+                            updateError(`reminders.${index}.channels`, { reminders: nextReminders });
+                            return nextReminders;
+                          })
                         }
                       />
                       In-App
@@ -289,8 +447,8 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
                         type="checkbox"
                         checked={item.channels.includes("email")}
                         onChange={(e) =>
-                          setReminders((current) =>
-                            current.map((entry, entryIndex) =>
+                          setReminders((current) => {
+                            const nextReminders = current.map((entry, entryIndex) =>
                               entryIndex === index
                                 ? {
                                     ...entry,
@@ -299,25 +457,33 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
                                       : entry.channels.filter((channel) => channel !== "email")
                                   }
                                 : entry
-                            )
-                          )
+                            );
+                            updateError(`reminders.${index}.channels`, { reminders: nextReminders });
+                            return nextReminders;
+                          })
                         }
                       />
                       Email
                     </label>
                   </div>
+                  {errors[`reminders.${index}.channels`] ? (
+                    <p className="mt-1.5 text-sm text-red-600">{errors[`reminders.${index}.channels`]}</p>
+                  ) : null}
                 </div>
                 <InputField
                   label="Custom Date Time"
                   type="datetime-local"
                   value={item.customDateTime}
                   onChange={(value) =>
-                    setReminders((current) =>
-                      current.map((entry, entryIndex) =>
+                    setReminders((current) => {
+                      const nextReminders = current.map((entry, entryIndex) =>
                         entryIndex === index ? { ...entry, customDateTime: value } : entry
-                      )
-                    )
+                      );
+                      updateError(`reminders.${index}.customDateTime`, { reminders: nextReminders });
+                      return nextReminders;
+                    })
                   }
+                  error={errors[`reminders.${index}.customDateTime`]}
                 />
               </div>
             ))}

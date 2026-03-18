@@ -436,7 +436,7 @@ export async function savePolicy(
     category: string;
     summary: string;
     content: string;
-    effectiveDate: string;
+    effectiveDate: string | null;
     isPublished: boolean;
     changeSummary?: string;
   },

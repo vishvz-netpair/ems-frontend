@@ -55,7 +55,8 @@ export default function TaskFormModal({
   const [estimatedHours, setEstimatedHours] = useState<string>("");
 
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string>("");
 
   useEffect(() => {
     if (!open) return;
@@ -79,29 +80,45 @@ export default function TaskFormModal({
       setDueDate(null);
       setEstimatedHours("");
     }
-    setError("");
+    setErrors({});
+    setSubmitError("");
   }, [open, mode, initial, membersOptions]);
+
+  const validate = (values?: {
+    title?: string;
+    assignedTo?: string;
+    estimatedHours?: string;
+  }) => {
+    const nextTitle = (values?.title ?? title).trim();
+    const nextAssignedTo = values?.assignedTo ?? assignedTo;
+    const nextEstimatedHours = values?.estimatedHours ?? estimatedHours;
+    const nextErrors: Record<string, string> = {};
+
+    if (nextTitle.length < 2) {
+      nextErrors.title = "Task title is required.";
+    }
+    if (!nextAssignedTo) {
+      nextErrors.assignedTo = "Please select an employee.";
+    }
+
+    const hours = nextEstimatedHours.trim() === "" ? null : Number(nextEstimatedHours);
+    if (nextEstimatedHours.trim() !== "" && (Number.isNaN(hours) || (hours ?? 0) < 0)) {
+      nextErrors.estimatedHours = "Estimated hours must be a valid non-negative number.";
+    }
+
+    return nextErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const nextErrors = validate();
+    setErrors(nextErrors);
+    setSubmitError("");
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
     const t = title.trim();
-    if (t.length < 2) {
-      setError("Task title is required");
-      return;
-    }
-    if (!assignedTo) {
-      setError("Please select an employee");
-      return;
-    }
-
     const hours = estimatedHours.trim() === "" ? null : Number(estimatedHours);
-    if (
-      estimatedHours.trim() !== "" &&
-      (Number.isNaN(hours) || (hours ?? 0) < 0)
-    ) {
-      setError("Estimated hours must be a valid number");
-      return;
-    }
 
     setSubmitting(true);
     try {
@@ -114,9 +131,8 @@ export default function TaskFormModal({
         estimatedHours: hours,
       });
       onClose();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to save task";
-      setError(msg);
+    } catch {
+      setSubmitError("Unable to save the task right now. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -147,8 +163,14 @@ export default function TaskFormModal({
         <InputField
           label="Title"
           value={title}
-          onChange={setTitle}
+          onChange={(value) => {
+            setTitle(value);
+            if (errors.title) {
+              setErrors((current) => ({ ...current, title: validate({ title: value }).title || "" }));
+            }
+          }}
           placeholder="e.g. Integrate tasks API"
+          error={errors.title}
         />
 
         <div>
@@ -168,8 +190,14 @@ export default function TaskFormModal({
           <SelectDropdown
             label="Assign To"
             value={assignedTo}
-            onChange={setAssignedTo}
+            onChange={(value) => {
+              setAssignedTo(value);
+              if (errors.assignedTo) {
+                setErrors((current) => ({ ...current, assignedTo: validate({ assignedTo: value }).assignedTo || "" }));
+              }
+            }}
             options={membersOptions}
+            error={errors.assignedTo}
           />
           <SelectDropdown
             label="Priority"
@@ -188,13 +216,22 @@ export default function TaskFormModal({
           <InputField
             label="Estimated Hours"
             value={estimatedHours}
-            onChange={setEstimatedHours}
+            onChange={(value) => {
+              setEstimatedHours(value);
+              if (errors.estimatedHours) {
+                setErrors((current) => ({
+                  ...current,
+                  estimatedHours: validate({ estimatedHours: value }).estimatedHours || ""
+                }));
+              }
+            }}
             placeholder="e.g. 6"
             inputMode="decimal"
+            error={errors.estimatedHours}
           />
         </div>
 
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
       </form>
     </Modal>
   );

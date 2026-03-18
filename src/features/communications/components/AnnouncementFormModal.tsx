@@ -8,6 +8,7 @@ import AudienceTargetEditor from "./AudienceTargetEditor";
 import RichTextEditor from "./RichTextEditor";
 import type { AnnouncementItem, CommunicationMeta, TargetingPayload } from "../services/communicationService";
 import type { UserRole } from "../../auth/services/auth";
+import { validateAnnouncementForm, type FormErrors } from "./formValidation";
 
 type Props = {
   open: boolean;
@@ -43,7 +44,8 @@ export default function AnnouncementFormModal({ open, meta, initial, onClose, on
   const [isUrgent, setIsUrgent] = useState(false);
   const [attachments, setAttachments] = useState<FileList | null>(null);
   const [bannerImage, setBannerImage] = useState<FileList | null>(null);
-  const [serverError, setServerError] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [submitError, setSubmitError] = useState("");
   const [saving, setSaving] = useState(false);
 
   const isEdit = useMemo(() => Boolean(initial?.id), [initial]);
@@ -74,12 +76,40 @@ export default function AnnouncementFormModal({ open, meta, initial, onClose, on
     setIsUrgent(initial?.isUrgent || false);
     setAttachments(null);
     setBannerImage(null);
-    setServerError("");
+    setErrors({});
+    setSubmitError("");
     setSaving(false);
   }, [initial, open]);
 
+  const updateError = (field: string, value?: string, nextTargeting?: TargetingPayload) => {
+    if (!errors[field]) return;
+    const nextErrors = validateAnnouncementForm({
+      title: field === "title" ? value || "" : title,
+      summary: field === "summary" ? value || "" : summary,
+      content: field === "content" ? value || "" : content,
+      publishDate: field === "publishDate" ? value || "" : publishDate,
+      expiryDate: field === "expiryDate" ? value || "" : expiryDate,
+      targeting: nextTargeting ?? targeting
+    });
+
+    setErrors((current) => ({ ...current, [field]: nextErrors[field] || "" }));
+  };
+
   const handleSubmit = async () => {
-    setServerError("");
+    const nextErrors = validateAnnouncementForm({
+      title,
+      summary,
+      content,
+      publishDate,
+      expiryDate,
+      targeting
+    });
+    setErrors(nextErrors);
+    setSubmitError("");
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
     setSaving(true);
     try {
       const payload = new FormData();
@@ -107,8 +137,8 @@ export default function AnnouncementFormModal({ open, meta, initial, onClose, on
 
       await onSave(payload, initial?.id);
       onClose();
-    } catch (error) {
-      setServerError(error instanceof Error ? error.message : "Failed to save announcement");
+    } catch {
+      setSubmitError("Unable to save the announcement right now. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -132,11 +162,29 @@ export default function AnnouncementFormModal({ open, meta, initial, onClose, on
       }
     >
       <div className="space-y-5">
-        {serverError ? <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{serverError}</p> : null}
+        {submitError ? <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{submitError}</p> : null}
 
         <div className="grid gap-4 md:grid-cols-2">
-          <InputField label="Title" value={title} onChange={setTitle} placeholder="Announcement title" />
-          <InputField label="Summary" value={summary} onChange={setSummary} placeholder="Short summary" />
+          <InputField
+            label="Title"
+            value={title}
+            onChange={(value) => {
+              setTitle(value);
+              updateError("title", value);
+            }}
+            placeholder="Announcement title"
+            error={errors.title}
+          />
+          <InputField
+            label="Summary"
+            value={summary}
+            onChange={(value) => {
+              setSummary(value);
+              updateError("summary", value);
+            }}
+            placeholder="Short summary"
+            error={errors.summary}
+          />
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -177,18 +225,46 @@ export default function AnnouncementFormModal({ open, meta, initial, onClose, on
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <DatePicker label="Publish Date" value={publishDate} onChange={setPublishDate} />
-          <DatePicker label="Expiry Date" value={expiryDate} onChange={setExpiryDate} />
+          <DatePicker
+            label="Publish Date"
+            value={publishDate}
+            onChange={(value) => {
+              setPublishDate(value);
+              updateError("publishDate", value);
+            }}
+            error={errors.publishDate}
+          />
+          <DatePicker
+            label="Expiry Date"
+            value={expiryDate}
+            onChange={(value) => {
+              setExpiryDate(value);
+              updateError("expiryDate", value);
+            }}
+            error={errors.expiryDate}
+          />
         </div>
 
         <RichTextEditor
           label="Rich Content"
           value={content}
-          onChange={setContent}
+          onChange={(value) => {
+            setContent(value);
+            updateError("content", value);
+          }}
           helperText="Use formatting tools to prepare the announcement body."
+          error={errors.content}
         />
 
-        <AudienceTargetEditor meta={meta} value={targeting} onChange={setTargeting} />
+        <AudienceTargetEditor
+          meta={meta}
+          value={targeting}
+          onChange={(value) => {
+            setTargeting(value);
+            updateError("targeting", undefined, value);
+          }}
+          error={errors.targeting}
+        />
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-[rgba(123,97,63,0.12)] bg-white/80 p-4">

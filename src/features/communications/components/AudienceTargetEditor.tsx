@@ -6,6 +6,7 @@ type Props = {
   meta: CommunicationMeta | null;
   value: TargetingPayload;
   onChange: (value: TargetingPayload) => void;
+  error?: string;
 };
 
 function toggleInList(list: string[], value: string) {
@@ -46,7 +47,7 @@ function MultiSelectBlock(props: {
   );
 }
 
-export default function AudienceTargetEditor({ meta, value, onChange }: Props) {
+export default function AudienceTargetEditor({ meta, value, onChange, error }: Props) {
   const update = (patch: Partial<TargetingPayload>) => onChange({ ...value, ...patch });
   const allUserIds = meta?.users.map((item) => item.id) || [];
   const areAllUsersSelected =
@@ -121,6 +122,7 @@ export default function AudienceTargetEditor({ meta, value, onChange }: Props) {
           </label>
         }
       />
+      {error ? <p className="mt-1.5 text-sm text-red-600">{error}</p> : null}
     </div>
   );
 }
