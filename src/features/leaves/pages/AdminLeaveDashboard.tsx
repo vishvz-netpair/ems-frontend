@@ -17,7 +17,9 @@ export default function AdminLeaveDashboard() {
   const navigate = useNavigate();
   const { user } = getSession();
   const isSuperadmin = user?.role === "superadmin";
+  const canRunAccrual = user?.role === "superadmin" || user?.role === "admin";
   const canManageLeaveTypes = hasAccess(user?.role, "leaveTypes");
+  const canRequestOwnLeave = user?.role === "employee" || user?.role === "HR";
 
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<Record<string, number>>({});
@@ -64,12 +66,15 @@ export default function AdminLeaveDashboard() {
           <p className="mt-1 text-sm text-slate-500">Monitor requests, review approvals, and keep balances current across the company.</p>
         </div>
         <div className="flex flex-wrap gap-3">
+          {canRequestOwnLeave ? (
+            <Button variant="outline" onClick={() => navigate("/leaves/my")}>Request Leave</Button>
+          ) : null}
           <Button variant="outline" onClick={() => navigate("/leaves/requests")}>Open Requests</Button>
           {canManageLeaveTypes ? (
             <Button variant="outline" onClick={() => navigate("/leaves/types")}>Manage Leave Types</Button>
           ) : null}
           <Button variant="outline" onClick={() => navigate("/leaves/calendar")}>Open Calendar</Button>
-          {isSuperadmin ? (
+          {canRunAccrual ? (
             <Button onClick={async () => {
               try {
                 await runLeaveAutomation();

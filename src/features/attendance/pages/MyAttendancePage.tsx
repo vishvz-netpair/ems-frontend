@@ -109,7 +109,7 @@ export default function MyAttendancePage() {
     }
   ];
 
-  if (user?.role !== "employee" && user?.role !== "teamLeader") {
+  if (user?.role !== "employee" && user?.role !== "teamLeader" && user?.role !== "HR") {
     return <Navigate to="/attendance" replace />;
   }
 

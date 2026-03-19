@@ -68,7 +68,7 @@ export default function NotificationBell() {
   };
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className="relative z-[85]" ref={containerRef}>
       <button
         type="button"
         onClick={handleOpen}
@@ -95,7 +95,7 @@ export default function NotificationBell() {
       </button>
 
       {open ? (
-        <div className="float-in absolute right-0 z-50 mt-3 w-[340px] rounded-[24px] border border-[rgba(123,97,63,0.12)] bg-white/95 p-3 shadow-[0_24px_48px_rgba(33,29,22,0.16)] backdrop-blur">
+        <div className="float-in absolute right-0 z-[95] mt-3 w-[340px] rounded-[24px] border border-[rgba(123,97,63,0.14)] bg-[rgba(255,253,248,1)] p-3 shadow-[0_28px_56px_rgba(33,29,22,0.22)]">
           <div className="mb-3 flex items-center justify-between gap-3 px-1">
             <div>
               <p className="text-sm font-semibold text-slate-900">Notifications</p>
@@ -123,8 +123,8 @@ export default function NotificationBell() {
                   onClick={() => handleItemClick(item)}
                   className={`w-full rounded-2xl border px-4 py-3 text-left transition ${
                     item.readAt
-                      ? "border-slate-200 bg-white hover:border-slate-300"
-                      : "border-teal-200 bg-teal-50/70 hover:bg-teal-50"
+                      ? "border-slate-200 bg-[rgba(255,253,248,1)] hover:border-slate-300"
+                      : "border-teal-200 bg-[rgba(236,253,245,1)] hover:bg-[rgba(209,250,229,1)]"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">

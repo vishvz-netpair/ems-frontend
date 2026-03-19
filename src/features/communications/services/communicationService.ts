@@ -371,6 +371,9 @@ export async function archiveEvent(id: string) {
   return apiRequest(`/api/communications/events/${id}/archive`, "POST");
 }
 
+export async function restoreEvent(id: string) {
+  return apiRequest(`/api/communications/events/${id}/restore`, "POST");
+}
 export async function deleteEvent(id: string) {
   return apiRequest(`/api/communications/events/${id}`, "DELETE");
 }

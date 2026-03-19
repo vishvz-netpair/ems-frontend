@@ -9,6 +9,7 @@ export type Column<T> = {
 export type Action<T> = {
   label: string;
   onClick: (row: T) => void;
+  hidden?: (row: T) => boolean;
 };
 
 type ServerPagination = {
@@ -25,6 +26,7 @@ type DataTableProps<T> = {
   data: T[];
   actions?: Action<T>[];
   serverPagination?: ServerPagination;
+  compact?: boolean;
 };
 
 function DataTable<T extends { id: string | number }>({
@@ -32,6 +34,7 @@ function DataTable<T extends { id: string | number }>({
   data,
   actions,
   serverPagination,
+  compact = false,
 }: DataTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -75,19 +78,25 @@ function DataTable<T extends { id: string | number }>({
 
   return (
     <div className="min-w-0 overflow-hidden rounded-[28px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,0.92)] shadow-[0_18px_40px_rgba(33,29,22,0.08)]">
-      <table className="w-full table-fixed text-sm">
+      <table className={`w-full table-fixed ${compact ? "text-[13px]" : "text-sm"}`}>
         <thead className="bg-[linear-gradient(180deg,rgba(15,118,110,0.06),rgba(255,253,248,0.96))]">
           <tr>
             {columns.map((col) => (
               <th
                 key={String(col.key)}
-                className="px-5 py-4 text-left text-[12px] font-extrabold uppercase tracking-[0.18em] text-slate-500"
+                className={`text-left font-extrabold uppercase tracking-[0.18em] text-slate-500 ${
+                  compact ? "px-4 py-3 text-[11px]" : "px-5 py-4 text-[12px]"
+                }`}
               >
                 {col.label}
               </th>
             ))}
             {actions && (
-              <th className="px-5 py-4 text-center text-[12px] font-extrabold uppercase tracking-[0.18em] text-slate-500">
+              <th
+                className={`text-center font-extrabold uppercase tracking-[0.18em] text-slate-500 ${
+                  compact ? "px-4 py-3 text-[11px]" : "px-5 py-4 text-[12px]"
+                }`}
+              >
                 Actions
               </th>
             )}
@@ -105,7 +114,9 @@ function DataTable<T extends { id: string | number }>({
                 return (
                   <td
                     key={String(col.key)}
-                    className="break-words px-5 py-4 leading-6 text-slate-700"
+                    className={`break-words text-slate-700 ${
+                      compact ? "px-4 py-3 leading-5" : "px-5 py-4 leading-6"
+                    }`}
                   >
                     {col.render ? col.render(value, row) : String(value ?? "")}
                   </td>
@@ -113,13 +124,17 @@ function DataTable<T extends { id: string | number }>({
               })}
 
               {actions && (
-                <td className="px-5 py-4 text-center">
+                <td className={compact ? "px-4 py-3 text-center" : "px-5 py-4 text-center"}>
                   <div className="flex flex-wrap justify-center gap-2">
-                    {actions.map((a) => (
+                    {actions
+                      .filter((a) => !a.hidden?.(row))
+                      .map((a) => (
                       <button
                         key={a.label}
                         onClick={() => a.onClick(row)}
-                        className={`rounded-full px-3 py-1.5 text-sm font-semibold leading-none transition ${
+                        className={`rounded-full font-semibold leading-none transition ${
+                          compact ? "px-2.5 py-1 text-[12px]" : "px-3 py-1.5 text-sm"
+                        } ${
                           a.label.toLowerCase().includes("delete")
                             ? "text-red-600 hover:bg-red-50"
                             : "text-teal-700 hover:bg-teal-50"
@@ -138,7 +153,7 @@ function DataTable<T extends { id: string | number }>({
             <tr>
               <td
                 colSpan={columns.length + (actions ? 1 : 0)}
-                className="px-5 py-6 text-center text-slate-500"
+                className={compact ? "px-4 py-5 text-center text-slate-500" : "px-5 py-6 text-center text-slate-500"}
               >
                 No data available
               </td>
@@ -147,13 +162,19 @@ function DataTable<T extends { id: string | number }>({
         </tbody>
       </table>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(123,97,63,0.1)] bg-[rgba(250,247,241,0.82)] px-5 py-4">
-        <div className="flex items-center gap-2 text-sm leading-6">
+      <div
+        className={`flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(123,97,63,0.1)] bg-[rgba(250,247,241,0.82)] ${
+          compact ? "px-4 py-3" : "px-5 py-4"
+        }`}
+      >
+        <div className={`flex items-center gap-2 leading-6 ${compact ? "text-[13px]" : "text-sm"}`}>
           Rows:
           <select
             value={effectiveLimit}
             onChange={(e) => handleLimitChange(Number(e.target.value))}
-            className="rounded-xl border border-[rgba(123,97,63,0.16)] bg-white/90 px-3 py-1.5 shadow-sm"
+            className={`rounded-xl border border-[rgba(123,97,63,0.16)] bg-white/90 shadow-sm ${
+              compact ? "px-2.5 py-1 text-[13px]" : "px-3 py-1.5"
+            }`}
           >
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -161,7 +182,7 @@ function DataTable<T extends { id: string | number }>({
           </select>
         </div>
 
-        <div className="text-sm leading-6">
+        <div className={compact ? "text-[13px] leading-6" : "text-sm leading-6"}>
           Page {effectivePage} of {totalPages}
         </div>
 
@@ -169,14 +190,18 @@ function DataTable<T extends { id: string | number }>({
           <button
             onClick={goPrevious}
             disabled={effectivePage === 1}
-            className="rounded-xl border border-[rgba(123,97,63,0.16)] bg-white/90 px-3.5 py-1.5 font-medium leading-none transition hover:bg-white disabled:opacity-50"
+            className={`rounded-xl border border-[rgba(123,97,63,0.16)] bg-white/90 font-medium leading-none transition hover:bg-white disabled:opacity-50 ${
+              compact ? "px-3 py-1 text-[13px]" : "px-3.5 py-1.5"
+            }`}
           >
             Previous
           </button>
           <button
             onClick={goNext}
             disabled={effectivePage === totalPages}
-            className="rounded-xl border border-[rgba(123,97,63,0.16)] bg-white/90 px-3.5 py-1.5 font-medium leading-none transition hover:bg-white disabled:opacity-50"
+            className={`rounded-xl border border-[rgba(123,97,63,0.16)] bg-white/90 font-medium leading-none transition hover:bg-white disabled:opacity-50 ${
+              compact ? "px-3 py-1 text-[13px]" : "px-3.5 py-1.5"
+            }`}
           >
             Next
           </button>

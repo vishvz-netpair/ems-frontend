@@ -13,6 +13,7 @@ import EventCalendarPanel from "../components/EventCalendarPanel";
 import EventFormModal from "../components/EventFormModal";
 import {
   archiveEvent,
+  restoreEvent,
   cancelEvent,
   deleteEvent,
   getCommunicationMeta,
@@ -133,9 +134,26 @@ export default function EventsPage() {
           actions={canManage ? [
             { label: "View", onClick: (row) => navigate(`/communications/events/${row.id}`) },
             { label: "Edit", onClick: (row) => { setEditingItem(row); setModalOpen(true); } },
-            { label: "Publish", onClick: (row) => queueAction("Publish this event?", async () => { await publishEvent(row.id); setSuccess("Event published successfully."); await load(); }) },
-            { label: "Cancel", onClick: (row) => queueAction("Cancel this event?", async () => { await cancelEvent(row.id); setSuccess("Event cancelled successfully."); await load(); }) },
-            { label: "Archive", onClick: (row) => queueAction("Archive this event?", async () => { await archiveEvent(row.id); setSuccess("Event archived successfully."); await load(); }) },
+            {
+              label: "Publish",
+              hidden: (row) => row.status !== "draft",
+              onClick: (row) => queueAction("Publish this event?", async () => { await publishEvent(row.id); setSuccess("Event published successfully."); await load(); })
+            },
+            {
+              label: "Cancel",
+              hidden: (row) => row.status !== "published",
+              onClick: (row) => queueAction("Cancel this event?", async () => { await cancelEvent(row.id); setSuccess("Event cancelled successfully."); await load(); })
+            },
+            {
+              label: "Archive",
+              hidden: (row) => row.status === "draft" || row.status === "archived",
+              onClick: (row) => queueAction("Archive this event?", async () => { await archiveEvent(row.id); setSuccess("Event archived successfully."); await load(); })
+            },
+            {
+              label: "Unarchive",
+              hidden: (row) => row.status !== "archived",
+              onClick: (row) => queueAction("Unarchive this event?", async () => { await restoreEvent(row.id); setSuccess("Event unarchived successfully."); await load(); })
+            },
             { label: "Delete", onClick: (row) => queueAction("Delete this event?", async () => { await deleteEvent(row.id); setSuccess("Event deleted successfully."); await load(); }) }
           ] : [
             { label: "View", onClick: (row) => navigate(`/communications/events/${row.id}`) }

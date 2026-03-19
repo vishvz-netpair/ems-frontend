@@ -84,7 +84,7 @@ export default function LeaveRequestsPage() {
   }, [page, limit, search, status, leaveTypeId, employeeId, fromDate, toDate]);
 
   const canApprove = (item: LeaveRequestItem) => {
-    if (user?.role === "admin") return item.status === "Pending";
+    if (user?.role === "admin") return item.status === "Pending" || item.status === "Level 1 Approved";
     if (isSuperadmin) return item.status === "Pending" || item.status === "Level 1 Approved";
     return false;
   };

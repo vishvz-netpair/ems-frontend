@@ -5,7 +5,7 @@ import { InputField } from "../../../components/ui/InputField";
 import DatePicker from "../../../components/ui/DatePicker";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 
-import { fetchUsers, type UserItem } from "../../users/services/userService";
+import { fetchProjectAssignableEmployees, type UserItem } from "../../users/services/userService";
 import {
   createProject,
   getProjectById,
@@ -68,10 +68,10 @@ const ProjectFormModal = ({
 
   const loadUsers = async () => {
     try {
-      const res = await fetchUsers({ page: 1, limit: 100 }); // large limit for dropdown
+      const res = await fetchProjectAssignableEmployees()
       setUsers(res.items);
     } catch (e: unknown) {
-      let message = "Failed to load employee";
+      let message = "Failed to load employees";
       if (e instanceof Error) {
         message = e.message;
       } else if (typeof e === "string") {
@@ -350,3 +350,5 @@ const ProjectFormModal = ({
 };
 
 export default ProjectFormModal;
+
+

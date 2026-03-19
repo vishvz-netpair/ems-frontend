@@ -10,6 +10,7 @@ import { DesignationProvider } from "../features/designation/context/designation
 import DesignationMaster from "../features/designation/pages/DesignationMaster";
 import AssetMaster from "../features/assets/pages/AssetMaster";
 import Attendance from "../features/attendance/pages/Attendance";
+import EmployeeAttendancePage from "../features/attendance/pages/EmployeeAttendancePage";
 import AttendanceManagementPage from "../features/attendance/pages/AttendanceManagementPage";
 import AttendancePolicyPage from "../features/attendance/pages/AttendancePolicyPage";
 import MyAttendancePage from "../features/attendance/pages/MyAttendancePage";
@@ -30,6 +31,7 @@ import LeaveCalendarPage from "../features/leaves/pages/LeaveCalendarPage";
 import LeaveRequestsPage from "../features/leaves/pages/LeaveRequestsPage";
 import Leaves from "../features/leaves/pages/Leaves";
 import LeaveTypesPage from "../features/leaves/pages/LeaveTypesPage";
+import EmployeeLeaveDashboard from "../features/leaves/pages/EmployeeLeaveDashboard";
 import ProjectDetails from "../features/projects/pages/ProjectDetails";
 import Projects from "../features/projects/pages/Projects";
 import MyTasksPage from "../features/tasks/pages/MyTasksPage";
@@ -182,7 +184,7 @@ function App() {
             <Route
               path="/my-tasks"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={ACCESS_RULES.myTasksPage}>
                   <MyTasksPage />
                 </ProtectedRoute>
               }
@@ -220,6 +222,14 @@ function App() {
               }
             />
             <Route
+              path="/leaves/my"
+              element={
+                <ProtectedRoute allowedRoles={["employee", "HR"]}>
+                  <EmployeeLeaveDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/leaves/holidays"
               element={
                 <ProtectedRoute allowedRoles={ACCESS_RULES.leaveHolidays}>
@@ -238,8 +248,16 @@ function App() {
             <Route
               path="/my-attendance"
               element={
-                <ProtectedRoute allowedRoles={["employee", "teamLeader"]}>
+                <ProtectedRoute allowedRoles={["employee", "teamLeader", "HR"]}>
                   <MyAttendancePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/attendance/self"
+              element={
+                <ProtectedRoute allowedRoles={["employee", "teamLeader", "HR"]}>
+                  <EmployeeAttendancePage />
                 </ProtectedRoute>
               }
             />
@@ -268,4 +286,6 @@ function App() {
 }
 
 export default App;
+
+
 

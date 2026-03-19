@@ -5,7 +5,7 @@ import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Loader from "../../../components/ui/Loader";
 import { formatDate } from "../../../utils/date";
 import { getSession, hasAccess } from "../../auth/services/auth";
-import { getEventById, rsvpToEvent, type EventItem } from "../services/communicationService";
+import { archiveEvent, cancelEvent, getEventById, publishEvent, restoreEvent, rsvpToEvent, type EventItem } from "../services/communicationService";
 
 export default function EventDetailsPage() {
   const { eventId } = useParams();
@@ -33,18 +33,81 @@ export default function EventDetailsPage() {
     load();
   }, [eventId]);
 
+  const refreshEvent = async () => {
+    if (!eventId) return;
+    const refreshed = await getEventById(eventId);
+    setItem(refreshed);
+  };
+
   if (loading || !item) {
     return <Loader variant="block" label="Loading event..." />;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="outline" onClick={() => navigate("/communications/events")}>Back</Button>
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{item.category}</p>
-          <h2 className="text-3xl font-semibold text-slate-900">{item.title}</h2>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={() => navigate("/communications/events")}>Back</Button>
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{item.category}</p>
+            <h2 className="text-3xl font-semibold text-slate-900">{item.title}</h2>
+          </div>
         </div>
+
+        {canManage ? (
+          <div className="flex flex-wrap gap-3">
+            {item.status === "draft" ? (
+              <Button
+                onClick={async () => {
+                  if (!eventId) return;
+                  await publishEvent(eventId);
+                  setSuccess("Event published successfully.");
+                  await refreshEvent();
+                }}
+              >
+                Publish
+              </Button>
+            ) : null}
+            {item.status === "published" ? (
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  if (!eventId) return;
+                  await cancelEvent(eventId);
+                  setSuccess("Event cancelled successfully.");
+                  await refreshEvent();
+                }}
+              >
+                Cancel
+              </Button>
+            ) : null}
+            {item.status === "archived" ? (
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  if (!eventId) return;
+                  await restoreEvent(eventId);
+                  setSuccess("Event unarchived successfully.");
+                  await refreshEvent();
+                }}
+              >
+                Unarchive
+              </Button>
+            ) : item.status !== "draft" && item.status !== "archived" ? (
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  if (!eventId) return;
+                  await archiveEvent(eventId);
+                  setSuccess("Event archived successfully.");
+                  await refreshEvent();
+                }}
+              >
+                Archive
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="rounded-[32px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,0.92)] p-6 shadow-[0_18px_40px_rgba(33,29,22,0.08)]">
@@ -89,8 +152,7 @@ export default function EventDetailsPage() {
                 if (!eventId) return;
                 await rsvpToEvent(eventId, status);
                 setSuccess(`RSVP updated to ${status}.`);
-                const refreshed = await getEventById(eventId);
-                setItem(refreshed);
+                await refreshEvent();
               }}
             >
               {status}
@@ -100,11 +162,12 @@ export default function EventDetailsPage() {
       ) : null}
 
       {canManage && item.report ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {[
             { label: "Invited", value: item.report.totalInvitedUsers, tone: "bg-slate-900 text-white" },
             { label: "Accepted", value: item.report.counts.accepted, tone: "bg-emerald-50 text-emerald-700" },
             { label: "Declined", value: item.report.counts.declined, tone: "bg-rose-50 text-rose-700" },
+            { label: "Maybe", value: item.report.counts.maybe, tone: "bg-sky-50 text-sky-700" },
             { label: "Pending", value: item.report.counts.pending, tone: "bg-amber-50 text-amber-700" }
           ].map((card) => (
             <div key={card.label} className={`rounded-[28px] px-5 py-5 shadow-sm ${card.tone}`}>

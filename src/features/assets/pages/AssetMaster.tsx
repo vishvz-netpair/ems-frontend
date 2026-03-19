@@ -152,14 +152,28 @@ export default function AssetMaster() {
     },
     {
       label: "Allocate",
+      hidden: (r) => {
+        const found = items.find((x) => x._id === r._id) || null;
+        return !!found?.currentAllocation && !found.currentAllocation.returnedOn;
+      },
       onClick: (r) => {
         const found = items.find((x) => x._id === r._id) || null;
+        if (found?.currentAllocation && !found.currentAllocation.returnedOn) {
+          setError("Asset is currently allocated. Return it first before reallocating.");
+          setReturnItem(found);
+          setOpenReturn(true);
+          return;
+        }
         setAllocateItem(found);
         setOpenAllocate(true);
       },
     },
     {
       label: "Return",
+      hidden: (r) => {
+        const found = items.find((x) => x._id === r._id) || null;
+        return !found?.currentAllocation || !!found.currentAllocation.returnedOn;
+      },
       onClick: (r) => {
         const found = items.find((x) => x._id === r._id) || null;
         setReturnItem(found);
@@ -291,6 +305,7 @@ export default function AssetMaster() {
           columns={columns}
           data={rows}
           actions={actions}
+          compact
           serverPagination={{
             enabled: true,
             page,

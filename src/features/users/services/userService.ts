@@ -37,6 +37,18 @@ export async function fetchUsers(params: {
   return apiRequest<UsersResponse>(`/api/users?${qs.toString()}`);
 }
 
+export async function fetchProjectAssignableEmployees() {
+  return apiRequest<{
+    items: {
+      _id: string;
+      name: string;
+      email: string;
+      role: UserRole;
+      status?: "Active" | "Inactive";
+    }[];
+  }>("/api/users/project-assignable-employees", "GET");
+}
+
 export async function createUser(payload: {
   name: string;
   email: string;

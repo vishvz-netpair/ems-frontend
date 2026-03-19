@@ -41,17 +41,17 @@ export const menuItems: MenuItem[] = [
   {
     label: "Users",
     path: "/user",
-    roles: ["superadmin", "HR"],
+    roles: ["superadmin", "admin", "HR"],
   },
   {
     label: "Projects",
     path: "/projects",
-    roles: ["superadmin", "employee", "teamLeader"],
+    roles: ["superadmin", "admin", "employee", "teamLeader"],
   },
   {
     label: "My Tasks",
     path: "/my-tasks",
-    roles: ["superadmin", "admin", "employee", "teamLeader"],
+    roles: ["employee", "teamLeader"],
   },
   {
     label: "Attendance",
@@ -83,27 +83,27 @@ export const menuItems: MenuItem[] = [
   },
   {
     label: "Master",
-    roles: ["superadmin", "HR"],
+    roles: ["superadmin", "admin", "HR"],
     children: [
       {
         label: "Department",
         path: "/masters/department",
-        roles: ["superadmin", "HR"],
+        roles: ["superadmin", "admin", "HR"],
       },
       {
         label: "Designation",
         path: "/masters/designation",
-        roles: ["superadmin", "HR"],
+        roles: ["superadmin", "admin", "HR"],
       },
       {
         label: "Assets",
         path: "/masters/assets",
-        roles: ["superadmin", "HR"],
+        roles: ["superadmin", "admin", "HR"],
       },
       {
         label: "Holiday Master",
         path: "/leaves/holidays",
-        roles: ["superadmin", "HR"],
+        roles: ["superadmin", "admin", "HR"],
       },
     ],
   },

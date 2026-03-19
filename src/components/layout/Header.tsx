@@ -30,8 +30,10 @@ const pageTitles: Array<{ match: RegExp; title: string }> = [
   { match: /^\/leaves\/holidays$/, title: "Holiday Master" },
   { match: /^\/attendance$/, title: "Attendance" },
   { match: /^\/my-attendance$/, title: "My Attendance" },
+  { match: /^\/attendance\/self$/, title: "Punch In / Out" },
   { match: /^\/attendance\/manage$/, title: "Attendance Management" },
   { match: /^\/attendance\/policy$/, title: "Attendance Policy" },
+  { match: /^\/leaves\/my$/, title: "My Leaves" },
 ];
 
 const Header = ({ user }: HeaderProps) => {
@@ -67,8 +69,8 @@ const Header = ({ user }: HeaderProps) => {
   };
 
   return (
-    <header className="px-5 pt-5 md:px-8">
-      <div className="surface-panel flex min-h-[76px] items-center justify-between rounded-[28px] px-5 py-4">
+    <header className="relative z-40 px-5 pt-5 md:px-8">
+      <div className="surface-panel relative isolate flex min-h-[76px] items-center justify-between rounded-[28px] px-5 py-4">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-teal-700/75">
             Employee Management
@@ -101,7 +103,7 @@ const Header = ({ user }: HeaderProps) => {
             </button>
 
             {open && (
-              <div className="float-in absolute right-0 z-50 mt-3 w-44 rounded-2xl border border-[rgba(123,97,63,0.12)] bg-white/95 p-2 shadow-[0_20px_40px_rgba(33,29,22,0.12)] backdrop-blur">
+              <div className="float-in absolute right-0 z-[90] mt-3 w-44 rounded-2xl border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,1)] p-2 shadow-[0_20px_40px_rgba(33,29,22,0.16)]">
                 <button
                   onClick={handleLogout}
                   className="w-full rounded-xl px-4 py-2.5 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50"

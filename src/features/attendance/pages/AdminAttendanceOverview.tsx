@@ -4,9 +4,12 @@ import Button from "../../../components/ui/Button";
 import Loader from "../../../components/ui/Loader";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import { getAttendanceDashboard } from "../services/attendanceService";
+import { getSession } from "../../auth/services/auth";
 
 export default function AdminAttendanceOverview() {
   const navigate = useNavigate();
+  const { user } = getSession();
+  const canSelfAttend = user?.role === "employee" || user?.role === "teamLeader" || user?.role === "HR";
   const now = new Date();
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<Record<string, number>>({});
@@ -50,6 +53,12 @@ export default function AdminAttendanceOverview() {
           <p className="mt-1 text-sm text-slate-500">Track attendance outcomes and move quickly to management or policy actions.</p>
         </div>
         <div className="flex flex-wrap gap-3">
+          {canSelfAttend ? (
+            <>
+              <Button variant="outline" onClick={() => navigate("/my-attendance")}>My Attendance</Button>
+              <Button variant="outline" onClick={() => navigate("/attendance/self")}>Punch In / Out</Button>
+            </>
+          ) : null}
           <Button variant="outline" onClick={() => navigate("/attendance/manage")}>Attendance Management</Button>
           <Button onClick={() => navigate("/attendance/policy")}>Attendance Policy</Button>
         </div>

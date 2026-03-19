@@ -8,11 +8,11 @@ export type UserRole =
 export const ACCESS_RULES = {
   communicationsPage: ["superadmin", "admin", "employee", "HR", "teamLeader"],
   communicationsManage: ["superadmin", "admin", "HR"],
-  usersPage: ["superadmin", "HR"],
-  usersManage: ["superadmin"],
-  projectsPage: ["superadmin", "employee", "teamLeader"],
+  usersPage: ["superadmin", "admin", "HR"],
+  usersManage: ["superadmin", "admin", "HR"],
+  projectsPage: ["superadmin", "admin", "employee", "teamLeader"],
   projectManage: ["superadmin", "admin", "teamLeader"],
-  myTasksPage: ["superadmin", "admin", "employee", "teamLeader"],
+  myTasksPage: ["employee", "teamLeader"],
   attendancePage: ["superadmin", "admin", "employee", "HR", "teamLeader"],
   attendanceManage: ["superadmin", "admin", "HR"],
   attendancePolicy: ["superadmin", "admin", "HR"],
@@ -20,10 +20,10 @@ export const ACCESS_RULES = {
   leaveTypes: ["superadmin", "admin", "HR"],
   leaveRequests: ["superadmin", "admin", "HR", "teamLeader"],
   leaveCalendar: ["superadmin", "admin", "employee", "HR", "teamLeader"],
-  leaveHolidays: ["superadmin", "HR"],
-  departmentMaster: ["superadmin", "HR"],
-  designationMaster: ["superadmin", "HR"],
-  assetMaster: ["superadmin", "HR"],
+  leaveHolidays: ["superadmin", "admin", "HR"],
+  departmentMaster: ["superadmin", "admin", "HR"],
+  designationMaster: ["superadmin", "admin", "HR"],
+  assetMaster: ["superadmin", "admin", "HR"],
 } as const satisfies Record<string, UserRole[]>;
 
 export type SessionUser = {
@@ -74,3 +74,4 @@ export function hasAccess(
 ) {
   return hasRequiredRole(role, ACCESS_RULES[accessKey]);
 }
+

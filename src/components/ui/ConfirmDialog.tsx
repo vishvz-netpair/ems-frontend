@@ -28,6 +28,8 @@ const ConfirmDialog = ({
   autoCloseMs = 900,
 }: ConfirmDialogProps) => {
   const isSuccess = mode === "Success";
+  const isError = title === "Error";
+  const showFooter = !isSuccess && !isError;
 
   useEffect(() => {
     if (!open || !isSuccess || autoCloseMs <= 0) return;
@@ -46,8 +48,8 @@ const ConfirmDialog = ({
       onClose={isSuccess ? onConfirm : (onCancel ?? onConfirm)}
       size="sm"
       footer={
-        <div className="flex items-center justify-end gap-3">
-          {!isSuccess && (
+        showFooter ? (
+          <div className="flex items-center justify-end gap-3">
             <Button
               type="button"
               variant="outline"
@@ -55,15 +57,15 @@ const ConfirmDialog = ({
             >
               {cancelText}
             </Button>
-          )}
-          <Button
-            type="button"
-            onClick={onConfirm}
-            variant={danger && !isSuccess ? "danger" : "primary"}
-          >
-            {confirmText ?? (isSuccess ? "Ok" : "Yes")}
-          </Button>
-        </div>
+            <Button
+              type="button"
+              onClick={onConfirm}
+              variant={danger ? "danger" : "primary"}
+            >
+              {confirmText ?? "Yes"}
+            </Button>
+          </div>
+        ) : undefined
       }
     >
       <p className="text-sm leading-6 text-slate-700">{message}</p>
