@@ -181,7 +181,6 @@ const Users = () => {
       setRows(mapped);
       setTotal(res.total ?? 0);
     } catch (e) {
-      console.log(e);
       setErrorMsg("Failed to fetch users");
       setErrorOpen(true);
     } finally {
@@ -377,7 +376,6 @@ const Users = () => {
     } catch (err) {
       setErrorMsg("User save failed");
       setErrorOpen(true);
-      console.log(err);
     } finally {
       setSaving(false);
     }

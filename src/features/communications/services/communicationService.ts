@@ -136,7 +136,16 @@ export type NotificationItem = {
   id: string;
   title: string;
   message: string;
-  type: "announcement" | "event" | "event_reminder" | "leave_status";
+  type:
+    | "announcement"
+    | "event"
+    | "event_reminder"
+    | "leave_status"
+    | "task_assignment"
+    | "task_due"
+    | "task_overdue"
+    | "project_member_added"
+    | "policy_acknowledgment_reminder";
   link: string;
   readAt: string | null;
   createdAt: string;

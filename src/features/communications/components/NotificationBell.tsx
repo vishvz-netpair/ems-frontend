@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getNotifications,
@@ -32,7 +32,7 @@ export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const data = await getNotifications(8);
       setItems(data.items || []);
@@ -40,7 +40,7 @@ export default function NotificationBell() {
     } catch {
       // fail silently in header
     }
-  };
+  }, []);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -53,7 +53,7 @@ export default function NotificationBell() {
       window.clearTimeout(timeoutId);
       window.clearInterval(intervalId);
     };
-  }, []);
+  }, [load]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -79,7 +79,6 @@ export default function AssetAllocateModal({
 
   const submit = async (data: FormValues) => {
     if (!asset?._id) return;
-    console.log(data);
     const payload: AllocateAssetPayload = {
       employeeId: data.employeeId,
       allocatedOn: data.allocatedOn,

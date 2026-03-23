@@ -159,7 +159,6 @@ const DesignationMaster = () => {
     }
     setSaving(true);
     try {
-      console.log("Sending:", form);
       await createDesignation({
         name: form.name.trim(),
         departmentId: form.departmentId, // ✅ selected department
