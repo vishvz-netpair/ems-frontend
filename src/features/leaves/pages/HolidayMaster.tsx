@@ -54,6 +54,9 @@ export default function HolidayMaster() {
   const [form, setForm] = useState<FormValues>(initialForm);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [search, setSearch] = useState("");
+  const [scopeFilter, setScopeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "true" | "false">("all");
 
   const columns: Column<Row>[] = useMemo(
     () => [
@@ -76,7 +79,7 @@ export default function HolidayMaster() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await listLeaveHolidays();
+      const res = await listLeaveHolidays({ search, scope: scopeFilter, isActive: statusFilter });
       setRows(res.items || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to fetch holidays");
@@ -89,7 +92,7 @@ export default function HolidayMaster() {
     if (canManageHolidays) {
       load();
     }
-  }, [canManageHolidays]);
+  }, [canManageHolidays, search, scopeFilter, statusFilter]);
 
   if (!canManageHolidays) {
     return <Navigate to="/dashboard" replace />;
@@ -164,10 +167,25 @@ export default function HolidayMaster() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-800">Holiday Master</h2>
-          <p className="text-sm text-slate-500">Manage company holidays that should appear in calendars and be excluded from leave counting.</p>
+      <div>
+        <h2 className="text-2xl font-semibold text-slate-800">Holiday Master</h2>
+        <p className="text-sm text-slate-500">Manage company holidays that should appear in calendars and be excluded from leave counting.</p>
+      </div>
+
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-4xl">
+          <InputField label="Search" value={search} onChange={(value) => setSearch(value)} placeholder="Search holiday..." />
+          <InputField label="Scope" value={scopeFilter} onChange={(value) => setScopeFilter(value)} placeholder="company" />
+          <SelectDropdown
+            label="Status"
+            value={statusFilter}
+            onChange={(value) => setStatusFilter(value as "all" | "true" | "false")}
+            options={[
+              { label: "All", value: "all" },
+              { label: "Active", value: "true" },
+              { label: "Inactive", value: "false" }
+            ]}
+          />
         </div>
         <Button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700">Add Holiday</Button>
       </div>

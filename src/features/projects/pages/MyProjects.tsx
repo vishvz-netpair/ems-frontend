@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+import SelectDropdown from "../../../components/ui/SelectDropdown";
+import { InputField } from "../../../components/ui/InputField";
 import { myProjects, type ProjectItem } from "../services/projectService";
 import { formatDate } from "../../../utils/date";
 import Loader from "../../../components/ui/Loader";
@@ -7,6 +9,8 @@ import Loader from "../../../components/ui/Loader";
 const MyProjects = () => {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<ProjectItem[]>([]);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
 
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -14,7 +18,7 @@ const MyProjects = () => {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await myProjects();
+      const res = await myProjects({ search, status });
       setItems(res.items || []);
     } catch (e: unknown) {
       let message = "Failed to fetch my projects";
@@ -32,7 +36,7 @@ const MyProjects = () => {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [search, status]);
 
   return (
     <div className="space-y-6">
@@ -41,6 +45,24 @@ const MyProjects = () => {
         <p className="text-sm text-slate-500">
           Here are the projects assigned to you
         </p>
+      </div>
+
+      <div className="flex flex-col gap-3 md:flex-row md:items-end">
+        <div className="md:flex-1">
+          <InputField label="Search" value={search} onChange={setSearch} placeholder="Search project..." />
+        </div>
+        <div className="md:w-56">
+          <SelectDropdown
+            label="Status"
+            value={status}
+            onChange={setStatus}
+            options={[
+              { label: "All", value: "all" },
+              { label: "Active", value: "active" },
+              { label: "Pending", value: "pending" }
+            ]}
+          />
+        </div>
       </div>
 
       {loading ? (

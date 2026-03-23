@@ -18,14 +18,10 @@ import {
   type LeaveRequestItem,
   type LeaveTypeItem,
 } from "../services/leaveService";
-import { getSession } from "../../auth/services/auth";
 
 type Row = LeaveRequestItem & { id: string };
 
 export default function LeaveRequestsPage() {
-  const { user } = getSession();
-  const isSuperadmin = user?.role === "superadmin";
-
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<LeaveRequestItem[]>([]);
   const [leaveTypes, setLeaveTypes] = useState<LeaveTypeItem[]>([]);
@@ -53,7 +49,6 @@ export default function LeaveRequestsPage() {
       { key: "totalDays", label: "Days" },
       { key: "createdAt", label: "Applied On", render: (value) => formatDate(String(value ?? "")) },
       { key: "status", label: "Status", render: (value) => <LeaveStatusBadge status={value as LeaveRequestItem["status"]} /> },
-      { key: "currentApprovalLevel", label: "Level", render: (value) => `L${value}` },
       { key: "attachment", label: "Attachment", render: (value) => (value ? "Yes" : "No") },
     ],
     [],
@@ -82,7 +77,6 @@ export default function LeaveRequestsPage() {
   useEffect(() => {
     load();
   }, [page, limit, search, status, leaveTypeId, employeeId, fromDate, toDate]);
-  const canManageActions = user?.role === "admin" || isSuperadmin;
 
   const performAction = async (remarks: string) => {
     if (!actionTarget) return;
@@ -172,22 +166,22 @@ export default function LeaveRequestsPage() {
             {
               label: "Approve",
               onClick: (row) => {
-                if (canManageActions && row.allowedActions.includes("approve")) {
+                if (row.allowedActions.includes("approve")) {
                   setAction("approve");
                   setActionTarget(row);
                 }
               },
-              hidden: (row) => !canManageActions || !row.allowedActions.includes("approve"),
+              hidden: (row) => !row.allowedActions.includes("approve"),
             },
             {
               label: "Reject",
               onClick: (row) => {
-                if (canManageActions && row.allowedActions.includes("reject")) {
+                if (row.allowedActions.includes("reject")) {
                   setAction("reject");
                   setActionTarget(row);
                 }
               },
-              hidden: (row) => !canManageActions || !row.allowedActions.includes("reject"),
+              hidden: (row) => !row.allowedActions.includes("reject"),
             },
           ]}
           serverPagination={{

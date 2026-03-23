@@ -9,12 +9,34 @@ type Props = {
   onClose: () => void;
 };
 
+function getStepStatus(request: LeaveRequestItem, level: number) {
+  const rejected = request.approvalHistory.find((item) => item.level === level && item.action === "Rejected");
+  if (rejected) return { label: "Rejected", tone: "bg-rose-50 text-rose-700" };
+
+  const approved = request.approvalHistory.find((item) => item.level === level && item.action === "Approved");
+  if (approved) return { label: "Approved", tone: "bg-emerald-50 text-emerald-700" };
+
+  if (request.status === "Cancelled") {
+    return { label: "Stopped", tone: "bg-slate-100 text-slate-600" };
+  }
+
+  if (request.currentApprovalLevel + 1 === level && request.status !== "Approved") {
+    return { label: "Pending", tone: "bg-amber-50 text-amber-700" };
+  }
+
+  if (request.status === "Approved") {
+    return { label: "Approved", tone: "bg-emerald-50 text-emerald-700" };
+  }
+
+  return { label: "Waiting", tone: "bg-slate-100 text-slate-600" };
+}
+
 export default function LeaveRequestDetailsModal({ open, request, onClose }: Props) {
   return (
     <Modal open={open} title="Leave Request Details" onClose={onClose} size="lg">
       {!request ? null : (
         <div className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Employee</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{request.employee?.name ?? "-"}</p>
@@ -30,7 +52,7 @@ export default function LeaveRequestDetailsModal({ open, request, onClose }: Pro
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div className="rounded-xl border border-slate-200 px-4 py-3">
               <p className="text-xs uppercase text-slate-500">From</p>
               <p className="mt-1 text-sm font-semibold text-slate-800">{formatDate(request.fromDate)}</p>
@@ -48,6 +70,31 @@ export default function LeaveRequestDetailsModal({ open, request, onClose }: Pro
               <div className="mt-2">
                 <LeaveStatusBadge status={request.status} />
               </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Approval Flow</p>
+              {request.nextApprovalRole ? (
+                <p className="text-sm font-medium text-slate-600">Next Approver: {request.nextApprovalRole}</p>
+              ) : null}
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700">
+                Employee
+              </span>
+              {request.approvalFlowSteps.map((step) => (
+                <div key={`${step.level}-${step.role}`} className="flex items-center gap-2">
+                  <span className="text-slate-400">-&gt;</span>
+                  <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                    <p className="text-sm font-medium text-slate-800">Step {step.level}: {step.role}</p>
+                    <span className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStepStatus(request, step.level).tone}`}>
+                      {getStepStatus(request, step.level).label}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -80,7 +127,7 @@ export default function LeaveRequestDetailsModal({ open, request, onClose }: Pro
                   <div key={`${item.actedAt}-${index}`} className="rounded-xl bg-slate-50 px-4 py-3">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-slate-800">
-                        {item.action} · Level {item.level}
+                        {item.action} | Level {item.level}
                       </p>
                       <p className="text-xs text-slate-500">{formatDate(item.actedAt)}</p>
                     </div>

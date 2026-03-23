@@ -18,7 +18,8 @@ export default function AdminLeaveDashboard() {
   const { user } = getSession();
   const canRunAccrual = user?.role === "superadmin" || user?.role === "admin";
   const canManageLeaveTypes = hasAccess(user?.role, "leaveTypes");
-  const canRequestOwnLeave = user?.role === "employee" || user?.role === "HR";
+  const canRequestOwnLeave =
+    user?.role === "employee" || user?.role === "HR" || user?.role === "teamLeader" || user?.role === "admin";
 
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<Record<string, number>>({});
@@ -31,7 +32,7 @@ export default function AdminLeaveDashboard() {
     setLoading(true);
     try {
       const [summaryRes, requestRes] = await Promise.all([
-        getLeaveSummary(),
+        getLeaveSummary("company"),
         listLeaveRequests({ page: 1, limit: 5, status: "all" }),
       ]);
 

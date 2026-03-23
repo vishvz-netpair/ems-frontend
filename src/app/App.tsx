@@ -224,7 +224,7 @@ function App() {
             <Route
               path="/leaves/my"
               element={
-                <ProtectedRoute allowedRoles={["employee", "HR"]}>
+                <ProtectedRoute allowedRoles={["employee", "HR", "teamLeader", "admin"]}>
                   <EmployeeLeaveDashboard />
                 </ProtectedRoute>
               }

@@ -7,6 +7,24 @@ import {
   type NotificationItem
 } from "../services/communicationService";
 
+const formatNotificationTimestamp = (value: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  const formattedDate = date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "2-digit",
+    year: "numeric"
+  });
+
+  const formattedTime = date.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  return `${formattedDate}, ${formattedTime}`;
+};
+
 export default function NotificationBell() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -110,7 +128,7 @@ export default function NotificationBell() {
             </button>
           </div>
 
-          <div className="max-h-[420px] space-y-2 overflow-y-auto">
+          <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1">
             {items.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
                 No notifications yet.
@@ -135,7 +153,7 @@ export default function NotificationBell() {
                     {!item.readAt ? <span className="mt-1 h-2.5 w-2.5 rounded-full bg-teal-500" /> : null}
                   </div>
                   <p className="mt-2 text-xs uppercase tracking-[0.18em] text-slate-500">
-                    {new Date(item.createdAt).toLocaleString()}
+                    {formatNotificationTimestamp(item.createdAt)}
                   </p>
                 </button>
               ))

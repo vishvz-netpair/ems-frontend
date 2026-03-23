@@ -1,6 +1,13 @@
 import { apiRequest } from "../../../services/api";
 import type { UserRole } from "../../auth/services/auth";
 
+export type LeaveApproverRole = Extract<UserRole, "superadmin" | "admin" | "HR" | "teamLeader">;
+
+export type LeaveApprovalFlowStep = {
+  level: number;
+  role: LeaveApproverRole;
+};
+
 export type LeaveTypeItem = {
   id: string;
   name: string;
@@ -14,7 +21,8 @@ export type LeaveTypeItem = {
   accrualEnabled: boolean;
   accrualAmount: number;
   accrualFrequency: "monthly";
-  approvalWorkflowType: "single_level" | "two_level";
+  approvalWorkflowType: "single_level" | "multi_level";
+  approvalFlowSteps: LeaveApprovalFlowStep[];
   maxDaysPerRequest: number;
   minNoticeDays: number;
   allowPastDates: boolean;
@@ -77,7 +85,9 @@ export type LeaveRequestItem = {
   status: "Pending" | "Level 1 Approved" | "Approved" | "Rejected" | "Cancelled";
   allowedActions: Array<"approve" | "reject">;
   currentApprovalLevel: number;
-  approvalWorkflowType: "single_level" | "two_level";
+  approvalWorkflowType: "single_level" | "multi_level";
+  approvalFlowSteps: LeaveApprovalFlowStep[];
+  nextApprovalRole: LeaveApproverRole | null;
   balanceCycleKey: string;
   approvalHistory: LeaveApprovalHistoryItem[];
   createdAt?: string;
@@ -126,12 +136,22 @@ export type LeaveSummaryResponse = {
 
 export type LeaveTypePayload = Omit<LeaveTypeItem, "id" | "createdAt" | "updatedAt">;
 
-export async function getLeaveSummary() {
-  return apiRequest<LeaveSummaryResponse>("/api/leaves/dashboard/summary", "GET");
+export async function getLeaveSummary(scope: "self" | "company" = "company") {
+  return apiRequest<LeaveSummaryResponse>(`/api/leaves/dashboard/summary?scope=${scope}`, "GET");
 }
 
-export async function listLeaveTypes() {
-  return apiRequest<{ items: LeaveTypeItem[] }>("/api/leaves/types", "GET");
+export async function listLeaveTypes(params?: {
+  search?: string;
+  status?: "all" | "Active" | "Inactive";
+  workflow?: "all" | "single_level" | "multi_level";
+}) {
+  const qs = new URLSearchParams({
+    search: params?.search || "",
+    status: params?.status || "all",
+    workflow: params?.workflow || "all"
+  });
+
+  return apiRequest<{ items: LeaveTypeItem[] }>(`/api/leaves/types?${qs.toString()}`, "GET");
 }
 
 export async function listActiveLeaveTypes() {
@@ -246,10 +266,19 @@ export async function getLeaveCalendar(params: {
   return apiRequest<{ items: LeaveCalendarItem[] }>(`/api/leaves/calendar?${qs.toString()}`, "GET");
 }
 
-export async function listLeaveHolidays(params?: { month?: number; year?: number }) {
+export async function listLeaveHolidays(params?: {
+  month?: number;
+  year?: number;
+  search?: string;
+  scope?: string;
+  isActive?: "all" | "true" | "false";
+}) {
   const qs = new URLSearchParams();
   if (params?.month) qs.set("month", String(params.month));
   if (params?.year) qs.set("year", String(params.year));
+  if (params?.search) qs.set("search", params.search);
+  if (params?.scope) qs.set("scope", params.scope);
+  if (params?.isActive) qs.set("isActive", params.isActive);
 
   return apiRequest<{ items: LeaveHolidayItem[] }>(
     `/api/leaves/holidays${qs.toString() ? `?${qs.toString()}` : ""}`,

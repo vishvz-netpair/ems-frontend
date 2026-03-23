@@ -4,7 +4,12 @@ import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 import { InputField } from "../../../components/ui/InputField";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
-import type { LeaveTypeItem, LeaveTypePayload } from "../services/leaveService";
+import type {
+  LeaveApproverRole,
+  LeaveApprovalFlowStep,
+  LeaveTypeItem,
+  LeaveTypePayload
+} from "../services/leaveService";
 
 type Props = {
   open: boolean;
@@ -15,6 +20,13 @@ type Props = {
 };
 
 type FormValues = LeaveTypePayload;
+
+const approverRoleOptions: Array<{ label: string; value: LeaveApproverRole }> = [
+  { label: "HR", value: "HR" },
+  { label: "Team Leader", value: "teamLeader" },
+  { label: "Admin", value: "admin" },
+  { label: "Super Admin", value: "superadmin" }
+];
 
 const defaultValues: FormValues = {
   name: "",
@@ -28,13 +40,54 @@ const defaultValues: FormValues = {
   accrualEnabled: false,
   accrualAmount: 0,
   accrualFrequency: "monthly",
-  approvalWorkflowType: "two_level",
+  approvalWorkflowType: "single_level",
+  approvalFlowSteps: [{ level: 1, role: "admin" }],
   maxDaysPerRequest: 5,
   minNoticeDays: 0,
   allowPastDates: false,
   requiresAttachment: false,
-  status: "Active",
+  status: "Active"
 };
+
+function normalizeApprovalSteps(
+  workflowType: FormValues["approvalWorkflowType"],
+  steps?: LeaveApprovalFlowStep[]
+): LeaveApprovalFlowStep[] {
+  const normalized = (steps || [])
+    .filter((item) => !!item?.role)
+    .map((item, index) => ({
+      level: index + 1,
+      role: item.role
+    }));
+
+  if (workflowType === "single_level") {
+    return [{ level: 1, role: normalized[0]?.role || "admin" }];
+  }
+
+  if (normalized.length >= 2) {
+    return normalized;
+  }
+
+  return [
+    { level: 1, role: normalized[0]?.role || "HR" },
+    { level: 2, role: normalized[1]?.role || "admin" }
+  ];
+}
+
+function normalizeInitialValues(initial?: LeaveTypeItem | null): FormValues {
+  if (!initial) {
+    return defaultValues;
+  }
+
+  const workflowType =
+    initial.approvalWorkflowType === "single_level" ? "single_level" : "multi_level";
+
+  return {
+    ...initial,
+    approvalWorkflowType: workflowType,
+    approvalFlowSteps: normalizeApprovalSteps(workflowType, initial.approvalFlowSteps)
+  };
+}
 
 export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }: Props) {
   const {
@@ -42,19 +95,55 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
     handleSubmit,
     watch,
     reset,
-    formState: { errors, isSubmitting },
+    setValue,
+    formState: { errors, isSubmitting }
   } = useForm<FormValues>({
     defaultValues,
-    mode: "onChange",
+    mode: "onChange"
   });
 
   const carryForwardEnabled = watch("carryForwardEnabled");
   const accrualEnabled = watch("accrualEnabled");
+  const approvalWorkflowType = watch("approvalWorkflowType");
+  const approvalFlowSteps = watch("approvalFlowSteps");
 
   useEffect(() => {
     if (!open) return;
-    reset(initial ? { ...initial } : defaultValues);
+    reset(normalizeInitialValues(initial));
   }, [open, initial, reset]);
+
+  useEffect(() => {
+    if (!open) return;
+    setValue("approvalFlowSteps", normalizeApprovalSteps(approvalWorkflowType, approvalFlowSteps), {
+      shouldDirty: true
+    });
+  }, [approvalWorkflowType, open]);
+
+  const setFlowSteps = (steps: LeaveApprovalFlowStep[]) => {
+    setValue("approvalFlowSteps", normalizeApprovalSteps(approvalWorkflowType, steps), {
+      shouldDirty: true,
+      shouldValidate: true
+    });
+  };
+
+  const updateSingleApprover = (role: string) => {
+    setFlowSteps([{ level: 1, role: role as LeaveApproverRole }]);
+  };
+
+  const updateMultiApprover = (index: number, role: string) => {
+    const next = approvalFlowSteps.map((item, itemIndex) =>
+      itemIndex === index ? { ...item, role: role as LeaveApproverRole } : item
+    );
+    setFlowSteps(next);
+  };
+
+  const addApprovalStep = () => {
+    setFlowSteps([...approvalFlowSteps, { level: approvalFlowSteps.length + 1, role: "admin" }]);
+  };
+
+  const removeApprovalStep = (index: number) => {
+    setFlowSteps(approvalFlowSteps.filter((_, itemIndex) => itemIndex !== index));
+  };
 
   const submit = async (values: FormValues) => {
     await onSave({
@@ -62,6 +151,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
       code: values.code.trim().toUpperCase(),
       name: values.name.trim(),
       description: values.description.trim(),
+      approvalFlowSteps: normalizeApprovalSteps(values.approvalWorkflowType, values.approvalFlowSteps)
     });
   };
 
@@ -83,7 +173,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
       }
     >
       <form id="leave-type-form" onSubmit={handleSubmit(submit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Controller
             name="name"
             control={control}
@@ -117,7 +207,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <Controller
             name="color"
             control={control}
@@ -173,7 +263,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Controller
             name="allocationPeriod"
             control={control}
@@ -184,7 +274,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
                 onChange={(value) => field.onChange(value as FormValues["allocationPeriod"])}
                 options={[
                   { label: "Yearly", value: "yearly" },
-                  { label: "Monthly", value: "monthly" },
+                  { label: "Monthly", value: "monthly" }
                 ]}
               />
             )}
@@ -198,8 +288,8 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
                 value={field.value}
                 onChange={(value) => field.onChange(value as FormValues["approvalWorkflowType"])}
                 options={[
-                  { label: "Two Level", value: "two_level" },
                   { label: "Single Level", value: "single_level" },
+                  { label: "Multi Level", value: "multi_level" }
                 ]}
               />
             )}
@@ -214,7 +304,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
                 onChange={(value) => field.onChange(value as FormValues["status"])}
                 options={[
                   { label: "Active", value: "Active" },
-                  { label: "Inactive", value: "Inactive" },
+                  { label: "Inactive", value: "Inactive" }
                 ]}
               />
             )}
@@ -222,12 +312,82 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Approval Flow Setup</p>
+              <p className="mt-1 text-sm text-slate-500">
+                {approvalWorkflowType === "single_level"
+                  ? "Choose the one role that will approve this leave type."
+                  : "Define the exact sequence this leave request will follow."}
+              </p>
+            </div>
+            {approvalWorkflowType === "multi_level" ? (
+              <Button type="button" variant="outline" size="sm" onClick={addApprovalStep}>
+                Add Step
+              </Button>
+            ) : null}
+          </div>
+
+          {approvalWorkflowType === "single_level" ? (
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <SelectDropdown
+                label="Approver Role"
+                value={approvalFlowSteps[0]?.role || "admin"}
+                onChange={updateSingleApprover}
+                options={approverRoleOptions}
+              />
+            </div>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {approvalFlowSteps.map((step, index) => (
+                <div key={`approval-step-${index}`} className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-[96px_minmax(0,1fr)_auto] md:items-end">
+                    <div className="rounded-xl bg-slate-100 px-4 py-3 text-center">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Step</p>
+                      <p className="mt-1 text-2xl font-semibold text-slate-900">{index + 1}</p>
+                    </div>
+                    <SelectDropdown
+                      label="Approver Role"
+                      value={step.role}
+                      onChange={(value) => updateMultiApprover(index, value)}
+                      options={approverRoleOptions}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => removeApprovalStep(index)}
+                      disabled={approvalFlowSteps.length <= 2}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Flow Preview</p>
+            <p className="mt-2 text-sm font-medium text-slate-700">
+              Employee
+              {normalizeApprovalSteps(approvalWorkflowType, approvalFlowSteps).map((step) => {
+                const option = approverRoleOptions.find((item) => item.value === step.role);
+                return ` -> ${option?.label || step.role}`;
+              }).join("")}
+            </p>
+            {errors.approvalFlowSteps?.message ? (
+              <p className="mt-2 text-sm text-rose-600">{errors.approvalFlowSteps.message}</p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
               name="carryForwardEnabled"
               control={control}
               render={({ field }) => (
-                <label className="flex items-center justify-between rounded-xl bg-white px-4 py-3 border border-slate-200">
+                <label className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
                   <span className="text-sm font-medium text-slate-800">Carry Forward Enabled</span>
                   <input type="checkbox" checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />
                 </label>
@@ -237,7 +397,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
               name="accrualEnabled"
               control={control}
               render={({ field }) => (
-                <label className="flex items-center justify-between rounded-xl bg-white px-4 py-3 border border-slate-200">
+                <label className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
                   <span className="text-sm font-medium text-slate-800">Monthly Accrual Enabled</span>
                   <input type="checkbox" checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />
                 </label>
@@ -247,7 +407,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
               name="allowPastDates"
               control={control}
               render={({ field }) => (
-                <label className="flex items-center justify-between rounded-xl bg-white px-4 py-3 border border-slate-200">
+                <label className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
                   <span className="text-sm font-medium text-slate-800">Allow Past Date Apply</span>
                   <input type="checkbox" checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />
                 </label>
@@ -257,7 +417,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
               name="requiresAttachment"
               control={control}
               render={({ field }) => (
-                <label className="flex items-center justify-between rounded-xl bg-white px-4 py-3 border border-slate-200">
+                <label className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
                   <span className="text-sm font-medium text-slate-800">Attachment Required</span>
                   <input type="checkbox" checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />
                 </label>
@@ -265,7 +425,7 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
             />
           </div>
 
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
               name="maxCarryForwardLimit"
               control={control}

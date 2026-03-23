@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { UserRole } from "../../features/auth/services/auth";
 import { menuItems } from "./menuConfig";
 
@@ -9,7 +9,7 @@ type SidebarProps = {
 
 const Sidebar = ({ role }: SidebarProps) => {
   const location = useLocation();
-  const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
 
   const items = useMemo(
@@ -35,6 +35,14 @@ const Sidebar = ({ role }: SidebarProps) => {
   const isPathActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(`${path}/`);
 
+  const toggleGroup = (label: string, path?: string) => {
+    if (path) {
+      navigate(path);
+    }
+
+    setOpenGroup((current) => (current === label ? null : label));
+  };
+
   return (
     <aside className="hide-scrollbar surface-panel relative flex h-screen w-72 shrink-0 flex-col overflow-y-auto overflow-x-hidden border-r border-[rgba(123,97,63,0.12)] bg-[linear-gradient(180deg,rgba(246,241,231,0.96)_0%,rgba(239,232,219,0.98)_100%)] text-slate-700">
       <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.18),transparent_62%)]" />
@@ -58,10 +66,7 @@ const Sidebar = ({ role }: SidebarProps) => {
           const childActive =
             item.children?.some((child) => isPathActive(child.path)) ?? false;
           const parentActive = item.path ? isPathActive(item.path) : false;
-          const isExpanded =
-            hoveredGroup === item.label ||
-            openGroup === item.label ||
-            childActive;
+          const isExpanded = openGroup === item.label;
           const baseClasses = `
             group relative flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-sm font-semibold leading-6 transition-all duration-200
             ${
@@ -72,35 +77,30 @@ const Sidebar = ({ role }: SidebarProps) => {
           `;
 
           return (
-            <div
-              key={item.label}
-              onMouseEnter={() => setHoveredGroup(item.label)}
-              onMouseLeave={() =>
-                setHoveredGroup((current) =>
-                  current === item.label ? null : current,
-                )
-              }
-            >
-              {item.path ? (
+            <div key={item.label}>
+              {hasChildren ? (
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(item.label, item.path)}
+                  className={baseClasses}
+                >
+                  <span className="h-2.5 w-2.5 rounded-full bg-current/70" />
+                  <span className="flex-1">{item.label}</span>
+                  <span
+                    className={`text-xs transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+                  >
+                    {"\u25BE"}
+                  </span>
+                </button>
+              ) : item.path ? (
                 <NavLink to={item.path} className={baseClasses}>
                   <span className="h-2.5 w-2.5 rounded-full bg-current/70" />
                   <span className="flex-1">{item.label}</span>
-                  {hasChildren ? (
-                    <span
-                      className={`text-xs transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
-                    >
-                      {"\u25BE"}
-                    </span>
-                  ) : null}
                 </NavLink>
               ) : (
                 <button
                   type="button"
-                  onClick={() =>
-                    setOpenGroup((current) =>
-                      current === item.label ? null : item.label,
-                    )
-                  }
+                  onClick={() => toggleGroup(item.label)}
                   className={baseClasses}
                 >
                   <span className="h-2.5 w-2.5 rounded-full bg-current/70" />

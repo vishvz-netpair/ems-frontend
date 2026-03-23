@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export type Column<T> = {
   key: keyof T;
@@ -29,6 +31,34 @@ type DataTableProps<T> = {
   compact?: boolean;
 };
 
+type ActionMenuState = {
+  rowId: string | number;
+  anchorTop: number;
+  anchorBottom: number;
+  anchorRight: number;
+};
+
+const getTooltipText = (content: ReactNode) => {
+  if (typeof content === "string" || typeof content === "number") return String(content);
+  return null;
+};
+
+const renderCellContent = <T,>(column: Column<T>, row: T) => {
+  const value = row[column.key];
+  const content = column.render ? column.render(value, row) : String(value ?? "");
+  const tooltip = getTooltipText(content);
+
+  if (!tooltip) {
+    return <div className="min-w-0 max-w-full">{content}</div>;
+  }
+
+  return (
+    <div className="block w-full min-w-0 max-w-full truncate whitespace-nowrap" title={tooltip}>
+      {content}
+    </div>
+  );
+};
+
 function DataTable<T extends { id: string | number }>({
   columns,
   data,
@@ -38,6 +68,10 @@ function DataTable<T extends { id: string | number }>({
 }: DataTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [openActionMenu, setOpenActionMenu] = useState<ActionMenuState | null>(null);
+  const [actionMenuStyle, setActionMenuStyle] = useState<CSSProperties>({});
+  const actionMenuRef = useRef<HTMLDivElement | null>(null);
+  const actionAnchorRef = useRef<HTMLButtonElement | null>(null);
 
   const isServer = !!serverPagination?.enabled;
   const totalItems = isServer ? serverPagination.total : data.length;
@@ -76,6 +110,83 @@ function DataTable<T extends { id: string | number }>({
     }
   };
 
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        !actionMenuRef.current?.contains(target) &&
+        !actionAnchorRef.current?.contains(target)
+      ) {
+        setOpenActionMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, []);
+
+  useEffect(() => {
+    if (!openActionMenu) return;
+
+    const closeMenu = () => setOpenActionMenu(null);
+    window.addEventListener("resize", closeMenu);
+    window.addEventListener("scroll", closeMenu, true);
+
+    return () => {
+      window.removeEventListener("resize", closeMenu);
+      window.removeEventListener("scroll", closeMenu, true);
+    };
+  }, [openActionMenu]);
+
+  useEffect(() => {
+    setOpenActionMenu(null);
+  }, [effectivePage, effectiveLimit, data]);
+
+  const activeActionRow = openActionMenu
+    ? paginatedData.find((row) => row.id === openActionMenu.rowId) ?? null
+    : null;
+  const activeActions = activeActionRow && actions
+    ? actions.filter((action) => !action.hidden?.(activeActionRow))
+    : [];
+
+  useLayoutEffect(() => {
+    if (!openActionMenu || !actionMenuRef.current) {
+      setActionMenuStyle({});
+      return;
+    }
+
+    const menuRect = actionMenuRef.current.getBoundingClientRect();
+    const viewportPadding = 12;
+    const preferredGap = 8;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    const availableBelow = viewportHeight - openActionMenu.anchorBottom - viewportPadding;
+    const availableAbove = openActionMenu.anchorTop - viewportPadding;
+
+    const top =
+      menuRect.height <= availableBelow || availableBelow >= availableAbove
+        ? Math.min(
+            openActionMenu.anchorBottom + preferredGap,
+            viewportHeight - viewportPadding - menuRect.height,
+          )
+        : Math.max(
+            viewportPadding,
+            openActionMenu.anchorTop - preferredGap - menuRect.height,
+          );
+
+    const left = Math.min(
+      Math.max(viewportPadding, openActionMenu.anchorRight - menuRect.width),
+      viewportWidth - viewportPadding - menuRect.width,
+    );
+
+    setActionMenuStyle({
+      top,
+      left,
+      maxHeight: viewportHeight - viewportPadding * 2,
+    });
+  }, [openActionMenu, activeActions.length, compact]);
+
   return (
     <div className="min-w-0 overflow-hidden rounded-[28px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,0.92)] shadow-[0_18px_40px_rgba(33,29,22,0.08)]">
       <table className={`w-full table-fixed ${compact ? "text-[13px]" : "text-sm"}`}>
@@ -110,39 +221,46 @@ function DataTable<T extends { id: string | number }>({
               className="border-t border-[rgba(123,97,63,0.1)] transition hover:bg-white/75"
             >
               {columns.map((col) => {
-                const value = row[col.key];
                 return (
                   <td
                     key={String(col.key)}
-                    className={`break-words text-slate-700 ${
+                    className={`min-w-0 align-top text-slate-700 ${
                       compact ? "px-4 py-3 leading-5" : "px-5 py-4 leading-6"
                     }`}
                   >
-                    {col.render ? col.render(value, row) : String(value ?? "")}
+                    {renderCellContent(col, row)}
                   </td>
                 );
               })}
 
               {actions && (
                 <td className={compact ? "px-4 py-3 text-center" : "px-5 py-4 text-center"}>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {actions
-                      .filter((a) => !a.hidden?.(row))
-                      .map((a) => (
-                      <button
-                        key={a.label}
-                        onClick={() => a.onClick(row)}
-                        className={`rounded-full font-semibold leading-none transition ${
-                          compact ? "px-2.5 py-1 text-[12px]" : "px-3 py-1.5 text-sm"
-                        } ${
-                          a.label.toLowerCase().includes("delete")
-                            ? "text-red-600 hover:bg-red-50"
-                            : "text-teal-700 hover:bg-teal-50"
-                        }`}
-                      >
-                        {a.label}
-                      </button>
-                    ))}
+                  <div className="flex justify-center">
+                    <button
+                      ref={openActionMenu?.rowId === row.id ? actionAnchorRef : null}
+                      type="button"
+                      onClick={(event) => {
+                        if (openActionMenu?.rowId === row.id) {
+                          setOpenActionMenu(null);
+                          return;
+                        }
+
+                        const rect = event.currentTarget.getBoundingClientRect();
+                        actionAnchorRef.current = event.currentTarget;
+                        setOpenActionMenu({
+                          rowId: row.id,
+                          anchorTop: rect.top,
+                          anchorBottom: rect.bottom,
+                          anchorRight: rect.right,
+                        });
+                      }}
+                      className={`flex items-center justify-center rounded-full border border-[rgba(123,97,63,0.16)] bg-white/90 font-semibold text-slate-600 shadow-sm transition hover:bg-white hover:text-slate-900 ${
+                        compact ? "h-8 w-8 text-lg" : "h-9 w-9 text-xl"
+                      }`}
+                      aria-label="Open actions menu"
+                    >
+                      &#8942;
+                    </button>
                   </div>
                 </td>
               )}
@@ -207,6 +325,39 @@ function DataTable<T extends { id: string | number }>({
           </button>
         </div>
       </div>
+
+      {openActionMenu && activeActionRow && activeActions.length > 0
+        ? createPortal(
+            <div
+              ref={actionMenuRef}
+              className="fixed z-[120] min-w-[160px] max-w-[220px] overflow-y-auto rounded-2xl border border-[rgba(123,97,63,0.14)] bg-white/98 p-2 shadow-[0_20px_36px_rgba(33,29,22,0.18)] backdrop-blur"
+              style={actionMenuStyle}
+            >
+              <div className="flex flex-col gap-1">
+                {activeActions.map((action) => (
+                  <button
+                    key={action.label}
+                    type="button"
+                    onClick={() => {
+                      action.onClick(activeActionRow);
+                      setOpenActionMenu(null);
+                    }}
+                    className={`rounded-xl px-3 py-2 text-left font-semibold leading-none transition ${
+                      compact ? "text-[12px]" : "text-sm"
+                    } ${
+                      action.label.toLowerCase().includes("delete")
+                        ? "text-red-600 hover:bg-red-50"
+                        : "text-teal-700 hover:bg-teal-50"
+                    }`}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

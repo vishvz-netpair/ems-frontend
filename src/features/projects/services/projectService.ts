@@ -97,6 +97,10 @@ export async function softDeleteProject(id: string) {
   return apiRequest<{ message: string }>(`/api/projects/${id}`, "DELETE");
 }
 
-export async function myProjects() {
-  return apiRequest<{ items: ProjectItem[] }>(`/api/projects/my`, "GET");
+export async function myProjects(params?: { search?: string; status?: string }) {
+  const qs = new URLSearchParams({
+    search: params?.search || "",
+    status: params?.status || "all"
+  });
+  return apiRequest<{ items: ProjectItem[] }>(`/api/projects/my?${qs.toString()}`, "GET");
 }

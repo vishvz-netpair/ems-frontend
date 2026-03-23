@@ -4,6 +4,8 @@ import type { Column } from "../../../components/table/DataTable";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Loader from "../../../components/ui/Loader";
 import Button from "../../../components/ui/Button";
+import SelectDropdown from "../../../components/ui/SelectDropdown";
+import { InputField } from "../../../components/ui/InputField";
 import LeaveTypeModal from "../components/LeaveTypeModal";
 import {
   createLeaveType,
@@ -24,6 +26,9 @@ export default function LeaveTypesPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [editItem, setEditItem] = useState<LeaveTypeItem | null>(null);
   const [deleteItem, setDeleteItem] = useState<LeaveTypeItem | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "Inactive">("all");
+  const [workflowFilter, setWorkflowFilter] = useState<"all" | "single_level" | "multi_level">("all");
 
   const columns: Column<Row>[] = useMemo(
     () => [
@@ -31,7 +36,14 @@ export default function LeaveTypesPage() {
       { key: "code", label: "Code" },
       { key: "allocationPeriod", label: "Allocation" },
       { key: "totalAllocation", label: "Allocation Qty" },
-      { key: "approvalWorkflowType", label: "Workflow" },
+      {
+        key: "approvalWorkflowType",
+        label: "Workflow",
+        render: (_, row) =>
+          row.approvalWorkflowType === "single_level"
+            ? `Single Level (${row.approvalFlowSteps[0]?.role || "admin"})`
+            : `Multi Level (${row.approvalFlowSteps.length} steps)`
+      },
       { key: "status", label: "Status" },
     ],
     [],
@@ -40,7 +52,7 @@ export default function LeaveTypesPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await listLeaveTypes();
+      const res = await listLeaveTypes({ search, status: statusFilter, workflow: workflowFilter });
       setItems(res.items || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to fetch leave types");
@@ -51,7 +63,7 @@ export default function LeaveTypesPage() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [search, statusFilter, workflowFilter]);
 
   const save = async (payload: LeaveTypePayload, mode: "add" | "edit") => {
     try {
@@ -84,10 +96,34 @@ export default function LeaveTypesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-semibold text-slate-900">Leave Types</h2>
-          <p className="mt-1 text-sm text-slate-500">Configure leave rules, workflow depth, carry forward, accrual, and attachment policies.</p>
+      <div>
+        <h2 className="text-3xl font-semibold text-slate-900">Leave Types</h2>
+        <p className="mt-1 text-sm text-slate-500">Configure leave rules, workflow depth, carry forward, accrual, and attachment policies.</p>
+      </div>
+
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-4xl">
+          <InputField label="Search" value={search} onChange={setSearch} placeholder="Search leave type or code..." />
+          <SelectDropdown
+            label="Status"
+            value={statusFilter}
+            onChange={(value) => setStatusFilter(value as "all" | "Active" | "Inactive")}
+            options={[
+              { label: "All", value: "all" },
+              { label: "Active", value: "Active" },
+              { label: "Inactive", value: "Inactive" }
+            ]}
+          />
+          <SelectDropdown
+            label="Workflow"
+            value={workflowFilter}
+            onChange={(value) => setWorkflowFilter(value as "all" | "single_level" | "multi_level")}
+            options={[
+              { label: "All", value: "all" },
+              { label: "Single Level", value: "single_level" },
+              { label: "Multi Level", value: "multi_level" }
+            ]}
+          />
         </div>
         <Button onClick={() => setAddOpen(true)} size="lg">
           Add Leave Type

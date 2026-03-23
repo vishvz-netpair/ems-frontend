@@ -65,7 +65,7 @@ export default function EmployeeLeaveDashboard() {
     setLoading(true);
     try {
       const [summaryRes, balanceRes, typeRes, holidayRes, requestRes] = await Promise.all([
-        getLeaveSummary(),
+        getLeaveSummary("self"),
         getMyLeaveBalances(),
         listActiveLeaveTypes(),
         listLeaveHolidays(),
