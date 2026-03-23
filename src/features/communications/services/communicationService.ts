@@ -136,7 +136,7 @@ export type NotificationItem = {
   id: string;
   title: string;
   message: string;
-  type: "announcement" | "event" | "event_reminder";
+  type: "announcement" | "event" | "event_reminder" | "leave_status";
   link: string;
   readAt: string | null;
   createdAt: string;

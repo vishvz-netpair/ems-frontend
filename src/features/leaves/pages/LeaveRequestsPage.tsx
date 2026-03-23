@@ -82,12 +82,7 @@ export default function LeaveRequestsPage() {
   useEffect(() => {
     load();
   }, [page, limit, search, status, leaveTypeId, employeeId, fromDate, toDate]);
-
-  const canApprove = (item: LeaveRequestItem) => {
-    if (user?.role === "admin") return item.status === "Pending" || item.status === "Level 1 Approved";
-    if (isSuperadmin) return item.status === "Pending" || item.status === "Level 1 Approved";
-    return false;
-  };
+  const canManageActions = user?.role === "admin" || isSuperadmin;
 
   const performAction = async (remarks: string) => {
     if (!actionTarget) return;
@@ -177,20 +172,22 @@ export default function LeaveRequestsPage() {
             {
               label: "Approve",
               onClick: (row) => {
-                if (canApprove(row)) {
+                if (canManageActions && row.allowedActions.includes("approve")) {
                   setAction("approve");
                   setActionTarget(row);
                 }
               },
+              hidden: (row) => !canManageActions || !row.allowedActions.includes("approve"),
             },
             {
               label: "Reject",
               onClick: (row) => {
-                if (canApprove(row)) {
+                if (canManageActions && row.allowedActions.includes("reject")) {
                   setAction("reject");
                   setActionTarget(row);
                 }
               },
+              hidden: (row) => !canManageActions || !row.allowedActions.includes("reject"),
             },
           ]}
           serverPagination={{

@@ -16,7 +16,6 @@ import { getSession, hasAccess } from "../../auth/services/auth";
 export default function AdminLeaveDashboard() {
   const navigate = useNavigate();
   const { user } = getSession();
-  const isSuperadmin = user?.role === "superadmin";
   const canRunAccrual = user?.role === "superadmin" || user?.role === "admin";
   const canManageLeaveTypes = hasAccess(user?.role, "leaveTypes");
   const canRequestOwnLeave = user?.role === "employee" || user?.role === "HR";

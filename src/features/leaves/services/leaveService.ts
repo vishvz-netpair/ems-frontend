@@ -75,6 +75,7 @@ export type LeaveRequestItem = {
     size: number;
   } | null;
   status: "Pending" | "Level 1 Approved" | "Approved" | "Rejected" | "Cancelled";
+  allowedActions: Array<"approve" | "reject">;
   currentApprovalLevel: number;
   approvalWorkflowType: "single_level" | "two_level";
   balanceCycleKey: string;

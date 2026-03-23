@@ -72,6 +72,7 @@ export default function EmployeeAttendancePage() {
   };
 
   const summary = dayData.summary;
+  const isApprovedLeaveDay = summary?.status === "LEAVE";
   const cards = useMemo(
     () => [
       { label: "First In", value: formatTime(summary?.firstIn), tone: "bg-slate-900 text-white" },
@@ -94,10 +95,15 @@ export default function EmployeeAttendancePage() {
           <Button variant="outline" onClick={() => navigate("/my-attendance")}>
             My Attendance
           </Button>
-          <Button isLoading={submitting === "IN"} onClick={() => handlePunch("IN")}>
+          <Button disabled={isApprovedLeaveDay} isLoading={submitting === "IN"} onClick={() => handlePunch("IN")}>
             Punch In
           </Button>
-          <Button variant="outline" isLoading={submitting === "OUT"} onClick={() => handlePunch("OUT")}>
+          <Button
+            variant="outline"
+            disabled={isApprovedLeaveDay}
+            isLoading={submitting === "OUT"}
+            onClick={() => handlePunch("OUT")}
+          >
             Punch Out
           </Button>
         </div>
@@ -122,6 +128,9 @@ export default function EmployeeAttendancePage() {
             ) : null}
           </div>
         </div>
+        {isApprovedLeaveDay ? (
+          <p className="mt-3 text-sm text-slate-500">Punch actions are disabled because this date has an approved leave.</p>
+        ) : null}
       </div>
 
       {loading ? (
