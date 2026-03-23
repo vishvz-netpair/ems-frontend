@@ -4,6 +4,7 @@ import Button from "../../../components/ui/Button";
 import { InputField } from "../../../components/ui/InputField";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import DatePicker from "../../../components/ui/DatePicker";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import AudienceTargetEditor from "./AudienceTargetEditor";
 import RichTextEditor from "./RichTextEditor";
 import type { CommunicationMeta, EventItem, TargetingPayload } from "../services/communicationService";
@@ -235,10 +236,12 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
     >
       <div className="space-y-5">
         {submitError ? <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{submitError}</p> : null}
+        <FormRequiredNote />
 
         <div className="grid gap-4 md:grid-cols-2">
           <InputField
             label="Event Title"
+            required
             value={title}
             onChange={(value) => {
               setTitle(value);
@@ -265,6 +268,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
         <div className="grid gap-4 md:grid-cols-3">
           <DatePicker
             label="Publish Date"
+            required
             value={publishDate}
             onChange={(value) => {
               setPublishDate(value);
@@ -274,6 +278,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
           />
           <DatePicker
             label="Start Date"
+            required
             value={startDate}
             onChange={(value) => {
               setStartDate(value);
@@ -284,6 +289,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
           />
           <DatePicker
             label="End Date"
+            required
             value={endDate}
             onChange={(value) => {
               setEndDate(value);
@@ -296,6 +302,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
         <div className="grid gap-4 md:grid-cols-3">
           <InputField
             label="Start Time"
+            required
             type="time"
             value={startTime}
             onChange={(value) => {
@@ -306,6 +313,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
           />
           <InputField
             label="End Time"
+            required
             type="time"
             value={endTime}
             onChange={(value) => {
@@ -371,6 +379,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
 
         <RichTextEditor
           label="Description"
+          required
           value={description}
           onChange={(value) => {
             setDescription(value);
@@ -486,6 +495,7 @@ export default function EventFormModal({ open, meta, initial, onClose, onSave }:
                 </div>
                 <InputField
                   label="Custom Date Time"
+                  required={item.reminderType === "custom"}
                   type="datetime-local"
                   value={item.customDateTime}
                   onChange={(value) =>

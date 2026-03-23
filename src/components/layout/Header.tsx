@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { clearSession, type UserRole } from "../../features/auth/services/auth";
+import { clearSession, hasRequiredRole, type UserRole } from "../../features/auth/services/auth";
 import NotificationBell from "../../features/communications/components/NotificationBell";
+import HeaderPunchActions from "../../features/attendance/components/HeaderPunchActions";
 
 type HeaderProps = {
   user?: {
@@ -51,6 +52,7 @@ const Header = ({ user }: HeaderProps) => {
     const match = pageTitles.find((item) => item.match.test(location.pathname));
     return match?.title ?? "Employee Management System";
   }, [location.pathname]);
+  const canUseSelfAttendance = hasRequiredRole(user?.role, ["employee", "HR", "teamLeader"]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -81,6 +83,7 @@ const Header = ({ user }: HeaderProps) => {
         </div>
 
         <div className="flex items-center gap-3">
+          {canUseSelfAttendance ? <HeaderPunchActions /> : null}
           <NotificationBell />
 
           <div className="relative" ref={dropdownRef}>

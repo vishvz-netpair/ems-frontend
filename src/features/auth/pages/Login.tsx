@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Button from "../../../components/ui/Button";
 import { InputField } from "../../../components/ui/InputField";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import { apiRequest } from "../../../services/api";
 import { saveSession, type SessionUser, type UserRole } from "../services/auth";
 
@@ -50,10 +51,7 @@ const Login = () => {
           role: res.user.role,
         },
       });
-
-      setDialogMessage("Login successful");
-      setIsSuccess(true);
-      setDialogOpen(true);
+      navigate("/dashboard", { replace: true });
     } catch (e: unknown) {
       let message = "Login failed";
       if (e instanceof Error) message = e.message;
@@ -69,17 +67,7 @@ const Login = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
-    if (isSuccess) navigate("/dashboard", { replace: true });
   };
-
-  useEffect(() => {
-    if (!dialogOpen || !isSuccess) return;
-    const timeoutId = window.setTimeout(() => {
-      setDialogOpen(false);
-      navigate("/dashboard", { replace: true });
-    }, 900);
-    return () => window.clearTimeout(timeoutId);
-  }, [dialogOpen, isSuccess, navigate]);
 
   return (
     <>
@@ -137,6 +125,7 @@ const Login = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="mt-6 space-y-5 lg:mt-5"
               >
+                <FormRequiredNote />
                 <Controller
                   control={control}
                   name="email"
@@ -145,6 +134,7 @@ const Login = () => {
                     <InputField
                       type="email"
                       label="Email"
+                      required
                       placeholder="Enter your email"
                       value={field.value ?? ""}
                       onChange={field.onChange}
@@ -161,6 +151,7 @@ const Login = () => {
                     <InputField
                       type="password"
                       label="Password"
+                      required
                       placeholder="Enter your password"
                       value={field.value ?? ""}
                       onChange={field.onChange}

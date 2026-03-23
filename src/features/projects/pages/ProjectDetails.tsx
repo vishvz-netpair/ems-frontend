@@ -152,8 +152,6 @@ export default function ProjectDetails() {
           ? { estimatedHours: payload.estimatedHours }
           : {}),
       });
-      setSuccessMsg("Task created successfully.");
-      setSuccessOpen(true);
       await loadTasks();
       return;
     }
@@ -167,8 +165,6 @@ export default function ProjectDetails() {
       dueDate: payload.dueDate,
       estimatedHours: payload.estimatedHours,
     });
-    setSuccessMsg("Task updated successfully.");
-    setSuccessOpen(true);
     await loadTasks();
   };
 

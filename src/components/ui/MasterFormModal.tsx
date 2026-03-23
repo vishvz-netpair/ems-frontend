@@ -5,6 +5,7 @@ import Modal from "./Modal";
 import Button from "./Button";
 import { InputField } from "./InputField";
 import SelectDropdown from "./SelectDropdown";
+import FormRequiredNote from "./FormRequiredNote";
 
 type MasterFormModalProps = {
   open: boolean;
@@ -91,6 +92,8 @@ const MasterFormModal = ({
         onSubmit={handleSubmit(submit)}
         className="space-y-4"
       >
+        <FormRequiredNote />
+
         {/* Name Field */}
         <Controller
           name="name"
@@ -105,6 +108,7 @@ const MasterFormModal = ({
           render={({ field }) => (
             <InputField
               label="Name"
+              required
               value={field.value}
               onChange={field.onChange}
               error={errors.name?.message}

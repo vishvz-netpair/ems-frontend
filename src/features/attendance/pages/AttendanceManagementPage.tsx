@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import DataTable from "../../../components/table/DataTable";
 import type { Column } from "../../../components/table/DataTable";
 import Button from "../../../components/ui/Button";
@@ -76,7 +76,6 @@ function getDepartmentLabel(employee: Row["employeeId"]) {
 
 export default function AttendanceManagementPage() {
   const { user } = getSession();
-  const navigate = useNavigate();
   const now = new Date();
   const [loading, setLoading] = useState(false);
   const [employees, setEmployees] = useState<Array<{ id: string; name: string; departmentId: string }>>([]);
@@ -198,13 +197,12 @@ export default function AttendanceManagementPage() {
     { key: "firstIn", label: "First In", render: (value) => formatTime(value as string | null) },
     { key: "lastOut", label: "Last Out", render: (value) => formatTime(value as string | null) },
     { key: "totalWorkMinutes", label: "Worked Time", render: (value) => formatDuration(Number(value ?? 0)) },
-    { key: "status", label: "Status", render: (value) => <AttendanceStatusBadge status={value as Row["status"]} /> },
     {
-      key: "remarks",
-      label: "Notes",
-      render: (_, row) => (
+      key: "status",
+      label: "Status",
+      render: (value, row) => (
         <div className="space-y-1">
-          <p>{row.remarks || "--"}</p>
+          <AttendanceStatusBadge status={value as Row["status"]} />
           <p className="text-xs text-slate-500">Department: {getDepartmentLabel(row.employeeId)}</p>
         </div>
       )
@@ -253,7 +251,6 @@ export default function AttendanceManagementPage() {
           <p className="mt-1 text-sm text-slate-500">Filter attendance records, inspect computed outcomes, and recompute when policy or punches change.</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button variant="outline" onClick={() => navigate("/attendance")}>Back</Button>
           <Button onClick={handleRecomputeRange}>Recompute Range</Button>
         </div>
       </div>

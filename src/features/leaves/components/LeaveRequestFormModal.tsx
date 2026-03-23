@@ -4,6 +4,7 @@ import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import DatePicker from "../../../components/ui/DatePicker";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import type { LeaveBalanceItem, LeaveHolidayItem, LeaveTypeItem } from "../services/leaveService";
 
 type Props = {
@@ -148,6 +149,7 @@ export default function LeaveRequestFormModal({ open, leaveTypes, balances, holi
     >
       <form id="leave-apply-form" onSubmit={handleSubmit(submit)} className="space-y-4">
         {serverError ? <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{serverError}</p> : null}
+        <FormRequiredNote />
 
         <Controller
           name="leaveTypeId"
@@ -156,6 +158,7 @@ export default function LeaveRequestFormModal({ open, leaveTypes, balances, holi
           render={({ field }) => (
             <SelectDropdown
               label="Leave Type"
+              required
               value={field.value}
               onChange={field.onChange}
               error={errors.leaveTypeId?.message}
@@ -184,7 +187,7 @@ export default function LeaveRequestFormModal({ open, leaveTypes, balances, holi
             control={control}
             rules={{ required: "From date is required" }}
             render={({ field }) => (
-              <DatePicker label="From Date" value={field.value} onChange={field.onChange} error={errors.fromDate?.message} />
+              <DatePicker label="From Date" required value={field.value} onChange={field.onChange} error={errors.fromDate?.message} />
             )}
           />
           <Controller
@@ -192,7 +195,7 @@ export default function LeaveRequestFormModal({ open, leaveTypes, balances, holi
             control={control}
             rules={{ required: "To date is required" }}
             render={({ field }) => (
-              <DatePicker label="To Date" value={field.value} onChange={field.onChange} error={errors.toDate?.message} />
+              <DatePicker label="To Date" required value={field.value} onChange={field.onChange} error={errors.toDate?.message} />
             )}
           />
           <Controller
@@ -224,7 +227,9 @@ export default function LeaveRequestFormModal({ open, leaveTypes, balances, holi
           rules={{ required: "Reason is required", minLength: { value: 5, message: "Minimum 5 characters required" } }}
           render={({ field }) => (
             <div className="w-full">
-              <label className="mb-1.5 block text-sm font-medium text-slate-900">Reason</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-900">
+                Reason <span className="text-red-500">*</span>
+              </label>
               <textarea
                 value={field.value}
                 onChange={(e) => field.onChange(e.target.value)}

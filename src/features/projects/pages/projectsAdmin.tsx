@@ -14,7 +14,6 @@ import {
 } from "../services/projectService";
 
 import ProjectFormModal from "../components/ProjectFormModal";
-import ProjectViewModal from "../components/ProjectViewModal";
 
 import { formatDate } from "../../../utils/date";
 import Loader from "../../../components/ui/Loader";
@@ -48,9 +47,6 @@ const ProjectsAdmin = () => {
 
   const [editOpen, setEditOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-
-  const [viewOpen, setViewOpen] = useState(false);
-  const [viewId, setViewId] = useState<string | null>(null);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -230,8 +226,6 @@ const ProjectsAdmin = () => {
         onClose={() => setAddOpen(false)}
         onSuccess={() => {
           setAddOpen(false);
-          setSuccessMsg("Project created successfully.");
-          setSuccessOpen(true);
           load();
         }}
       />
@@ -247,21 +241,9 @@ const ProjectsAdmin = () => {
         onSuccess={() => {
           setEditOpen(false);
           setEditId(null);
-          setSuccessMsg("Project updated successfully.");
-          setSuccessOpen(true);
           load();
         }}
       />
-
-      <ProjectViewModal
-        open={viewOpen}
-        projectId={viewId}
-        onClose={() => {
-          setViewOpen(false);
-          setViewId(null);
-        }}
-      />
-
       <ConfirmDialog
         open={deleteOpen}
         title="Delete Project"

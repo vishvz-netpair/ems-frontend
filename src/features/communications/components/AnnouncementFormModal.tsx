@@ -4,6 +4,7 @@ import Button from "../../../components/ui/Button";
 import { InputField } from "../../../components/ui/InputField";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import DatePicker from "../../../components/ui/DatePicker";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import AudienceTargetEditor from "./AudienceTargetEditor";
 import RichTextEditor from "./RichTextEditor";
 import type { AnnouncementItem, CommunicationMeta, TargetingPayload } from "../services/communicationService";
@@ -163,10 +164,12 @@ export default function AnnouncementFormModal({ open, meta, initial, onClose, on
     >
       <div className="space-y-5">
         {submitError ? <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{submitError}</p> : null}
+        <FormRequiredNote />
 
         <div className="grid gap-4 md:grid-cols-2">
           <InputField
             label="Title"
+            required
             value={title}
             onChange={(value) => {
               setTitle(value);
@@ -177,6 +180,7 @@ export default function AnnouncementFormModal({ open, meta, initial, onClose, on
           />
           <InputField
             label="Summary"
+            required
             value={summary}
             onChange={(value) => {
               setSummary(value);
@@ -227,6 +231,7 @@ export default function AnnouncementFormModal({ open, meta, initial, onClose, on
         <div className="grid gap-4 md:grid-cols-2">
           <DatePicker
             label="Publish Date"
+            required
             value={publishDate}
             onChange={(value) => {
               setPublishDate(value);
@@ -247,6 +252,7 @@ export default function AnnouncementFormModal({ open, meta, initial, onClose, on
 
         <RichTextEditor
           label="Rich Content"
+          required
           value={content}
           onChange={(value) => {
             setContent(value);

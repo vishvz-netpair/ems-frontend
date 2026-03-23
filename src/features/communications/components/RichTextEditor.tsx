@@ -7,9 +7,17 @@ type Props = {
   onChange: (value: string) => void;
   helperText?: string;
   error?: string;
+  required?: boolean;
 };
 
-export default function RichTextEditor({ label, value, onChange, helperText, error }: Props) {
+export default function RichTextEditor({
+  label,
+  value,
+  onChange,
+  helperText,
+  error,
+  required,
+}: Props) {
   const editorRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -32,7 +40,9 @@ export default function RichTextEditor({ label, value, onChange, helperText, err
 
   return (
     <div className="w-full">
-      <label className="mb-1.5 block text-sm font-medium text-slate-900">{label}</label>
+      <label className="mb-1.5 block text-sm font-medium text-slate-900">
+        {label} {required ? <span className="text-red-500">*</span> : null}
+      </label>
       <div
         className={`rounded-[24px] border bg-[rgba(255,253,248,0.92)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] ${
           error ? "border-red-300" : "border-[rgba(123,97,63,0.15)]"

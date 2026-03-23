@@ -7,12 +7,15 @@ import type { Column } from "../../../components/table/DataTable";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
+import Loader from "../../../components/ui/Loader";
 import { InputField } from "../../../components/ui/InputField";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import { Controller } from "react-hook-form";
 
 import {
   createUser,
+  fetchUserById,
   fetchUsers,
   updateUser,
   deleteUser,
@@ -27,8 +30,6 @@ import {
   hasAccess,
   type UserRole,
 } from "../../auth/services/auth";
-
-import Loader from "../../../components/ui/Loader";
 
 type Row = {
   id: number;
@@ -73,6 +74,7 @@ const Users = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const [saving, setSaving] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
   const hasMountedSearch = useRef(false);
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -124,9 +126,6 @@ const Users = () => {
                     row._id,
                     e.target.value as "Active" | "Inactive",
                   );
-
-                  setSuccessMsg("Status updated successfully");
-                  setSuccessOpen(true);
                   load();
                 } catch {
                   setErrorMsg("Status update failed");
@@ -193,13 +192,14 @@ const Users = () => {
   const loadDropdowns = async () => {
     const dep = await listDepartments({ page: 1, limit: 1000 });
     setDeptOptions(dep.items.map((d) => ({ id: d.id, name: d.name })));
-
-    const des = await listDesignations({ page: 1, limit: 1000 });
-    setDesigOptions(des.items.map((d) => ({ id: d.id, name: d.name })));
+    setDesigOptions([]);
   };
 
   useEffect(() => {
-    if (!departmentId) return;
+    if (!departmentId) {
+      setDesigOptions([]);
+      return;
+    }
 
     const loadDesignations = async () => {
       const res = await listDesignations({
@@ -233,8 +233,10 @@ const Users = () => {
   }, [search]);
 
   useEffect(() => {
-    if (addOpen) loadDropdowns();
-  }, [addOpen]);
+    if (addOpen && !editingUserId) {
+      loadDropdowns();
+    }
+  }, [addOpen, editingUserId]);
 
   const openAdd = () => {
     if (!canManageUsers) return;
@@ -251,19 +253,52 @@ const Users = () => {
     setAddOpen(true);
   };
 
-  const openEdit = (row: Row) => {
+  const openEdit = async (row: Row) => {
     if (!canManageUsers) return;
-
-    reset({
-      name: row.name,
-      email: row.email,
-      role: row.role as UserRole,
-      departmentId: "",
-      designationId: "",
-    });
 
     setEditingUserId(row._id);
     setAddOpen(true);
+    setEditLoading(true);
+
+    try {
+      const [user, departments] = await Promise.all([
+        fetchUserById(row._id),
+        listDepartments({ page: 1, limit: 1000 }),
+      ]);
+
+      setDeptOptions(
+        departments.items.map((d) => ({ id: d.id, name: d.name })),
+      );
+
+      if (user.departmentId) {
+        const designations = await listDesignations({
+          page: 1,
+          limit: 1000,
+          departmentId: user.departmentId,
+        });
+
+        setDesigOptions(
+          designations.items.map((d) => ({ id: d.id, name: d.name })),
+        );
+      } else {
+        setDesigOptions([]);
+      }
+
+      reset({
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        departmentId: user.departmentId,
+        designationId: user.designationId,
+      });
+    } catch (e) {
+      setAddOpen(false);
+      setEditingUserId(null);
+      setErrorMsg(e instanceof Error ? e.message : "Failed to load user");
+      setErrorOpen(true);
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   /* const onSubmit = async (data: FormValues) => {
@@ -326,7 +361,6 @@ const Users = () => {
           status: "Active",
         });
 
-        setSuccessMsg("User updated successfully");
       } else {
         await createUser({
           name: data.name.trim(),
@@ -336,12 +370,9 @@ const Users = () => {
           designationId: data.designationId,
         });
 
-        setSuccessMsg("User created successfully");
       }
 
       setAddOpen(false);
-      setSuccessOpen(true);
-
       load();
     } catch (err) {
       setErrorMsg("User save failed");
@@ -423,7 +454,11 @@ const Users = () => {
         title={editingUserId ? "Edit User" : "Add User"}
         onClose={() => setAddOpen(false)}
       >
+        {editLoading ? (
+          <Loader variant="block" size="md" label="Loading user..." />
+        ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <FormRequiredNote />
           <Controller
             name="name"
             control={control}
@@ -431,6 +466,7 @@ const Users = () => {
             render={({ field }) => (
               <InputField
                 label="Name"
+                required
                 value={field.value}
                 onChange={field.onChange}
                 error={errors.name?.message}
@@ -445,6 +481,7 @@ const Users = () => {
             render={({ field }) => (
               <InputField
                 label="Email"
+                required
                 value={field.value}
                 onChange={field.onChange}
                 error={errors.email?.message}
@@ -477,6 +514,7 @@ const Users = () => {
             render={({ field }) => (
               <SelectDropdown
                 label="Department"
+                required
                 value={field.value}
                 onChange={field.onChange}
                 options={deptOptions.map((d) => ({
@@ -495,6 +533,7 @@ const Users = () => {
             render={({ field }) => (
               <SelectDropdown
                 label="Designation"
+                required
                 value={field.value}
                 onChange={field.onChange}
                 options={desigOptions.map((d) => ({
@@ -516,6 +555,7 @@ const Users = () => {
             </Button>
           </div>
         </form>
+        )}
       </Modal>
 
       <ConfirmDialog

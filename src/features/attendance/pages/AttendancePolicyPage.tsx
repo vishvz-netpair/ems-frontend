@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import { InputField } from "../../../components/ui/InputField";
 import Loader from "../../../components/ui/Loader";
 import { getSession, hasAccess } from "../../auth/services/auth";
@@ -45,7 +46,6 @@ function toFormState(policy: AttendancePolicy): PolicyFormState {
 
 export default function AttendancePolicyPage() {
   const { user } = getSession();
-  const navigate = useNavigate();
   const isAuthorized = hasAccess(user?.role, "attendancePolicy");
 
   const [loading, setLoading] = useState(false);
@@ -122,21 +122,19 @@ export default function AttendancePolicyPage() {
           <h2 className="text-3xl font-semibold text-slate-900">Attendance Policy</h2>
           <p className="mt-1 text-sm text-slate-500">Configure runtime attendance behavior without changing leave or payroll-ready data structures.</p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" onClick={() => navigate("/attendance")}>Back</Button>
-        </div>
       </div>
 
       {loading ? (
         <Loader variant="block" label="Loading attendance policy..." />
       ) : (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <FormRequiredNote className="mb-4" />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <InputField label="Office Start Time" type="time" value={form.officeStartTime} onChange={(value) => setForm((prev) => ({ ...prev, officeStartTime: value }))} />
-            <InputField label="Office End Time" type="time" value={form.officeEndTime} onChange={(value) => setForm((prev) => ({ ...prev, officeEndTime: value }))} />
-            <InputField label="Grace Minutes" type="number" value={form.graceMinutes} onChange={(value) => setForm((prev) => ({ ...prev, graceMinutes: value }))} />
-            <InputField label="Half Day Minutes" type="number" value={form.halfDayMinutes} onChange={(value) => setForm((prev) => ({ ...prev, halfDayMinutes: value }))} />
-            <InputField label="Full Day Minutes" type="number" value={form.fullDayMinutes} onChange={(value) => setForm((prev) => ({ ...prev, fullDayMinutes: value }))} />
+            <InputField required label="Office Start Time" type="time" value={form.officeStartTime} onChange={(value) => setForm((prev) => ({ ...prev, officeStartTime: value }))} />
+            <InputField required label="Office End Time" type="time" value={form.officeEndTime} onChange={(value) => setForm((prev) => ({ ...prev, officeEndTime: value }))} />
+            <InputField required label="Grace Minutes" type="number" value={form.graceMinutes} onChange={(value) => setForm((prev) => ({ ...prev, graceMinutes: value }))} />
+            <InputField required label="Half Day Minutes" type="number" value={form.halfDayMinutes} onChange={(value) => setForm((prev) => ({ ...prev, halfDayMinutes: value }))} />
+            <InputField required label="Full Day Minutes" type="number" value={form.fullDayMinutes} onChange={(value) => setForm((prev) => ({ ...prev, fullDayMinutes: value }))} />
           </div>
 
           <div className="mt-6">

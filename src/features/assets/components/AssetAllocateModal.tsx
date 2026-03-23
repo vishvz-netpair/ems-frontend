@@ -5,6 +5,7 @@ import Modal from "../../../components/ui/Modal";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import DatePicker from "../../../components/ui/DatePicker";
 import { InputField } from "../../../components/ui/InputField";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import type { AssetItem, AllocateAssetPayload } from "../services/assetService";
 import { allocateAsset } from "../services/assetService";
 import { fetchActiveUsers } from "../../users/services/userService";
@@ -120,6 +121,8 @@ export default function AssetAllocateModal({
         onSubmit={handleSubmit(submit)}
         className="space-y-4"
       >
+        <FormRequiredNote />
+
         <Controller
           name="employeeId"
           control={control}
@@ -127,6 +130,7 @@ export default function AssetAllocateModal({
           render={({ field }) => (
             <SelectDropdown
               label="Allocate To"
+              required
               value={field.value}
               onChange={field.onChange}
               error={errors.employeeId?.message}
@@ -143,6 +147,7 @@ export default function AssetAllocateModal({
           render={({ field }) => (
             <DatePicker
               label="Allocated On"
+              required
               value={field.value}
               onChange={field.onChange}
               error={errors.allocatedOn?.message}

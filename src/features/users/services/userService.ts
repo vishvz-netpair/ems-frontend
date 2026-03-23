@@ -12,6 +12,11 @@ export type UserItem = {
   designation?: string;
 };
 
+export type UserDetail = UserItem & {
+  departmentId: string;
+  designationId: string;
+};
+
 export type UsersResponse = {
   items: UserItem[];
   total: number;
@@ -47,6 +52,10 @@ export async function fetchProjectAssignableEmployees() {
       status?: "Active" | "Inactive";
     }[];
   }>("/api/users/project-assignable-employees", "GET");
+}
+
+export async function fetchUserById(id: string) {
+  return apiRequest<UserDetail>(`/api/users/${id}`, "GET");
 }
 
 export async function createUser(payload: {

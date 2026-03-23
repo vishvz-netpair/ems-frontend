@@ -5,7 +5,7 @@ import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Loader from "../../../components/ui/Loader";
 import { formatDate } from "../../../utils/date";
 import AttendanceStatusBadge from "../components/AttendanceStatusBadge";
-import { addAttendancePunch, getMyDailyAttendance, type AttendanceDayResponse } from "../services/attendanceService";
+import { getMyDailyAttendance, type AttendanceDayResponse } from "../services/attendanceService";
 
 function formatTime(value?: string | null) {
   if (!value) return "--";
@@ -18,25 +18,11 @@ function formatMinutes(totalMinutes: number) {
   return `${hours}h ${minutes}m`;
 }
 
-function getLocalPunchTimestamp() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-}
-
 export default function EmployeeAttendancePage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState<"" | "IN" | "OUT">("");
   const [dayData, setDayData] = useState<AttendanceDayResponse>({ summary: null, punches: [] });
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -54,25 +40,7 @@ export default function EmployeeAttendancePage() {
     load();
   }, []);
 
-  const handlePunch = async (punchType: "IN" | "OUT") => {
-    setSubmitting(punchType);
-    try {
-      await addAttendancePunch({
-        punchType,
-        punchTime: getLocalPunchTimestamp(),
-        source: "web"
-      });
-      setSuccess(`${punchType} punch added successfully.`);
-      await load();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to add punch");
-    } finally {
-      setSubmitting("");
-    }
-  };
-
   const summary = dayData.summary;
-  const isApprovedLeaveDay = summary?.status === "LEAVE";
   const cards = useMemo(
     () => [
       { label: "First In", value: formatTime(summary?.firstIn), tone: "bg-slate-900 text-white" },
@@ -94,17 +62,6 @@ export default function EmployeeAttendancePage() {
         <div className="flex flex-wrap gap-3">
           <Button variant="outline" onClick={() => navigate("/my-attendance")}>
             My Attendance
-          </Button>
-          <Button disabled={isApprovedLeaveDay} isLoading={submitting === "IN"} onClick={() => handlePunch("IN")}>
-            Punch In
-          </Button>
-          <Button
-            variant="outline"
-            disabled={isApprovedLeaveDay}
-            isLoading={submitting === "OUT"}
-            onClick={() => handlePunch("OUT")}
-          >
-            Punch Out
           </Button>
         </div>
       </div>
@@ -128,7 +85,7 @@ export default function EmployeeAttendancePage() {
             ) : null}
           </div>
         </div>
-        {isApprovedLeaveDay ? (
+        {summary?.status === "LEAVE" ? (
           <p className="mt-3 text-sm text-slate-500">Punch actions are disabled because this date has an approved leave.</p>
         ) : null}
       </div>
@@ -184,7 +141,6 @@ export default function EmployeeAttendancePage() {
       )}
 
       <ConfirmDialog open={!!error} title="Error" message={error} onConfirm={() => setError("")} onCancel={() => setError("")} />
-      <ConfirmDialog open={!!success} title="Success" message={success} mode="Success" onConfirm={() => setSuccess("")} onCancel={() => setSuccess("")} />
     </div>
   );
 }

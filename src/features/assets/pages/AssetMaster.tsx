@@ -21,6 +21,7 @@ import AssetFormModal from "../components/AssetFormModal";
 import AssetAllocateModal from "../components/AssetAllocateModal";
 import AssetReturnModal from "../components/AssetReturnModal";
 import AssetHistoryModal from "../components/AssetHistoryModal";
+import AssetViewModal from "../components/AssetViewModal";
 import Loader from "../../../components/ui/Loader";
 
 type Row = {
@@ -60,6 +61,7 @@ export default function AssetMaster() {
 
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<AssetItem | null>(null);
+  const [viewing, setViewing] = useState<AssetItem | null>(null);
 
   const [openAllocate, setOpenAllocate] = useState(false);
   const [allocateItem, setAllocateItem] = useState<AssetItem | null>(null);
@@ -142,6 +144,13 @@ export default function AssetMaster() {
   ];
 
   const actions: Action<Row>[] = [
+    {
+      label: "View",
+      onClick: (r) => {
+        const found = items.find((x) => x._id === r._id) || null;
+        setViewing(found);
+      },
+    },
     {
       label: "Edit",
       onClick: (r) => {
@@ -326,6 +335,12 @@ export default function AssetMaster() {
           else await createAsset(payload);
           await load(page, limit, debouncedQ, status);
         }}
+      />
+
+      <AssetViewModal
+        open={!!viewing}
+        asset={viewing}
+        onClose={() => setViewing(null)}
       />
 
       <AssetAllocateModal

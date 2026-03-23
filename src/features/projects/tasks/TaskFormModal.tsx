@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import { InputField } from "../../../components/ui/InputField";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import DatePicker from "../../../components/ui/DatePicker";
@@ -160,8 +161,10 @@ export default function TaskFormModal({
       }
     >
       <form id="task-form" onSubmit={handleSubmit} className="space-y-4">
+        <FormRequiredNote />
         <InputField
           label="Title"
+          required
           value={title}
           onChange={(value) => {
             setTitle(value);
@@ -189,6 +192,7 @@ export default function TaskFormModal({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SelectDropdown
             label="Assign To"
+            required
             value={assignedTo}
             onChange={(value) => {
               setAssignedTo(value);

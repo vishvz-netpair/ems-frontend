@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Modal from "../../../components/ui/Modal";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import { InputField } from "../../../components/ui/InputField";
 import DatePicker from "../../../components/ui/DatePicker";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
@@ -226,8 +227,10 @@ const ProjectFormModal = ({
         size="lg"
       >
         <div className="space-y-4">
+          <FormRequiredNote />
           <InputField
             label="Project Name"
+            required
             value={name}
             onChange={setName}
             placeholder="Enter project name"
@@ -236,7 +239,7 @@ const ProjectFormModal = ({
 
           <div className="w-full">
             <label className="mb-1.5 block text-sm font-medium text-slate-900">
-              Description
+              Description <span className="text-red-500">*</span>
             </label>
             <textarea
               value={description}
@@ -258,6 +261,7 @@ const ProjectFormModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               label="Time Limit"
+              required
               value={timeLimit}
               onChange={setTimeLimit}
               placeholder="e.g. 3 months / 30 days"
@@ -266,6 +270,7 @@ const ProjectFormModal = ({
 
             <DatePicker
               label="Start Date"
+              required
               value={startDate}
               onChange={setStartDate}
               error={errors.startDate}
@@ -285,7 +290,7 @@ const ProjectFormModal = ({
           {/* Multi select */}
           <div className="w-full">
             <label className="mb-1.5 block text-sm font-medium text-slate-900">
-              Employees (Multi Select)
+              Employees (Multi Select) <span className="text-red-500">*</span>
             </label>
 
             <div className="rounded-xl border border-slate-200 bg-white p-3">

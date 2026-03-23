@@ -4,6 +4,7 @@ import DatePicker from "../../../components/ui/DatePicker";
 import { InputField } from "../../../components/ui/InputField";
 import Modal from "../../../components/ui/Modal";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import type { PolicyDetail } from "../services/communicationService";
 import { validatePolicyForm, type FormErrors } from "./formValidation";
 import RichTextEditor from "./RichTextEditor";
@@ -122,10 +123,12 @@ export default function PolicyFormModal({ open, initial, onClose, onSave }: Prop
     >
       <div className="space-y-5">
         {submitError ? <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{submitError}</p> : null}
+        <FormRequiredNote />
 
         <div className="grid gap-4 md:grid-cols-2">
           <InputField
             label="Policy Title"
+            required
             value={title}
             onChange={(value) => {
               setTitle(value);
@@ -136,6 +139,7 @@ export default function PolicyFormModal({ open, initial, onClose, onSave }: Prop
           />
           <InputField
             label="Category"
+            required
             value={category}
             onChange={(value) => {
               setCategory(value);
@@ -148,6 +152,7 @@ export default function PolicyFormModal({ open, initial, onClose, onSave }: Prop
 
         <InputField
           label="Summary"
+          required
           value={summary}
           onChange={(value) => {
             setSummary(value);
@@ -160,6 +165,7 @@ export default function PolicyFormModal({ open, initial, onClose, onSave }: Prop
         <div className="grid gap-4 md:grid-cols-2">
           <DatePicker
             label="Effective Date"
+            required
             value={effectiveDate}
             onChange={(value) => {
               setEffectiveDate(value);
@@ -193,6 +199,7 @@ export default function PolicyFormModal({ open, initial, onClose, onSave }: Prop
 
         <RichTextEditor
           label="Policy Content"
+          required
           value={content}
           onChange={(value) => {
             setContent(value);

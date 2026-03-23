@@ -3,6 +3,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
 import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import { InputField } from "../../../components/ui/InputField";
 import { apiRequest } from "../../../services/api";
 
@@ -54,10 +55,7 @@ export default function ResetPassword() {
         "POST",
         { token, newPassword: data.password },
       );
-
-      setIsSuccess(true);
-      setDialogMessage("Password updated successfully. Please login.");
-      setDialogOpen(true);
+      navigate("/", { replace: true });
     } catch (e: unknown) {
       let message = "Reset failed";
       if (e instanceof Error) message = e.message;
@@ -135,6 +133,7 @@ export default function ResetPassword() {
               </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5 lg:mt-5">
+                <FormRequiredNote />
                 <Controller
                   control={control}
                   name="password"
@@ -143,6 +142,7 @@ export default function ResetPassword() {
                     <InputField
                       type="password"
                       label="New Password"
+                      required
                       placeholder="Enter your new password"
                       value={field.value ?? ""}
                       onChange={field.onChange}
@@ -159,6 +159,7 @@ export default function ResetPassword() {
                     <InputField
                       type="password"
                       label="Confirm Password"
+                      required
                       placeholder="Re-enter your new password"
                       value={field.value ?? ""}
                       onChange={field.onChange}

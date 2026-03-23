@@ -4,6 +4,7 @@ import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
 import DatePicker from "../../../components/ui/DatePicker";
 import { InputField } from "../../../components/ui/InputField";
+import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import type { AssetItem, ReturnAssetPayload } from "../services/assetService";
 import { returnAsset } from "../services/assetService";
 
@@ -92,6 +93,8 @@ export default function AssetReturnModal({
         onSubmit={handleSubmit(submit)}
         className="space-y-4"
       >
+        <FormRequiredNote />
+
         <Controller
           name="returnedOn"
           control={control}
@@ -99,6 +102,7 @@ export default function AssetReturnModal({
           render={({ field }) => (
             <DatePicker
               label="Returned On"
+              required
               value={field.value}
               onChange={field.onChange}
               error={errors.returnedOn?.message}

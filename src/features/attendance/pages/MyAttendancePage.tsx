@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Navigate } from "react-router-dom";
 import DataTable from "../../../components/table/DataTable";
 import type { Column } from "../../../components/table/DataTable";
 import Button from "../../../components/ui/Button";
@@ -41,7 +41,6 @@ function formatDuration(totalMinutes: number) {
 
 export default function MyAttendancePage() {
   const { user } = getSession();
-  const navigate = useNavigate();
   const now = new Date();
   const [month, setMonth] = useState(String(now.getMonth() + 1));
   const [year, setYear] = useState(String(now.getFullYear()));
@@ -49,6 +48,7 @@ export default function MyAttendancePage() {
   const [items, setItems] = useState<AttendanceDailySummary[]>([]);
   const [summary, setSummary] = useState<Record<string, number>>({});
   const [error, setError] = useState("");
+  const requestRef = useRef(0);
 
   const yearOptions = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -59,18 +59,28 @@ export default function MyAttendancePage() {
   }, []);
 
   const load = async () => {
+    const requestId = requestRef.current + 1;
+    requestRef.current = requestId;
     setLoading(true);
+    setError("");
+
     try {
       const data = await getMyMonthlyAttendance({
         month: Number(month),
         year: Number(year)
       });
+
+      if (requestRef.current !== requestId) return;
+
       setItems(data.items || []);
       setSummary(data.summary || {});
     } catch (e) {
+      if (requestRef.current !== requestId) return;
       setError(e instanceof Error ? e.message : "Failed to load monthly attendance");
     } finally {
-      setLoading(false);
+      if (requestRef.current === requestId) {
+        setLoading(false);
+      }
     }
   };
 
@@ -90,28 +100,17 @@ export default function MyAttendancePage() {
     { label: "Holiday / Off", value: (summary.HOLIDAY ?? 0) + (summary.WEEK_OFF ?? 0), tone: "bg-slate-900 text-white" }
   ];
 
+  const rows = useMemo(
+    () => items.map((item) => ({ ...item, id: item._id || item.dateKey })),
+    [items]
+  );
+
   const columns: Column<Row>[] = [
     { key: "date", label: "Date", render: (value) => formatDate(String(value)) },
     { key: "firstIn", label: "First In", render: (value) => formatTime(value as string | null) },
     { key: "lastOut", label: "Last Out", render: (value) => formatTime(value as string | null) },
     { key: "totalWorkMinutes", label: "Worked Time", render: (value) => formatDuration(Number(value ?? 0)) },
-    { key: "status", label: "Status", render: (value) => <AttendanceStatusBadge status={value as Row["status"]} /> },
-    {
-      key: "remarks",
-      label: "Notes",
-      render: (_, row) => (
-        <div className="space-y-1">
-          <p>{row.remarks || "--"}</p>
-          <div className="flex flex-wrap gap-2">
-            {row.isHalfDayLeave ? <span className="rounded-full bg-teal-50 px-2 py-1 text-[11px] font-semibold text-teal-700">Half-day leave</span> : null}
-            {row.weeklyOffApplied ? <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700">Weekly off</span> : null}
-            {row.holidayId && typeof row.holidayId === "object" ? (
-              <span className="rounded-full bg-violet-50 px-2 py-1 text-[11px] font-semibold text-violet-700">{row.holidayId.name || "Holiday"}</span>
-            ) : null}
-          </div>
-        </div>
-      )
-    }
+    { key: "status", label: "Status", render: (value) => <AttendanceStatusBadge status={value as Row["status"]} /> }
   ];
 
   if (user?.role !== "employee" && user?.role !== "teamLeader" && user?.role !== "HR") {
@@ -120,20 +119,40 @@ export default function MyAttendancePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+      <div>
         <div>
           <h2 className="text-3xl font-semibold text-slate-900">My Attendance</h2>
           <p className="mt-1 text-sm text-slate-500">Review your monthly attendance with backend-calculated statuses.</p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" onClick={() => navigate("/attendance")}>
-            Back
-          </Button>
-          <SelectDropdown label="Month" value={month} onChange={setMonth} options={monthOptions} />
-          <SelectDropdown label="Year" value={year} onChange={setYear} options={yearOptions} />
-          <Button variant="outline" onClick={clearFilters}>
-            Clear
-          </Button>
+      </div>
+
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+        <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-3xl">
+          <div className="md:w-56">
+            <SelectDropdown
+              label="Month"
+              value={month}
+              onChange={setMonth}
+              options={monthOptions}
+              className="bg-transparent shadow-none"
+            />
+          </div>
+
+          <div className="md:w-56">
+            <SelectDropdown
+              label="Year"
+              value={year}
+              onChange={setYear}
+              options={yearOptions}
+              className="bg-transparent shadow-none"
+            />
+          </div>
+
+          <div className="flex items-end">
+            <Button variant="outline" onClick={clearFilters} className="bg-transparent shadow-none hover:bg-white/70">
+              Clear
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -146,11 +165,10 @@ export default function MyAttendancePage() {
         ))}
       </div>
 
-      {loading ? (
-        <Loader variant="block" label="Loading monthly attendance..." />
-      ) : (
-        <DataTable columns={columns} data={items.map((item) => ({ ...item, id: item._id || item.dateKey }))} />
-      )}
+      <div className="relative">
+        {loading ? <Loader variant="overlay" label="Loading monthly attendance..." /> : null}
+        <DataTable columns={columns} data={rows} />
+      </div>
 
       <ConfirmDialog open={!!error} title="Error" message={error} onConfirm={() => setError("")} onCancel={() => setError("")} />
     </div>

@@ -57,6 +57,23 @@ export const menuItems: MenuItem[] = [
     label: "Attendance",
     path: "/attendance",
     roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+    children: [
+      {
+        label: "My Attendance",
+        path: "/my-attendance",
+        roles: ["employee", "HR", "teamLeader"],
+      },
+      {
+        label: "Attendance Management",
+        path: "/attendance/manage",
+        roles: ["superadmin", "admin", "HR"],
+      },
+      {
+        label: "Attendance Policy",
+        path: "/attendance/policy",
+        roles: ["superadmin", "admin", "HR"],
+      },
+    ],
   },
 
   {

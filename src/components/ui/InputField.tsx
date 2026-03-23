@@ -7,13 +7,24 @@ type InputFieldProps = Omit<
   label?: string;
   helperText?: string;
   error?: string;
+  required?: boolean;
   value: string;
   onChange: (value: string) => void;
 };
 
 export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   (
-    { label, helperText, error, className = "", id, value, onChange, ...props },
+    {
+      label,
+      helperText,
+      error,
+      className = "",
+      id,
+      value,
+      onChange,
+      required,
+      ...props
+    },
     ref,
   ) => {
     const generatedId = React.useId();
@@ -26,7 +37,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
             htmlFor={inputId}
             className="mb-1.5 block text-sm font-medium text-slate-900"
           >
-            {label}
+            {label} {required ? <span className="text-red-500">*</span> : null}
           </label>
         )}
 
