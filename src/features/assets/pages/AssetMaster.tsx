@@ -228,27 +228,18 @@ export default function AssetMaster() {
 
   return (
     <div className="p-4 md:p-6">
-      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="mb-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">Asset Master</h1>
           <p className="text-sm text-slate-500">
             Assets list, allocation, return & history
           </p>
         </div>
-
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setOpenForm(true);
-          }}
-        >
-          + Add Asset
-        </Button>
       </div>
 
-      <div className="mb-4 ">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div>
+      <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+        <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-4xl">
+          <div className="md:min-w-[320px] md:flex-1 xl:max-w-[360px]">
             <label className="text-sm font-medium text-slate-700">Search</label>
             <input
               value={q}
@@ -261,7 +252,7 @@ export default function AssetMaster() {
             />
           </div>
 
-          <div>
+          <div className="md:w-56">
             <label className="text-sm font-medium text-slate-700">Status</label>
             <select
               value={status}
@@ -281,12 +272,21 @@ export default function AssetMaster() {
             </select>
           </div>
 
-          <div className="flex items-end justify-start md:justify-end">
+          <div className="flex items-end">
             <Button variant="outline" onClick={clearFilters}>
-              Clear Filters
+              Clear
             </Button>
           </div>
         </div>
+
+        <Button
+          onClick={() => {
+            setEditing(null);
+            setOpenForm(true);
+          }}
+        >
+          + Add Asset
+        </Button>
       </div>
       <div className="relative">
         {loading ? (

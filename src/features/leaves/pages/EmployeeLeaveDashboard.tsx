@@ -108,6 +108,14 @@ export default function EmployeeLeaveDashboard() {
     }
   };
 
+  const clearFilters = () => {
+    setStatus("all");
+    setLeaveTypeId("");
+    setFromDate("");
+    setToDate("");
+    setPage(1);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -179,6 +187,11 @@ export default function EmployeeLeaveDashboard() {
           />
           <DatePicker label="From Date" value={fromDate} onChange={setFromDate} />
           <DatePicker label="To Date" value={toDate} onChange={setToDate} />
+          <div className="flex items-end">
+            <Button variant="outline" onClick={clearFilters}>
+              Clear
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -199,10 +212,11 @@ export default function EmployeeLeaveDashboard() {
             {
               label: "Cancel",
               onClick: (row) => {
-                if (row.status === "Pending" || row.status === "Level 1 Approved") {
+                if (row.canCancel) {
                   setCancelTarget(row);
                 }
               },
+              hidden: (row) => !row.canCancel,
             },
           ]}
           serverPagination={{

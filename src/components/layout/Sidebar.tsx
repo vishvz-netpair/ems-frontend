@@ -44,7 +44,7 @@ const Sidebar = ({ role }: SidebarProps) => {
   };
 
   return (
-    <aside className="hide-scrollbar surface-panel relative flex h-screen w-72 shrink-0 flex-col overflow-y-auto overflow-x-hidden border-r border-[rgba(123,97,63,0.12)] bg-[linear-gradient(180deg,rgba(246,241,231,0.96)_0%,rgba(239,232,219,0.98)_100%)] text-slate-700">
+    <aside className="surface-panel relative flex h-screen w-72 shrink-0 flex-col overflow-hidden border-r border-[rgba(123,97,63,0.12)] bg-[linear-gradient(180deg,rgba(246,241,231,0.96)_0%,rgba(239,232,219,0.98)_100%)] text-slate-700">
       <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.18),transparent_62%)]" />
 
       <div className="relative flex h-24 items-center justify-between px-6">
@@ -53,14 +53,14 @@ const Sidebar = ({ role }: SidebarProps) => {
             Workspace
           </p>
           <span className="mt-1 block text-2xl font-extrabold tracking-tight text-slate-800">
-            EMS Netpair
+            EMS
           </span>
         </div>
       </div>
 
       <div className="mx-6 h-px bg-gradient-to-r from-transparent via-[rgba(15,118,110,0.28)] to-transparent" />
 
-      <nav className="relative mt-4 flex-1 space-y-2 px-4 py-7">
+      <nav className="hide-scrollbar relative mt-4 flex-1 space-y-2 overflow-y-auto px-4 py-7">
         {items.map((item) => {
           const hasChildren = item.children && item.children.length > 0;
           const childActive =
@@ -153,6 +153,12 @@ const Sidebar = ({ role }: SidebarProps) => {
           );
         })}
       </nav>
+
+      <div className="relative border-t border-[rgba(123,97,63,0.12)] px-6 py-4">
+        <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-slate-500">
+          Netpair Infotech LLP
+        </p>
+      </div>
     </aside>
   );
 };

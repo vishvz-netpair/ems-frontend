@@ -94,6 +94,12 @@ export default function LeaveTypesPage() {
     }
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setWorkflowFilter("all");
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -124,6 +130,9 @@ export default function LeaveTypesPage() {
               { label: "Multi Level", value: "multi_level" }
             ]}
           />
+          <Button variant="outline" onClick={clearFilters}>
+            Clear
+          </Button>
         </div>
         <Button onClick={() => setAddOpen(true)} size="lg">
           Add Leave Type

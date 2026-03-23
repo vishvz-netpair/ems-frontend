@@ -165,6 +165,12 @@ export default function HolidayMaster() {
     }
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setScopeFilter("");
+    setStatusFilter("all");
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -186,6 +192,9 @@ export default function HolidayMaster() {
               { label: "Inactive", value: "false" }
             ]}
           />
+          <Button variant="outline" onClick={clearFilters}>
+            Clear
+          </Button>
         </div>
         <Button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700">Add Holiday</Button>
       </div>

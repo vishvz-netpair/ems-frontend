@@ -91,9 +91,17 @@ export default function EventsPage() {
     setConfirmAction(() => action);
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setCategory("all");
+    setStatus("all");
+    setDepartmentId("");
+    setPage(1);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
         <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-4xl">
           <InputField label="Search" value={search} onChange={setSearch} placeholder="Search events..." />
           <SelectDropdown label="Category" value={category} onChange={setCategory} options={[
@@ -119,6 +127,11 @@ export default function EventsPage() {
             onChange={setDepartmentId}
             options={[{ label: "All Departments", value: "" }, ...(meta?.departments || []).map((item) => ({ label: item.name, value: item.id }))]}
           />
+          <div className="flex items-end">
+            <Button variant="outline" onClick={clearFilters}>
+              Clear
+            </Button>
+          </div>
         </div>
         {canManage ? <Button onClick={() => { setEditingItem(null); setModalOpen(true); }} size="lg">Create Event</Button> : null}
       </div>

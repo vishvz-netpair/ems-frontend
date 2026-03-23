@@ -365,6 +365,11 @@ const Users = () => {
     load();
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setPage(1);
+  };
+
   if (!canViewUsers) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600">
@@ -383,6 +388,9 @@ const Users = () => {
             placeholder="Search user..."
             className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-slate-200"
           />
+          <Button variant="outline" onClick={clearFilters}>
+            Clear
+          </Button>
         </div>
 
         {canManageUsers ? (

@@ -97,6 +97,12 @@ export default function PolicyDetailsPage() {
     load();
   }, [policyId, canManage, departmentId, employeeId, status]);
 
+  const clearFilters = () => {
+    setDepartmentId("");
+    setEmployeeId("");
+    setStatus("all");
+  };
+
   if (loading || !item) {
     return <Loader variant="block" label="Loading policy..." />;
   }
@@ -180,7 +186,7 @@ export default function PolicyDetailsPage() {
             ))}
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-4">
             <SelectDropdown
               label="Department"
               value={departmentId}
@@ -203,6 +209,11 @@ export default function PolicyDetailsPage() {
                 { label: "Pending", value: "PENDING" }
               ]}
             />
+            <div className="flex items-end">
+              <Button variant="outline" onClick={clearFilters}>
+                Clear
+              </Button>
+            </div>
           </div>
 
           <DataTable

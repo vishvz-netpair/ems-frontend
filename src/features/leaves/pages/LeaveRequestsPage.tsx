@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import DataTable from "../../../components/table/DataTable";
 import type { Column } from "../../../components/table/DataTable";
+import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Loader from "../../../components/ui/Loader";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
@@ -90,6 +91,16 @@ export default function LeaveRequestsPage() {
     }
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setStatus("all");
+    setLeaveTypeId("");
+    setEmployeeId("");
+    setFromDate("");
+    setToDate("");
+    setPage(1);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -148,6 +159,11 @@ export default function LeaveRequestsPage() {
           <div className="grid grid-cols-2 gap-3">
             <DatePicker label="From" value={fromDate} onChange={setFromDate} />
             <DatePicker label="To" value={toDate} onChange={setToDate} />
+          </div>
+          <div className="flex items-end xl:col-span-5">
+            <Button variant="outline" onClick={clearFilters}>
+              Clear
+            </Button>
           </div>
         </div>
       </div>

@@ -84,6 +84,7 @@ export type LeaveRequestItem = {
   } | null;
   status: "Pending" | "Level 1 Approved" | "Approved" | "Rejected" | "Cancelled";
   allowedActions: Array<"approve" | "reject">;
+  canCancel: boolean;
   currentApprovalLevel: number;
   approvalWorkflowType: "single_level" | "multi_level";
   approvalFlowSteps: LeaveApprovalFlowStep[];

@@ -254,7 +254,6 @@ export default function AttendanceManagementPage() {
         </div>
         <div className="flex flex-wrap gap-3">
           <Button variant="outline" onClick={() => navigate("/attendance")}>Back</Button>
-          <Button variant="outline" onClick={clearFilters}>Clear Filters</Button>
           <Button onClick={handleRecomputeRange}>Recompute Range</Button>
         </div>
       </div>
@@ -332,6 +331,11 @@ export default function AttendanceManagementPage() {
               setPage(1);
             }}
           />
+          <div className="flex items-end">
+            <Button variant="outline" onClick={clearFilters}>
+              Clear
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import { InputField } from "../../../components/ui/InputField";
@@ -38,6 +39,11 @@ const MyProjects = () => {
     load();
   }, [search, status]);
 
+  const clearFilters = () => {
+    setSearch("");
+    setStatus("all");
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -63,6 +69,9 @@ const MyProjects = () => {
             ]}
           />
         </div>
+        <Button variant="outline" onClick={clearFilters}>
+          Clear
+        </Button>
       </div>
 
       {loading ? (

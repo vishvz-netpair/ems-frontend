@@ -74,6 +74,13 @@ export default function LeaveCalendarPage() {
     load();
   }, [month, year, status, employeeId]);
 
+  const clearFilters = () => {
+    setMonth(String(now.getMonth() + 1));
+    setYear(String(now.getFullYear()));
+    setStatus("all");
+    setEmployeeId("");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
@@ -117,6 +124,11 @@ export default function LeaveCalendarPage() {
               options={[{ label: "All Employees", value: "" }, ...employees.map((item) => ({ label: item.name, value: item.id }))]}
             />
           ) : null}
+          <div className="flex items-end">
+            <Button variant="outline" onClick={clearFilters}>
+              Clear
+            </Button>
+          </div>
         </div>
       </div>
 

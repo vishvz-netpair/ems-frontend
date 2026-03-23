@@ -78,6 +78,11 @@ export default function MyAttendancePage() {
     load();
   }, [month, year]);
 
+  const clearFilters = () => {
+    setMonth(String(now.getMonth() + 1));
+    setYear(String(now.getFullYear()));
+  };
+
   const cards = [
     { label: "Present", value: summary.PRESENT ?? 0, tone: "bg-emerald-50 text-emerald-700" },
     { label: "Half Day", value: (summary.HALF_DAY ?? 0) + (summary.HALF_DAY_LEAVE_PRESENT ?? 0), tone: "bg-amber-50 text-amber-700" },
@@ -126,6 +131,9 @@ export default function MyAttendancePage() {
           </Button>
           <SelectDropdown label="Month" value={month} onChange={setMonth} options={monthOptions} />
           <SelectDropdown label="Year" value={year} onChange={setYear} options={yearOptions} />
+          <Button variant="outline" onClick={clearFilters}>
+            Clear
+          </Button>
         </div>
       </div>
 

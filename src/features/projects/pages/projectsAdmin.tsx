@@ -150,6 +150,12 @@ const ProjectsAdmin = () => {
     }
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setPage(1);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -176,6 +182,9 @@ const ProjectsAdmin = () => {
             <option value="active">Active</option>
             <option value="pending">Pending</option>
           </select>
+          <Button variant="outline" onClick={clearFilters}>
+            Clear
+          </Button>
         </div>
 
         <Button onClick={() => setAddOpen(true)} size="lg">

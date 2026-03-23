@@ -216,6 +216,11 @@ const DesignationMaster = () => {
     }
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setPage(1);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -226,6 +231,9 @@ const DesignationMaster = () => {
             placeholder="Search designation..."
             className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-slate-200"
           />
+          <Button variant="outline" onClick={clearFilters}>
+            Clear
+          </Button>
         </div>
 
         <Button onClick={openAdd} size="lg">

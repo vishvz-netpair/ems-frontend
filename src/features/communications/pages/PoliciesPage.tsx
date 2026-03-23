@@ -109,6 +109,19 @@ export default function PoliciesPage() {
     }
   };
 
+  const clearViewerFilters = () => {
+    setSearch("");
+    setCategory("all");
+    setPage(1);
+  };
+
+  const clearManagerFilters = () => {
+    setSearch("");
+    setCategory("all");
+    setIsPublished("all");
+    setPage(1);
+  };
+
   if (!canManage) {
     return (
       <div className="space-y-6">
@@ -120,6 +133,11 @@ export default function PoliciesPage() {
             onChange={setCategory}
             options={[{ label: "All Categories", value: "all" }, ...categories]}
           />
+          <div className="flex items-end">
+            <Button variant="outline" onClick={clearViewerFilters}>
+              Clear
+            </Button>
+          </div>
         </div>
 
         {loading ? (
@@ -165,7 +183,7 @@ export default function PoliciesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
         <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-4xl">
           <InputField label="Search" value={search} onChange={setSearch} placeholder="Search policy..." />
           <SelectDropdown
@@ -184,6 +202,11 @@ export default function PoliciesPage() {
               { label: "Draft", value: "false" }
             ]}
           />
+          <div className="flex items-end">
+            <Button variant="outline" onClick={clearManagerFilters}>
+              Clear
+            </Button>
+          </div>
         </div>
         <Button onClick={openCreate} size="lg">
           Create Policy
