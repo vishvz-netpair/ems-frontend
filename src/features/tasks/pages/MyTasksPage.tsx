@@ -5,7 +5,7 @@ import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Button from "../../../components/ui/Button";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import Loader from "../../../components/ui/Loader";
-import Modal from "../../../components/ui/Modal";
+import TaskDetailsModal from "../components/TaskDetailsModal";
 
 import {
   getMyTasks,
@@ -13,6 +13,7 @@ import {
   type MyTaskItem,
   type TaskStatus,
 } from "../services/taskService";
+import { getSession } from "../../auth/services/auth";
 
 import { formatDate } from "../../../utils/date";
 
@@ -51,40 +52,8 @@ function priorityBadge(priority: MyTaskItem["priority"]) {
   }
 }
 
-function formatDateTime(value?: string) {
-  if (!value) return "-";
-
-  try {
-    return new Date(value).toLocaleString(undefined, {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return value;
-  }
-}
-
-function TaskDetailRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-[rgba(15,118,110,0.12)] bg-[rgba(248,252,251,0.88)] px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-medium text-slate-800">{value}</p>
-    </div>
-  );
-}
-
 export default function MyTasksPage() {
+  const { user } = getSession();
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<MyTaskItem[]>([]);
   const [selectedTask, setSelectedTask] = useState<MyTaskItem | null>(null);
@@ -215,6 +184,10 @@ export default function MyTasksPage() {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                          <span className="rounded-full border border-teal-200 bg-teal-50 px-2 py-1 font-medium text-teal-700">
+                            Logged: {t.workLogSummary?.totalTimeDisplay ?? "0h 0m"}
+                          </span>
+
                           {t.dueDate ? (
                             <span
                               className={`rounded-full border px-2 py-1 ${
@@ -287,81 +260,29 @@ export default function MyTasksPage() {
         </div>
       )}
 
-      <Modal
+      <TaskDetailsModal
         open={Boolean(selectedTask)}
-        title="Task Details"
         onClose={() => setSelectedTask(null)}
-        size="md"
-        footer={
-          <div className="flex justify-end">
-            <Button variant="outline" onClick={() => setSelectedTask(null)}>
-              Close
-            </Button>
-          </div>
+        canAddWorkLog
+        currentUserId={user?.id}
+        task={
+          selectedTask
+            ? {
+                taskId: selectedTask._id,
+                projectName: selectedTask.projectId?.name ?? "Project",
+                title: selectedTask.title,
+                description: selectedTask.description,
+                status: selectedTask.status,
+                priority: selectedTask.priority,
+                dueDate: selectedTask.dueDate,
+                estimatedHours: selectedTask.estimatedHours,
+                createdAt: selectedTask.createdAt,
+                updatedAt: selectedTask.updatedAt,
+                totalTimeDisplay: selectedTask.workLogSummary?.totalTimeDisplay,
+              }
+            : null
         }
-      >
-        {selectedTask ? (
-          <div className="space-y-5">
-            <div className="rounded-[24px] border border-[rgba(15,118,110,0.12)] bg-[linear-gradient(135deg,rgba(15,118,110,0.08),rgba(245,158,11,0.05))] px-5 py-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-teal-700">
-                    {selectedTask.projectId?.name ?? "Project"}
-                  </p>
-                  <h3 className="mt-2 text-xl font-semibold text-slate-900">
-                    {selectedTask.title}
-                  </h3>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${priorityBadge(
-                      selectedTask.priority,
-                    )}`}
-                  >
-                    {selectedTask.priority}
-                  </span>
-                  <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700">
-                    {selectedTask.status}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                Description
-              </p>
-              <div className="mt-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700">
-                {selectedTask.description?.trim() || "No description added for this task."}
-              </div>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <TaskDetailRow
-                label="Due Date"
-                value={selectedTask.dueDate ? formatDate(selectedTask.dueDate) : "-"}
-              />
-              <TaskDetailRow
-                label="Estimated Hours"
-                value={
-                  typeof selectedTask.estimatedHours === "number"
-                    ? `${selectedTask.estimatedHours} hours`
-                    : "-"
-                }
-              />
-              <TaskDetailRow
-                label="Created At"
-                value={formatDateTime(selectedTask.createdAt)}
-              />
-              <TaskDetailRow
-                label="Updated At"
-                value={formatDateTime(selectedTask.updatedAt)}
-              />
-            </div>
-          </div>
-        ) : null}
-      </Modal>
+      />
 
       <ConfirmDialog
         open={errorOpen}

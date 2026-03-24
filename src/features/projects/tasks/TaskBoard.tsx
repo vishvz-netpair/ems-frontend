@@ -5,6 +5,7 @@ type Props = {
   tasks: TaskItem[];
   canManage: boolean;
   isEmployee: boolean;
+  onView: (task: TaskItem) => void;
   onEdit: (task: TaskItem) => void;
   onDelete: (task: TaskItem) => void;
   onChangeStatus: (task: TaskItem, status: TaskStatus) => void;
@@ -21,6 +22,7 @@ export default function TaskBoard({
   tasks,
   canManage,
   isEmployee,
+  onView,
   onEdit,
   onDelete,
   onChangeStatus,
@@ -63,6 +65,7 @@ export default function TaskBoard({
                   task={t}
                   canManage={canManage}
                   isEmployee={isEmployee}
+                  onView={onView}
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onChangeStatus={onChangeStatus}

@@ -1,4 +1,4 @@
-import Button from "../../../components/ui/Button";
+import { useEffect, useRef, useState } from "react";
 import type { TaskItem, TaskStatus } from "../../tasks/services/taskService";
 import { formatDate } from "../../../utils/date";
 
@@ -6,6 +6,7 @@ type Props = {
   task: TaskItem;
   canManage: boolean;
   isEmployee: boolean;
+  onView: (task: TaskItem) => void;
   onEdit: (task: TaskItem) => void;
   onDelete: (task: TaskItem) => void;
   onChangeStatus: (task: TaskItem, status: TaskStatus) => void;
@@ -47,11 +48,27 @@ export default function TaskCard({
   task,
   canManage,
   isEmployee,
+  onView,
   onEdit,
   onDelete,
   onChangeStatus,
 }: Props) {
   const overdue = isOverdue(task);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [menuOpen]);
 
   return (
     <div
@@ -71,16 +88,71 @@ export default function TaskCard({
           ) : null}
         </div>
 
-        <span
-          className={`px-2 py-1 rounded-full text-[11px] font-medium ${priorityBadge(task.priority)}`}
-        >
-          {task.priority}
-        </span>
+        <div className="relative flex items-center gap-2" ref={menuRef}>
+          <span
+            className={`px-2 py-1 rounded-full text-[11px] font-medium ${priorityBadge(task.priority)}`}
+          >
+            {task.priority}
+          </span>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(123,97,63,0.16)] bg-[rgba(255,253,248,0.92)] text-lg font-semibold text-slate-600 transition hover:bg-white hover:text-slate-900"
+            aria-label="Open task actions"
+          >
+            &#8942;
+          </button>
+
+          {menuOpen ? (
+            <div className="absolute right-0 top-10 z-20 min-w-[150px] rounded-2xl border border-[rgba(123,97,63,0.14)] bg-white/98 p-2 shadow-[0_20px_36px_rgba(33,29,22,0.18)] backdrop-blur">
+              <div className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onView(task);
+                  }}
+                  className="rounded-xl px-3 py-2 text-left text-sm font-semibold text-teal-700 transition hover:bg-teal-50"
+                >
+                  View
+                </button>
+                {canManage ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onEdit(task);
+                    }}
+                    className="rounded-xl px-3 py-2 text-left text-sm font-semibold text-teal-700 transition hover:bg-teal-50"
+                  >
+                    Edit
+                  </button>
+                ) : null}
+                {canManage ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onDelete(task);
+                    }}
+                    className="rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                  >
+                    Delete
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
         <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-1">
           {task.assignedTo?.name ?? "-"}
+        </span>
+
+        <span className="rounded-full border border-teal-200 bg-teal-50 px-2 py-1 font-medium text-teal-700">
+          Logged: {task.workLogSummary?.totalTimeDisplay ?? "0h 0m"}
         </span>
 
         {task.dueDate ? (
@@ -112,7 +184,7 @@ export default function TaskCard({
         <select
           value={task.status}
           onChange={(e) => onChangeStatus(task, e.target.value as TaskStatus)}
-          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:ring-2 focus:ring-slate-200"
+          className="h-9 min-w-[170px] flex-1 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-slate-200"
         >
           {statusOptions.map((s) => (
             <option
@@ -124,17 +196,7 @@ export default function TaskCard({
             </option>
           ))}
         </select>
-
-        {canManage ? (
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => onEdit(task)}>
-              Edit
-            </Button>
-            <Button variant="danger" size="sm" onClick={() => onDelete(task)}>
-              Delete
-            </Button>
-          </div>
-        ) : null}
+        <div className="w-8" />
       </div>
     </div>
   );

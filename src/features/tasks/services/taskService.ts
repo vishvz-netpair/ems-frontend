@@ -9,6 +9,29 @@ export type TaskUser = {
   email: string;
 };
 
+export type TaskWorkLogItem = {
+  id: string;
+  comment: string;
+  hours: number;
+  minutes: number;
+  totalMinutes: number;
+  timeDisplay: string;
+  descriptionSnapshot: string;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+};
+
+export type TaskWorkLogResponse = {
+  items: TaskWorkLogItem[];
+  totalMinutes: number;
+  totalTimeDisplay: string;
+};
+
 export type TaskItem = {
   _id: string;
   projectId: string;
@@ -22,6 +45,10 @@ export type TaskItem = {
   estimatedHours?: number | null;
   createdAt?: string;
   updatedAt?: string;
+  workLogSummary?: {
+    totalMinutes: number;
+    totalTimeDisplay: string;
+  };
 };
 
 export type ProjectTasksResponse = {
@@ -44,6 +71,10 @@ export type MyTaskItem = {
   estimatedHours?: number | null;
   createdAt?: string;
   updatedAt?: string;
+  workLogSummary?: {
+    totalMinutes: number;
+    totalTimeDisplay: string;
+  };
 };
 
 export type CreateTaskPayload = {
@@ -99,4 +130,31 @@ export async function deleteTask(taskId: string) {
 
 export async function getMyTasks() {
   return apiRequest<{ items: MyTaskItem[] }>("/api/tasks/my", "GET");
+}
+
+export async function getTaskWorkLogs(taskId: string) {
+  return apiRequest<TaskWorkLogResponse>(`/api/tasks/${taskId}/work-logs`, "GET");
+}
+
+export async function createTaskWorkLog(
+  taskId: string,
+  payload: { comment: string; hours: number; minutes: number }
+) {
+  return apiRequest<
+    TaskWorkLogResponse & {
+      id: string;
+    }
+  >(`/api/tasks/${taskId}/work-logs`, "POST", payload);
+}
+
+export async function updateTaskWorkLog(
+  taskId: string,
+  workLogId: string,
+  payload: { comment: string; hours: number; minutes: number }
+) {
+  return apiRequest<TaskWorkLogResponse>(`/api/tasks/${taskId}/work-logs/${workLogId}`, "PUT", payload);
+}
+
+export async function deleteTaskWorkLog(taskId: string, workLogId: string) {
+  return apiRequest<TaskWorkLogResponse>(`/api/tasks/${taskId}/work-logs/${workLogId}`, "DELETE");
 }

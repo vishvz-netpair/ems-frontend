@@ -18,6 +18,7 @@ import TaskBoard from "../tasks/TaskBoard";
 import TaskFormModal from "../tasks/TaskFormModal";
 import Loader from "../../../components/ui/Loader";
 import { getSession, hasAccess } from "../../auth/services/auth";
+import TaskDetailsModal from "../../tasks/components/TaskDetailsModal";
 
 type TabKey = "overview" | "tasks" | "team";
 
@@ -46,6 +47,7 @@ export default function ProjectDetails() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [taskModalMode, setTaskModalMode] = useState<"add" | "edit">("add");
   const [taskEditing, setTaskEditing] = useState<TaskItem | null>(null);
+  const [taskViewing, setTaskViewing] = useState<TaskItem | null>(null);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [toDelete, setToDelete] = useState<TaskItem | null>(null);
@@ -106,6 +108,10 @@ export default function ProjectDetails() {
     setTaskModalMode("edit");
     setTaskEditing(t);
     setTaskModalOpen(true);
+  };
+
+  const openViewTask = (t: TaskItem) => {
+    setTaskViewing(t);
   };
 
   const requestDelete = (t: TaskItem) => {
@@ -356,6 +362,7 @@ export default function ProjectDetails() {
                 tasks={tasks}
                 canManage={canManage}
                 isEmployee={isEmployee}
+                onView={openViewTask}
                 onEdit={openEditTask}
                 onDelete={requestDelete}
                 onChangeStatus={handleChangeStatus}
@@ -395,6 +402,32 @@ export default function ProjectDetails() {
       ) : null}
 
       {/* Task Modal */}
+      {project ? (
+        <TaskDetailsModal
+          open={Boolean(taskViewing)}
+          onClose={() => setTaskViewing(null)}
+          canAddWorkLog={false}
+          currentUserId={user?.id}
+          task={
+            taskViewing
+              ? {
+                  taskId: taskViewing._id,
+                  projectName: project.name,
+                  title: taskViewing.title,
+                  description: taskViewing.description,
+                  status: taskViewing.status,
+                  priority: taskViewing.priority,
+                  dueDate: taskViewing.dueDate,
+                  estimatedHours: taskViewing.estimatedHours,
+                  createdAt: taskViewing.createdAt,
+                  updatedAt: taskViewing.updatedAt,
+                  totalTimeDisplay: taskViewing.workLogSummary?.totalTimeDisplay,
+                }
+              : null
+          }
+        />
+      ) : null}
+
       {project ? (
         <TaskFormModal
           open={taskModalOpen}
