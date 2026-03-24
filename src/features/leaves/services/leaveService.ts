@@ -1,5 +1,6 @@
 import { apiRequest } from "../../../services/api";
 import type { UserRole } from "../../auth/services/auth";
+import type { HolidayScope } from "../utils/holidayScope";
 
 export type LeaveApproverRole = Extract<UserRole, "superadmin" | "admin" | "HR" | "teamLeader">;
 
@@ -124,8 +125,10 @@ export type LeaveHolidayItem = {
   date: string;
   dateKey: string;
   description: string;
-  scope: string;
+  scope: HolidayScope;
   isActive: boolean;
+  departmentId?: string | null;
+  departmentName?: string;
 };
 
 export type LeaveSummaryResponse = {
@@ -271,7 +274,7 @@ export async function listLeaveHolidays(params?: {
   month?: number;
   year?: number;
   search?: string;
-  scope?: string;
+  scope?: HolidayScope | "";
   isActive?: "all" | "true" | "false";
 }) {
   const qs = new URLSearchParams();
@@ -291,7 +294,8 @@ export async function createLeaveHoliday(payload: {
   name: string;
   date: string;
   description?: string;
-  scope?: string;
+  scope?: HolidayScope;
+  departmentId?: string;
   isActive?: boolean;
 }) {
   return apiRequest<LeaveHolidayItem>("/api/leaves/holidays", "POST", payload);
@@ -303,7 +307,8 @@ export async function updateLeaveHoliday(
     name: string;
     date: string;
     description?: string;
-    scope?: string;
+    scope?: HolidayScope;
+    departmentId?: string;
     isActive?: boolean;
   }
 ) {

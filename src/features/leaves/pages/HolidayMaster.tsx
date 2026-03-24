@@ -12,6 +12,13 @@ import SelectDropdown from "../../../components/ui/SelectDropdown";
 import { getSession, hasAccess } from "../../auth/services/auth";
 import { formatDate } from "../../../utils/date";
 import {
+  getHolidayScopeLabel,
+  HOLIDAY_SCOPE_OPTIONS,
+  normalizeHolidayScope,
+  type HolidayScope,
+} from "../utils/holidayScope";
+import { listDepartments, type DepartmentItem } from "../../department/services/departmentService";
+import {
   createLeaveHoliday,
   deleteLeaveHoliday,
   listLeaveHolidays,
@@ -27,7 +34,8 @@ type FormValues = {
   name: string;
   date: string;
   description: string;
-  scope: string;
+  scope: HolidayScope;
+  departmentId: string;
   isActive: "true" | "false";
 };
 
@@ -35,7 +43,8 @@ const initialForm: FormValues = {
   name: "",
   date: "",
   description: "",
-  scope: "company",
+  scope: "COMPANY",
+  departmentId: "",
   isActive: "true",
 };
 
@@ -55,14 +64,15 @@ export default function HolidayMaster() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [search, setSearch] = useState("");
-  const [scopeFilter, setScopeFilter] = useState("");
+  const [scopeFilter, setScopeFilter] = useState<HolidayScope | "">("");
   const [statusFilter, setStatusFilter] = useState<"all" | "true" | "false">("all");
+  const [departments, setDepartments] = useState<DepartmentItem[]>([]);
 
   const columns: Column<Row>[] = useMemo(
     () => [
       { key: "name", label: "Holiday" },
       { key: "date", label: "Date", render: (value) => formatDate(String(value)) },
-      { key: "scope", label: "Scope" },
+      { key: "scope", label: "Scope", render: (value, row) => getHolidayScopeLabel(String(value), row.departmentName) },
       {
         key: "isActive",
         label: "Status",
@@ -94,6 +104,21 @@ export default function HolidayMaster() {
     }
   }, [canManageHolidays, search, scopeFilter, statusFilter]);
 
+  useEffect(() => {
+    if (!canManageHolidays) return;
+
+    const loadDepartments = async () => {
+      try {
+        const res = await listDepartments({ page: 1, limit: 1000 });
+        setDepartments((res.items || []).filter((item) => item.status === "Active"));
+      } catch {
+        setDepartments([]);
+      }
+    };
+
+    loadDepartments();
+  }, [canManageHolidays]);
+
   if (!canManageHolidays) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -110,7 +135,8 @@ export default function HolidayMaster() {
       name: row.name,
       date: row.date.slice(0, 10),
       description: row.description,
-      scope: row.scope,
+      scope: normalizeHolidayScope(row.scope),
+      departmentId: row.departmentId ?? "",
       isActive: row.isActive ? "true" : "false",
     });
     setFormOpen(true);
@@ -127,11 +153,17 @@ export default function HolidayMaster() {
       return;
     }
 
+    if (form.scope === "DEPARTMENT" && !form.departmentId) {
+      setError("Department is required for department specific holiday");
+      return;
+    }
+
     const payload = {
       name: form.name.trim(),
       date: form.date,
       description: form.description.trim(),
-      scope: form.scope.trim() || "company",
+      scope: normalizeHolidayScope(form.scope),
+      departmentId: form.scope === "DEPARTMENT" ? form.departmentId : "",
       isActive: form.isActive === "true",
     };
 
@@ -181,7 +213,15 @@ export default function HolidayMaster() {
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-4xl">
           <InputField label="Search" value={search} onChange={(value) => setSearch(value)} placeholder="Search holiday..." />
-          <InputField label="Scope" value={scopeFilter} onChange={(value) => setScopeFilter(value)} placeholder="company" />
+          <SelectDropdown
+            label="Scope"
+            value={scopeFilter}
+            onChange={(value) => setScopeFilter(value as HolidayScope | "")}
+            options={[
+              { label: "All", value: "" },
+              ...HOLIDAY_SCOPE_OPTIONS
+            ]}
+          />
           <SelectDropdown
             label="Status"
             value={statusFilter}
@@ -234,7 +274,28 @@ export default function HolidayMaster() {
           <InputField label="Holiday Name" value={form.name} onChange={(value) => setForm((prev) => ({ ...prev, name: value }))} placeholder="Enter holiday name" />
           <DatePicker label="Holiday Date" value={form.date} onChange={(value) => setForm((prev) => ({ ...prev, date: value }))} />
           <InputField label="Description" value={form.description} onChange={(value) => setForm((prev) => ({ ...prev, description: value }))} placeholder="Optional description" />
-          <InputField label="Scope" value={form.scope} onChange={(value) => setForm((prev) => ({ ...prev, scope: value }))} placeholder="company" />
+          <SelectDropdown
+            label="Holiday Scope"
+            value={form.scope}
+            onChange={(value) =>
+              setForm((prev) => ({
+                ...prev,
+                scope: value as HolidayScope,
+                departmentId: value === "DEPARTMENT" ? prev.departmentId : ""
+              }))
+            }
+            options={HOLIDAY_SCOPE_OPTIONS.map((item) => ({ label: item.label, value: item.value }))}
+          />
+          {form.scope === "DEPARTMENT" ? (
+            <SelectDropdown
+              label="Department"
+              value={form.departmentId}
+              onChange={(value) => setForm((prev) => ({ ...prev, departmentId: value }))}
+              options={departments.map((item) => ({ label: item.name, value: item.id }))}
+              placeholder="Select department"
+              required
+            />
+          ) : null}
           <SelectDropdown
             label="Status"
             value={form.isActive}
@@ -252,7 +313,10 @@ export default function HolidayMaster() {
           <div><b>Name:</b> {viewRow?.name ?? "-"}</div>
           <div><b>Date:</b> {viewRow?.date ? formatDate(viewRow.date) : "-"}</div>
           <div><b>Description:</b> {viewRow?.description || "-"}</div>
-          <div><b>Scope:</b> {viewRow?.scope ?? "-"}</div>
+          <div><b>Scope:</b> {viewRow?.scope ? getHolidayScopeLabel(viewRow.scope, viewRow.departmentName) : "-"}</div>
+          {viewRow?.scope === "DEPARTMENT" && viewRow.departmentName ? (
+            <div><b>Department:</b> {viewRow.departmentName}</div>
+          ) : null}
           <div><b>Status:</b> {viewRow?.isActive ? "Active" : "Inactive"}</div>
         </div>
       </Modal>
