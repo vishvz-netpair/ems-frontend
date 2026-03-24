@@ -111,6 +111,47 @@ export type AttendanceHolidayItem = {
 
 export type AttendancePolicyPayload = Omit<AttendancePolicy, "id" | "updatedAt">;
 
+const ATTENDANCE_DAY_UPDATED_EVENT = "attendance-day-updated";
+
+type AttendanceDayUpdatedDetail = {
+  dayData: AttendanceDayResponse;
+};
+
+export const NON_WORKING_ATTENDANCE_STATUSES: AttendanceStatus[] = [
+  "LEAVE",
+  "HOLIDAY",
+  "WEEK_OFF"
+];
+
+export function publishAttendanceDayUpdate(dayData: AttendanceDayResponse) {
+  if (typeof window === "undefined") return;
+
+  window.dispatchEvent(
+    new CustomEvent<AttendanceDayUpdatedDetail>(ATTENDANCE_DAY_UPDATED_EVENT, {
+      detail: { dayData }
+    })
+  );
+}
+
+export function subscribeAttendanceDayUpdate(listener: (dayData: AttendanceDayResponse) => void) {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  const handler = (event: Event) => {
+    const customEvent = event as CustomEvent<AttendanceDayUpdatedDetail>;
+    if (customEvent.detail?.dayData) {
+      listener(customEvent.detail.dayData);
+    }
+  };
+
+  window.addEventListener(ATTENDANCE_DAY_UPDATED_EVENT, handler);
+
+  return () => {
+    window.removeEventListener(ATTENDANCE_DAY_UPDATED_EVENT, handler);
+  };
+}
+
 export async function getAttendancePolicy() {
   return apiRequest<AttendancePolicy>("/api/attendance/policy", "GET");
 }
@@ -171,7 +212,7 @@ export async function listAttendanceRecords(params: {
     fromDate: params.fromDate || "",
     toDate: params.toDate || "",
     page: String(params.page ?? 1),
-    limit: String(params.limit ?? 31)
+    limit: String(params.limit ?? 10)
   });
 
   return apiRequest<AttendanceRecordListResponse>(`/api/attendance/records?${qs.toString()}`, "GET");

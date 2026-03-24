@@ -18,27 +18,6 @@ export const menuItems: MenuItem[] = [
     roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
   },
   {
-    label: "Communications",
-    roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
-    children: [
-      {
-        label: "Announcements",
-        path: "/communications/announcements",
-        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
-      },
-      {
-        label: "Events",
-        path: "/communications/events",
-        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
-      },
-      {
-        label: "Policies",
-        path: "/communications/policies",
-        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
-      },
-    ],
-  },
-  {
     label: "Users",
     path: "/user",
     roles: ["superadmin", "admin", "HR"],
@@ -98,6 +77,28 @@ export const menuItems: MenuItem[] = [
       },
     ],
   },
+  {
+    label: "Communications",
+    roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+    children: [
+      {
+        label: "Announcements",
+        path: "/communications/announcements",
+        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+      },
+      {
+        label: "Events",
+        path: "/communications/events",
+        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+      },
+      {
+        label: "Policies",
+        path: "/communications/policies",
+        roles: ["superadmin", "admin", "employee", "HR", "teamLeader"],
+      },
+    ],
+  },
+
   {
     label: "Master",
     roles: ["superadmin", "admin", "HR"],

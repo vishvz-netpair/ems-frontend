@@ -5,7 +5,11 @@ import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Loader from "../../../components/ui/Loader";
 import { formatDate } from "../../../utils/date";
 import AttendanceStatusBadge from "../components/AttendanceStatusBadge";
-import { getMyDailyAttendance, type AttendanceDayResponse } from "../services/attendanceService";
+import {
+  getMyDailyAttendance,
+  subscribeAttendanceDayUpdate,
+  type AttendanceDayResponse
+} from "../services/attendanceService";
 
 function formatTime(value?: string | null) {
   if (!value) return "--";
@@ -38,6 +42,13 @@ export default function EmployeeAttendancePage() {
 
   useEffect(() => {
     load();
+  }, []);
+
+  useEffect(() => {
+    return subscribeAttendanceDayUpdate((updatedDayData) => {
+      setDayData(updatedDayData);
+      setLoading(false);
+    });
   }, []);
 
   const summary = dayData.summary;

@@ -77,6 +77,9 @@ function getDepartmentLabel(employee: Row["employeeId"]) {
 export default function AttendanceManagementPage() {
   const { user } = getSession();
   const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
   const [loading, setLoading] = useState(false);
   const [employees, setEmployees] = useState<Array<{ id: string; name: string; departmentId: string }>>([]);
   const [departments, setDepartments] = useState<DepartmentItem[]>([]);
@@ -94,16 +97,23 @@ export default function AttendanceManagementPage() {
   const [toDate, setToDate] = useState("");
 
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(31);
+  const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
 
   const yearOptions = useMemo(() => {
-    const currentYear = new Date().getFullYear();
     return Array.from({ length: 5 }).map((_, index) => {
-      const value = String(currentYear - 2 + index);
+      const value = String(currentYear - index);
       return { label: value, value };
-    });
-  }, []);
+    }).reverse();
+  }, [currentYear]);
+
+  const availableMonthOptions = useMemo(() => {
+    if (Number(year) !== currentYear) {
+      return monthOptions;
+    }
+
+    return monthOptions.filter((option) => option.value === "" || Number(option.value) <= currentMonth);
+  }, [currentMonth, currentYear, year]);
 
   const loadMeta = async () => {
     try {
@@ -167,6 +177,29 @@ export default function AttendanceManagementPage() {
   useEffect(() => {
     loadData();
   }, [employeeId, departmentId, month, year, status, fromDate, toDate, page, limit]);
+
+  useEffect(() => {
+    if (Number(year) === currentYear && month && Number(month) > currentMonth) {
+      setMonth(String(currentMonth));
+      setPage(1);
+    }
+  }, [currentMonth, currentYear, month, year]);
+
+  useEffect(() => {
+    if (fromDate && fromDate > today) {
+      setFromDate(today);
+    }
+
+    if (toDate && toDate > today) {
+      setToDate(today);
+    }
+  }, [fromDate, toDate, today]);
+
+  useEffect(() => {
+    if (fromDate && toDate && fromDate > toDate) {
+      setToDate(fromDate);
+    }
+  }, [fromDate, toDate]);
 
   const filteredEmployees = useMemo(() => {
     if (!departmentId) return employees;
@@ -292,7 +325,7 @@ export default function AttendanceManagementPage() {
               setMonth(value);
               setPage(1);
             }}
-            options={monthOptions}
+            options={availableMonthOptions}
           />
           <SelectDropdown
             label="Year"
@@ -319,6 +352,7 @@ export default function AttendanceManagementPage() {
               setFromDate(value);
               setPage(1);
             }}
+            max={today}
           />
           <DatePicker
             label="To Date"
@@ -327,6 +361,8 @@ export default function AttendanceManagementPage() {
               setToDate(value);
               setPage(1);
             }}
+            min={fromDate || undefined}
+            max={today}
           />
           <div className="flex items-end">
             <Button variant="outline" onClick={clearFilters}>
