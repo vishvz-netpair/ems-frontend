@@ -9,6 +9,13 @@ export type ProjectEmployee = {
   role: string;
 };
 
+export type ProjectLeader = {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
 export type ProjectItem = {
   _id: string;
   name: string;
@@ -17,6 +24,7 @@ export type ProjectItem = {
   startDate: string;
   status: ProjectStatus;
   employees: ProjectEmployee[];
+  createdBy?: ProjectLeader;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -33,6 +41,7 @@ export type ProjectListResponse = {
     timeLimit: string;
     status: ProjectStatus;
     employees: ProjectEmployee[];
+    createdBy?: ProjectLeader;
     createdAt?: string;
   }>;
 };

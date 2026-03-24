@@ -95,6 +95,13 @@ const ProjectViewModal = ({ open, projectId, onClose }: Props) => {
                     {project.timeLimit}
                   </p>
                 </div>
+
+                <div>
+                  <p className="text-slate-500">Team Leader</p>
+                  <p className="font-medium text-slate-800">
+                    {project.createdBy?.name ?? "-"}
+                  </p>
+                </div>
               </div>
             </div>
 

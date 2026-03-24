@@ -5,6 +5,7 @@ import FormRequiredNote from "../../../components/ui/FormRequiredNote";
 import { InputField } from "../../../components/ui/InputField";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import DatePicker from "../../../components/ui/DatePicker";
+import { getSession } from "../../auth/services/auth";
 import type { ProjectEmployee } from "../services/projectService";
 import type { TaskPriority, TaskItem } from "../../tasks/services/taskService";
 
@@ -39,13 +40,22 @@ export default function TaskFormModal({
   onClose,
   onSubmit,
 }: Props) {
+  const { user } = getSession();
   const membersOptions = useMemo(
     () =>
-      (members || []).map((m) => ({
-        label: `${m.name} (${m.email})`,
-        value: m._id,
-      })),
-    [members],
+      (members || [])
+        .filter((member) => {
+          if (mode !== "add") {
+            return true;
+          }
+
+          return String(member._id) !== String(user?.id);
+        })
+        .map((m) => ({
+          label: `${m.name} (${m.email})`,
+          value: m._id,
+        })),
+    [members, mode, user?.id],
   );
 
   const [title, setTitle] = useState("");
@@ -99,7 +109,7 @@ export default function TaskFormModal({
       nextErrors.title = "Task title is required.";
     }
     if (!nextAssignedTo) {
-      nextErrors.assignedTo = "Please select an employee.";
+      nextErrors.assignedTo = "Please select a team member.";
     }
 
     const hours = nextEstimatedHours.trim() === "" ? null : Number(nextEstimatedHours);

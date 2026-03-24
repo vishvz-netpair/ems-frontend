@@ -22,6 +22,7 @@ type Row = {
   id: number;
   _id: string;
   name: string;
+  teamLeader: string;
   startDate: string;
   timeLimit: string;
   status: ProjectStatus;
@@ -60,6 +61,7 @@ const ProjectsAdmin = () => {
   const columns: Column<Row>[] = useMemo(
     () => [
       { key: "name", label: "Project" },
+      { key: "teamLeader", label: "Team Leader" },
       { key: "startDate", label: "Start Date" },
       { key: "timeLimit", label: "Time Limit" },
       { key: "status", label: "Status" },
@@ -83,6 +85,7 @@ const ProjectsAdmin = () => {
         id: idx + 1 + (page - 1) * limit,
         _id: p._id,
         name: p.name,
+        teamLeader: p.createdBy?.name ?? "-",
         startDate: formatDate(p.startDate),
         timeLimit: p.timeLimit,
         status: p.status,

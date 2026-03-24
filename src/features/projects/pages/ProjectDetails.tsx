@@ -261,6 +261,9 @@ export default function ProjectDetails() {
                   Time limit: {project.timeLimit}
                 </span>
                 <span className="px-3 py-1 rounded-full border border-slate-200 bg-slate-50 text-slate-700">
+                  Team Leader: {project.createdBy?.name ?? "-"}
+                </span>
+                <span className="px-3 py-1 rounded-full border border-slate-200 bg-slate-50 text-slate-700">
                   Members: {project.employees?.length ?? 0}
                 </span>
               </div>
@@ -346,6 +349,13 @@ export default function ProjectDetails() {
                   <p className="text-sm text-slate-800 mt-1">
                     Total: {summary.totalTasks} | Completed:{" "}
                     {summary.completedTasks}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs text-slate-500">Team Leader</p>
+                  <p className="text-sm text-slate-800 mt-1">
+                    {project.createdBy?.name ?? "-"}
+                    {project.createdBy?.email ? ` (${project.createdBy.email})` : ""}
                   </p>
                 </div>
               </div>

@@ -6,6 +6,7 @@ import { InputField } from "../../../components/ui/InputField";
 import DatePicker from "../../../components/ui/DatePicker";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 
+import { getSession } from "../../auth/services/auth";
 import { fetchProjectAssignableEmployees, type UserItem } from "../../users/services/userService";
 import {
   createProject,
@@ -31,17 +32,24 @@ const ProjectFormModal = ({
   onSuccess,
 }: Props) => {
   const [loading, setLoading] = useState(false);
+  const { user } = getSession();
 
   const [users, setUsers] = useState<UserItem[]>([]);
-  const employees = useMemo(
+  const members = useMemo(
     () =>
       users
         .filter(
           (u) =>
-            u.role === "employee" && u.status !== "Inactive" && !u.isDeleted,
+            (u.role === "employee" || u.role === "teamLeader") &&
+            u.status !== "Inactive" &&
+            !u.isDeleted &&
+            (mode !== "add" || String(u._id) !== String(user?.id)),
         )
-        .map((u) => ({ value: u._id, label: `${u.name} (${u.email})` })),
-    [users],
+        .map((u) => ({
+          value: u._id,
+          label: `${u.name} (${u.email}) - ${u.role === "teamLeader" ? "Team Leader" : "Employee"}`,
+        })),
+    [mode, user?.id, users],
   );
 
   // form state
@@ -72,7 +80,7 @@ const ProjectFormModal = ({
       const res = await fetchProjectAssignableEmployees()
       setUsers(res.items);
     } catch (e: unknown) {
-      let message = "Failed to load employees";
+      let message = "Failed to load team members";
       if (e instanceof Error) {
         message = e.message;
       } else if (typeof e === "string") {
@@ -159,7 +167,7 @@ const ProjectFormModal = ({
       e.description = "Description is required";
     if (!timeLimit.trim()) e.timeLimit = "Time limit is required";
     if (!startDate) e.startDate = "Start date is required";
-    if (!selectedEmployees.length) e.employees = "Select at least 1 employee";
+    if (!selectedEmployees.length) e.employees = "Select at least 1 team member";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -290,15 +298,15 @@ const ProjectFormModal = ({
           {/* Multi select */}
           <div className="w-full">
             <label className="mb-1.5 block text-sm font-medium text-slate-900">
-              Employees (Multi Select) <span className="text-red-500">*</span>
+              Team Members (Multi Select) <span className="text-red-500">*</span>
             </label>
 
             <div className="rounded-xl border border-slate-200 bg-white p-3">
               <div className="max-h-44 overflow-auto space-y-2">
-                {employees.length === 0 ? (
-                  <p className="text-sm text-slate-500">No employees found</p>
+                {members.length === 0 ? (
+                  <p className="text-sm text-slate-500">No team members found</p>
                 ) : (
-                  employees.map((opt) => {
+                  members.map((opt) => {
                     const id = String(opt.value);
                     const checked = selectedEmployees.some(
                       (selectedId) => String(selectedId) === id,
