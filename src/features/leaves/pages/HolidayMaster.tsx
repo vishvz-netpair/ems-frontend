@@ -236,7 +236,7 @@ export default function HolidayMaster() {
             Clear
           </Button>
         </div>
-        <Button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700">Add Holiday</Button>
+        <Button onClick={openAdd}>Add Holiday</Button>
       </div>
 
       {loading ? (
@@ -266,7 +266,7 @@ export default function HolidayMaster() {
         footer={
           <div className="flex items-center justify-end gap-3">
             <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
-            <Button onClick={saveHoliday} className="bg-indigo-600 hover:bg-indigo-700">Save</Button>
+            <Button onClick={saveHoliday}>Save</Button>
           </div>
         }
       >
