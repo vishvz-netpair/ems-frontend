@@ -6,6 +6,7 @@ type Props = {
   task: TaskItem;
   canManage: boolean;
   isEmployee: boolean;
+  currentUserId?: string | null;
   onView: (task: TaskItem) => void;
   onEdit: (task: TaskItem) => void;
   onDelete: (task: TaskItem) => void;
@@ -48,12 +49,15 @@ export default function TaskCard({
   task,
   canManage,
   isEmployee,
+  currentUserId,
   onView,
   onEdit,
   onDelete,
   onChangeStatus,
 }: Props) {
   const overdue = isOverdue(task);
+  const isAssignedToCurrentUser =
+    !!currentUserId && String(task.assignedTo?._id ?? "") === String(currentUserId);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -147,6 +151,12 @@ export default function TaskCard({
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+        {isAssignedToCurrentUser ? (
+          <span className="rounded-full border border-teal-200 bg-teal-50 px-2 py-1 font-semibold text-teal-700">
+            Assigned to me
+          </span>
+        ) : null}
+
         <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-1">
           {task.assignedTo?.name ?? "-"}
         </span>

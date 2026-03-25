@@ -48,6 +48,10 @@ export default function ProjectDetails() {
   const [taskModalMode, setTaskModalMode] = useState<"add" | "edit">("add");
   const [taskEditing, setTaskEditing] = useState<TaskItem | null>(null);
   const [taskViewing, setTaskViewing] = useState<TaskItem | null>(null);
+  const canContributeToViewedTask =
+    Boolean(taskViewing) &&
+    (role === "employee" || role === "teamLeader") &&
+    String(taskViewing?.assignedTo?._id ?? "") === String(user?.id ?? "");
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [toDelete, setToDelete] = useState<TaskItem | null>(null);
@@ -372,6 +376,7 @@ export default function ProjectDetails() {
                 tasks={tasks}
                 canManage={canManage}
                 isEmployee={isEmployee}
+                currentUserId={user?.id}
                 onView={openViewTask}
                 onEdit={openEditTask}
                 onDelete={requestDelete}
@@ -416,8 +421,9 @@ export default function ProjectDetails() {
         <TaskDetailsModal
           open={Boolean(taskViewing)}
           onClose={() => setTaskViewing(null)}
-          canAddWorkLog={false}
+          canAddWorkLog={canContributeToViewedTask}
           currentUserId={user?.id}
+          onWorkLogChanged={loadTasks}
           task={
             taskViewing
               ? {

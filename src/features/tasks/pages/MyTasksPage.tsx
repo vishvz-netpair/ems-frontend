@@ -265,6 +265,7 @@ export default function MyTasksPage() {
         onClose={() => setSelectedTask(null)}
         canAddWorkLog
         currentUserId={user?.id}
+        onWorkLogChanged={load}
         task={
           selectedTask
             ? {

@@ -17,12 +17,14 @@ import ProjectFormModal from "../components/ProjectFormModal";
 
 import { formatDate } from "../../../utils/date";
 import Loader from "../../../components/ui/Loader";
+import { getSession } from "../../auth/services/auth";
 
 type Row = {
   id: number;
   _id: string;
   name: string;
   teamLeader: string;
+  createdById: string;
   startDate: string;
   timeLimit: string;
   status: ProjectStatus;
@@ -31,6 +33,7 @@ type Row = {
 
 const ProjectsAdmin = () => {
   const navigate = useNavigate();
+  const { user } = getSession();
 
   const [loading, setLoading] = useState(false);
 
@@ -86,6 +89,7 @@ const ProjectsAdmin = () => {
         _id: p._id,
         name: p.name,
         teamLeader: p.createdBy?.name ?? "-",
+        createdById: p.createdBy?._id ?? "",
         startDate: formatDate(p.startDate),
         timeLimit: p.timeLimit,
         status: p.status,
@@ -206,8 +210,16 @@ const ProjectsAdmin = () => {
           data={rows}
           actions={[
             { label: "View", onClick: openProject },
-            { label: "Edit", onClick: openEdit },
-            { label: "Delete", onClick: openDelete },
+            {
+              label: "Edit",
+              onClick: openEdit,
+              hidden: (row) => user?.role === "teamLeader" && row.createdById !== user.id,
+            },
+            {
+              label: "Delete",
+              onClick: openDelete,
+              hidden: (row) => user?.role === "teamLeader" && row.createdById !== user.id,
+            },
           ]}
           serverPagination={{
             enabled: true,

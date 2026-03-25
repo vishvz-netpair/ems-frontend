@@ -35,6 +35,7 @@ type Props = {
   onClose: () => void;
   canAddWorkLog: boolean;
   currentUserId?: string | null;
+  onWorkLogChanged?: () => void | Promise<void>;
 };
 
 type GroupedLogs = {
@@ -137,7 +138,8 @@ export default function TaskDetailsModal({
   task,
   onClose,
   canAddWorkLog,
-  currentUserId
+  currentUserId,
+  onWorkLogChanged
 }: Props) {
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -243,6 +245,7 @@ export default function TaskDetailsModal({
       setTotalTimeDisplay(response.totalTimeDisplay || "0h 0m");
       resetForm();
       setError("");
+      await onWorkLogChanged?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save work log");
     } finally {
@@ -271,6 +274,7 @@ export default function TaskDetailsModal({
       }
       setDeleteTarget(null);
       setError("");
+      await onWorkLogChanged?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to delete work log");
     } finally {
