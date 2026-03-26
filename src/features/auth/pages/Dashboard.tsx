@@ -1,5 +1,3 @@
-const Dashboard = () => {
-  return <div />;
-};
+import DashboardPage from "../../dashboard/pages/DashboardPage";
 
-export default Dashboard;
+export default DashboardPage;
