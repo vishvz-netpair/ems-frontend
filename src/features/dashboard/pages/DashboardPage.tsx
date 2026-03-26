@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import Loader from "../../../components/ui/Loader";
+import { useAsyncData } from "../../../hooks/useAsyncData";
 import { getSession } from "../../auth/services/auth";
 import DashboardCard from "../components/DashboardCard";
 import DashboardLayout from "../components/DashboardLayout";
@@ -246,45 +246,14 @@ function renderSection(section: DashboardSectionData) {
 
 export default function DashboardPage() {
   const { user } = getSession();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [data, setData] = useState<DashboardData | null>(null);
-
-  useEffect(() => {
-    let active = true;
-
-    const load = async () => {
-      if (!user?.role) {
-        setError("User role is missing for dashboard access.");
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      setError("");
-
-      try {
-        const result = await getDashboardData(user.role);
-        if (active) {
-          setData(result);
-        }
-      } catch (err) {
-        if (active) {
-          setError(err instanceof Error ? err.message : "Unable to load dashboard");
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    };
-
-    load();
-
-    return () => {
-      active = false;
-    };
-  }, [user?.role]);
+  const { data, loading, error } = useAsyncData<DashboardData>(
+    () => getDashboardData(user?.role ?? "employee"),
+    [user?.role],
+    {
+      enabled: Boolean(user?.role),
+      missingDependencyMessage: "User role is missing for dashboard access.",
+    },
+  );
 
   if (loading) {
     return <Loader variant="block" label="Loading dashboard..." />;

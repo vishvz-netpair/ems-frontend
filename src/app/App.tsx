@@ -1,41 +1,44 @@
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "../components/layout/Layout";
-import Dashboard from "../features/auth/pages/Dashboard";
-import ForgotPassword from "../features/auth/pages/ForgotPassword";
-import Login from "../features/auth/pages/Login";
-import ResetPassword from "../features/auth/pages/ResetPassword";
+import Loader from "../components/ui/Loader";
 import { DepartmentProvider } from "../features/department/context/department-context";
-import DepartmentMaster from "../features/department/pages/DepartmentMaster";
 import { DesignationProvider } from "../features/designation/context/designation-provider";
-import DesignationMaster from "../features/designation/pages/DesignationMaster";
-import AssetMaster from "../features/assets/pages/AssetMaster";
-import Attendance from "../features/attendance/pages/Attendance";
-import EmployeeAttendancePage from "../features/attendance/pages/EmployeeAttendancePage";
-import AttendanceManagementPage from "../features/attendance/pages/AttendanceManagementPage";
-import AttendancePolicyPage from "../features/attendance/pages/AttendancePolicyPage";
-import MyAttendancePage from "../features/attendance/pages/MyAttendancePage";
-import AnnouncementDetailsPage from "../features/communications/pages/AnnouncementDetailsPage";
-import AnnouncementsPage from "../features/communications/pages/AnnouncementsPage";
-import EventDetailsPage from "../features/communications/pages/EventDetailsPage";
-import EventsPage from "../features/communications/pages/EventsPage";
-import PoliciesPage from "../features/communications/pages/PoliciesPage";
-import PolicyDetailsPage from "../features/communications/pages/PolicyDetailsPage";
 import {
   ACCESS_RULES,
   getSession,
   hasRequiredRole,
   type UserRole,
 } from "../features/auth/services/auth";
-import HolidayMaster from "../features/leaves/pages/HolidayMaster";
-import LeaveCalendarPage from "../features/leaves/pages/LeaveCalendarPage";
-import LeaveRequestsPage from "../features/leaves/pages/LeaveRequestsPage";
-import Leaves from "../features/leaves/pages/Leaves";
-import LeaveTypesPage from "../features/leaves/pages/LeaveTypesPage";
-import EmployeeLeaveDashboard from "../features/leaves/pages/EmployeeLeaveDashboard";
-import ProjectDetails from "../features/projects/pages/ProjectDetails";
-import Projects from "../features/projects/pages/Projects";
-import MyTasksPage from "../features/tasks/pages/MyTasksPage";
-import Users from "../features/users/pages/Users";
+
+const Dashboard = lazy(() => import("../features/auth/pages/Dashboard"));
+const ForgotPassword = lazy(() => import("../features/auth/pages/ForgotPassword"));
+const Login = lazy(() => import("../features/auth/pages/Login"));
+const ResetPassword = lazy(() => import("../features/auth/pages/ResetPassword"));
+const DepartmentMaster = lazy(() => import("../features/department/pages/DepartmentMaster"));
+const DesignationMaster = lazy(() => import("../features/designation/pages/DesignationMaster"));
+const AssetMaster = lazy(() => import("../features/assets/pages/AssetMaster"));
+const Attendance = lazy(() => import("../features/attendance/pages/Attendance"));
+const EmployeeAttendancePage = lazy(() => import("../features/attendance/pages/EmployeeAttendancePage"));
+const AttendanceManagementPage = lazy(() => import("../features/attendance/pages/AttendanceManagementPage"));
+const AttendancePolicyPage = lazy(() => import("../features/attendance/pages/AttendancePolicyPage"));
+const MyAttendancePage = lazy(() => import("../features/attendance/pages/MyAttendancePage"));
+const AnnouncementDetailsPage = lazy(() => import("../features/communications/pages/AnnouncementDetailsPage"));
+const AnnouncementsPage = lazy(() => import("../features/communications/pages/AnnouncementsPage"));
+const EventDetailsPage = lazy(() => import("../features/communications/pages/EventDetailsPage"));
+const EventsPage = lazy(() => import("../features/communications/pages/EventsPage"));
+const PoliciesPage = lazy(() => import("../features/communications/pages/PoliciesPage"));
+const PolicyDetailsPage = lazy(() => import("../features/communications/pages/PolicyDetailsPage"));
+const HolidayMaster = lazy(() => import("../features/leaves/pages/HolidayMaster"));
+const LeaveCalendarPage = lazy(() => import("../features/leaves/pages/LeaveCalendarPage"));
+const LeaveRequestsPage = lazy(() => import("../features/leaves/pages/LeaveRequestsPage"));
+const Leaves = lazy(() => import("../features/leaves/pages/Leaves"));
+const LeaveTypesPage = lazy(() => import("../features/leaves/pages/LeaveTypesPage"));
+const EmployeeLeaveDashboard = lazy(() => import("../features/leaves/pages/EmployeeLeaveDashboard"));
+const ProjectDetails = lazy(() => import("../features/projects/pages/ProjectDetails"));
+const Projects = lazy(() => import("../features/projects/pages/Projects"));
+const MyTasksPage = lazy(() => import("../features/tasks/pages/MyTasksPage"));
+const Users = lazy(() => import("../features/users/pages/Users"));
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
@@ -72,213 +75,215 @@ function App() {
     <BrowserRouter>
       <DepartmentProvider>
         <DesignationProvider>
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+          <Suspense fallback={<Loader variant="fullscreen" label="Loading page..." />}>
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/communications/announcements"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
-                  <AnnouncementsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/communications/announcements/:announcementId"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
-                  <AnnouncementDetailsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/communications/policies"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
-                  <PoliciesPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/communications/policies/:policyId"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
-                  <PolicyDetailsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/communications/events"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
-                  <EventsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/communications/events/:eventId"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
-                  <EventDetailsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/user"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.usersPage}>
-                  <Users />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/masters/department"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.departmentMaster}>
-                  <DepartmentMaster />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/masters/designation"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.designationMaster}>
-                  <DesignationMaster />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/masters/assets"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.assetMaster}>
-                  <AssetMaster />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projects"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.projectsPage}>
-                  <Projects />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projects/:projectId"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.projectsPage}>
-                  <ProjectDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my-tasks"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.myTasksPage}>
-                  <MyTasksPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/leaves"
-              element={
-                <ProtectedRoute>
-                  <Leaves />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/leaves/types"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.leaveTypes}>
-                  <LeaveTypesPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/leaves/requests"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.leaveRequests}>
-                  <LeaveRequestsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/leaves/calendar"
-              element={
-                <ProtectedRoute>
-                  <LeaveCalendarPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/leaves/my"
-              element={
-                <ProtectedRoute allowedRoles={["employee", "HR", "teamLeader", "admin"]}>
-                  <EmployeeLeaveDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/leaves/holidays"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.leaveHolidays}>
-                  <HolidayMaster />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/attendance"
-              element={
-                <ProtectedRoute>
-                  <Attendance />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my-attendance"
-              element={
-                <ProtectedRoute allowedRoles={["employee", "teamLeader", "HR"]}>
-                  <MyAttendancePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/attendance/self"
-              element={
-                <ProtectedRoute allowedRoles={["employee", "teamLeader", "HR"]}>
-                  <EmployeeAttendancePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/attendance/manage"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.attendanceManage}>
-                  <AttendanceManagementPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/attendance/policy"
-              element={
-                <ProtectedRoute allowedRoles={ACCESS_RULES.attendancePolicy}>
-                  <AttendancePolicyPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/communications/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                    <AnnouncementsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/communications/announcements/:announcementId"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                    <AnnouncementDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/communications/policies"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                    <PoliciesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/communications/policies/:policyId"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                    <PolicyDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/communications/events"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                    <EventsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/communications/events/:eventId"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.communicationsPage}>
+                    <EventDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.usersPage}>
+                    <Users />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/masters/department"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.departmentMaster}>
+                    <DepartmentMaster />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/masters/designation"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.designationMaster}>
+                    <DesignationMaster />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/masters/assets"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.assetMaster}>
+                    <AssetMaster />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/projects"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.projectsPage}>
+                    <Projects />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/projects/:projectId"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.projectsPage}>
+                    <ProjectDetails />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-tasks"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.myTasksPage}>
+                    <MyTasksPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leaves"
+                element={
+                  <ProtectedRoute>
+                    <Leaves />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leaves/types"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.leaveTypes}>
+                    <LeaveTypesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leaves/requests"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.leaveRequests}>
+                    <LeaveRequestsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leaves/calendar"
+                element={
+                  <ProtectedRoute>
+                    <LeaveCalendarPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leaves/my"
+                element={
+                  <ProtectedRoute allowedRoles={["employee", "HR", "teamLeader", "admin"]}>
+                    <EmployeeLeaveDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leaves/holidays"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.leaveHolidays}>
+                    <HolidayMaster />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/attendance"
+                element={
+                  <ProtectedRoute>
+                    <Attendance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-attendance"
+                element={
+                  <ProtectedRoute allowedRoles={["employee", "teamLeader", "HR"]}>
+                    <MyAttendancePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/attendance/self"
+                element={
+                  <ProtectedRoute allowedRoles={["employee", "teamLeader", "HR"]}>
+                    <EmployeeAttendancePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/attendance/manage"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.attendanceManage}>
+                    <AttendanceManagementPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/attendance/policy"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.attendancePolicy}>
+                    <AttendancePolicyPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </Suspense>
         </DesignationProvider>
       </DepartmentProvider>
     </BrowserRouter>
