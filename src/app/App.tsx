@@ -35,6 +35,11 @@ const LeaveRequestsPage = lazy(() => import("../features/leaves/pages/LeaveReque
 const Leaves = lazy(() => import("../features/leaves/pages/Leaves"));
 const LeaveTypesPage = lazy(() => import("../features/leaves/pages/LeaveTypesPage"));
 const EmployeeLeaveDashboard = lazy(() => import("../features/leaves/pages/EmployeeLeaveDashboard"));
+const AttendanceReportPage = lazy(() => import("../features/reports/pages/AttendanceReportPage"));
+const LeaveReportPage = lazy(() => import("../features/reports/pages/LeaveReportPage"));
+const ProjectReportPage = lazy(() => import("../features/reports/pages/ProjectReportPage"));
+const AssetReportPage = lazy(() => import("../features/reports/pages/AssetReportPage"));
+const EmployeeReportPage = lazy(() => import("../features/reports/pages/EmployeeReportPage"));
 const ProjectDetails = lazy(() => import("../features/projects/pages/ProjectDetails"));
 const Projects = lazy(() => import("../features/projects/pages/Projects"));
 const MyTasksPage = lazy(() => import("../features/tasks/pages/MyTasksPage"));
@@ -278,6 +283,46 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={ACCESS_RULES.attendancePolicy}>
                     <AttendancePolicyPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports/attendance"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.reportsPage}>
+                    <AttendanceReportPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports/leave"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.reportsPage}>
+                    <LeaveReportPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports/projects"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.reportsPage}>
+                    <ProjectReportPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports/assets"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.reportsPage}>
+                    <AssetReportPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports/employees"
+                element={
+                  <ProtectedRoute allowedRoles={ACCESS_RULES.reportsPage}>
+                    <EmployeeReportPage />
                   </ProtectedRoute>
                 }
               />

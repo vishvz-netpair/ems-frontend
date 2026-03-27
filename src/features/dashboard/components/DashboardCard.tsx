@@ -16,23 +16,23 @@ export default function DashboardCard({
   accentClassName = "from-teal-600 via-teal-500 to-amber-500",
 }: DashboardCardProps) {
   return (
-    <article className="surface-panel group relative overflow-hidden rounded-[28px] p-5 transition-transform duration-200 hover:-translate-y-1">
+    <article className="surface-panel group relative overflow-hidden rounded-[24px] p-4 transition-transform duration-200 hover:-translate-y-1">
       <div
-        className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${accentClassName}`}
+        className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accentClassName}`}
       />
 
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-teal-700/80">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-teal-700/80">
             {title}
           </p>
-          <p className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">
+          <p className="mt-2 text-[1.7rem] font-extrabold leading-none tracking-tight text-slate-900">
             {value}
           </p>
-          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{description}</p>
+          <p className="mt-1.5 whitespace-pre-line text-xs leading-5 text-slate-600">{description}</p>
         </div>
 
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-teal-700 shadow-sm">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/80 text-teal-700 shadow-sm">
           {icon}
         </div>
       </div>

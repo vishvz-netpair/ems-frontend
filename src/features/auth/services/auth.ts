@@ -24,6 +24,7 @@ export const ACCESS_RULES = {
   departmentMaster: ["superadmin", "admin", "HR"],
   designationMaster: ["superadmin", "admin", "HR"],
   assetMaster: ["superadmin", "admin", "HR"],
+  reportsPage: ["superadmin", "admin", "HR"],
 } as const satisfies Record<string, UserRole[]>;
 
 export type SessionUser = {

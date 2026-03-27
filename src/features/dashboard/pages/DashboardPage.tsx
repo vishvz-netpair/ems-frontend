@@ -19,7 +19,7 @@ import {
 
 function DashboardIcon({ name }: { name: DashboardIconKey }) {
   const commonProps = {
-    className: "h-5 w-5",
+    className: "h-4.5 w-4.5",
     fill: "none",
     stroke: "currentColor",
     strokeWidth: 1.8,
@@ -109,25 +109,25 @@ function ChartSection({ items, emptyMessage }: { items: DashboardChartItem[]; em
   const maxValue = Math.max(...items.map((item) => item.value), 0);
 
   if (items.length === 0 || maxValue === 0) {
-    return <p className="text-sm text-slate-500">{emptyMessage}</p>;
+    return <p className="text-xs text-slate-500">{emptyMessage}</p>;
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2.5">
       {items.map((item) => {
         const width = maxValue === 0 ? 0 : Math.max((item.value / maxValue) * 100, item.value > 0 ? 10 : 0);
         return (
-          <div key={item.id} className="rounded-2xl border border-white/70 bg-white/70 px-4 py-4 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">{item.label}</p>
-                <p className="text-xs text-slate-500">{item.hint || "Status overview"}</p>
+          <div key={item.id} className="rounded-xl border border-white/70 bg-white/70 px-3 py-3 shadow-sm">
+            <div className="flex items-center justify-between gap-2.5">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-slate-900">{item.label}</p>
+                <p className="text-[11px] text-slate-500">{item.hint || "Status overview"}</p>
               </div>
-              <span className="text-lg font-extrabold text-slate-900">{item.value}</span>
+              <span className="text-base font-extrabold text-slate-900">{item.value}</span>
             </div>
-            <div className="mt-3 h-2.5 rounded-full bg-slate-100">
+            <div className="mt-2.5 h-2 rounded-full bg-slate-100">
               <div
-                className="h-2.5 rounded-full transition-all"
+                className="h-2 rounded-full transition-all"
                 style={{ width: `${width}%`, backgroundColor: item.color }}
               />
             </div>
@@ -140,21 +140,21 @@ function ChartSection({ items, emptyMessage }: { items: DashboardChartItem[]; em
 
 function ListSection({ items, emptyMessage }: { items: DashboardListItem[]; emptyMessage: string }) {
   if (items.length === 0) {
-    return <p className="text-sm text-slate-500">{emptyMessage}</p>;
+    return <p className="text-xs text-slate-500">{emptyMessage}</p>;
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {items.map((item) => {
         const content = (
-          <div className="flex items-start justify-between gap-4 rounded-2xl border border-[rgba(123,97,63,0.12)] bg-white/80 px-4 py-4 transition hover:bg-white">
+          <div className="flex items-start justify-between gap-3 rounded-xl border border-[rgba(123,97,63,0.12)] bg-white/80 px-3 py-3 transition hover:bg-white">
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-900">{item.title}</p>
-              <p className="mt-1 text-sm text-slate-600">{item.subtitle}</p>
-              {item.meta ? <p className="mt-2 text-xs font-medium uppercase tracking-[0.18em] text-teal-700/80">{item.meta}</p> : null}
+              <p className="truncate text-sm font-semibold leading-5 text-slate-900">{item.title}</p>
+              <p className="mt-0.5 text-xs leading-5 text-slate-600">{item.subtitle}</p>
+              {item.meta ? <p className="mt-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-teal-700/80">{item.meta}</p> : null}
             </div>
             {item.badge ? (
-              <span className="shrink-0 rounded-full bg-teal-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-teal-700">
+              <span className="shrink-0 rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-teal-700">
                 {item.badge}
               </span>
             ) : null}
@@ -181,11 +181,11 @@ function ProgressSection({
   emptyMessage: string;
 }) {
   if (items.length === 0) {
-    return <p className="text-sm text-slate-500">{emptyMessage}</p>;
+    return <p className="text-xs text-slate-500">{emptyMessage}</p>;
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2.5">
       {items.map((item) => {
         const total = item.total ?? 100;
         const width = total <= 0 ? 0 : Math.max((item.value / total) * 100, item.value > 0 ? 6 : 0);
@@ -197,16 +197,16 @@ function ProgressSection({
               : "bg-teal-600";
 
         return (
-          <div key={item.id} className="rounded-2xl border border-white/70 bg-white/80 px-4 py-4 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
+          <div key={item.id} className="rounded-xl border border-white/70 bg-white/80 px-3 py-3 shadow-sm">
+            <div className="flex items-center justify-between gap-2.5">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-slate-900">{item.label}</p>
-                <p className="mt-1 text-xs text-slate-500">{item.meta || "Progress overview"}</p>
+                <p className="mt-0.5 text-[11px] text-slate-500">{item.meta || "Progress overview"}</p>
               </div>
-              <span className="text-lg font-extrabold text-slate-900">{item.value}%</span>
+              <span className="text-base font-extrabold text-slate-900">{item.value}%</span>
             </div>
-            <div className="mt-3 h-2.5 rounded-full bg-slate-100">
-              <div className={`h-2.5 rounded-full ${toneClass}`} style={{ width: `${Math.min(width, 100)}%` }} />
+            <div className="mt-2.5 h-2 rounded-full bg-slate-100">
+              <div className={`h-2 rounded-full ${toneClass}`} style={{ width: `${Math.min(width, 100)}%` }} />
             </div>
           </div>
         );
@@ -217,15 +217,15 @@ function ProgressSection({
 
 function QuickActions({ items }: { items: DashboardActionItem[] }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="flex flex-wrap gap-2.5">
       {items.map((item) => (
         <Link
           key={item.id}
           to={item.path}
-          className="rounded-2xl border border-[rgba(123,97,63,0.12)] bg-white/85 px-4 py-4 transition hover:-translate-y-0.5 hover:bg-white"
+          className="min-w-[180px] flex-1 rounded-xl border border-[rgba(123,97,63,0.12)] bg-white/85 px-3 py-2.5 transition hover:-translate-y-0.5 hover:bg-white sm:flex-none"
         >
-          <p className="text-sm font-semibold text-slate-900">{item.label}</p>
-          <p className="mt-1 text-sm text-slate-600">{item.description}</p>
+          <p className="text-sm font-semibold leading-5 text-slate-900">{item.label}</p>
+          <p className="mt-0.5 text-xs leading-5 text-slate-600">{item.description}</p>
         </Link>
       ))}
     </div>
@@ -261,9 +261,9 @@ export default function DashboardPage() {
 
   if (!data) {
     return (
-      <div className="surface-panel rounded-[28px] p-6">
-        <h2 className="text-xl font-bold text-slate-900">Dashboard unavailable</h2>
-        <p className="mt-2 text-sm text-slate-600">
+      <div className="surface-panel rounded-[24px] p-5">
+        <h2 className="text-lg font-bold text-slate-900">Dashboard unavailable</h2>
+        <p className="mt-1.5 text-sm text-slate-600">
           {error || "We could not prepare the dashboard right now."}
         </p>
       </div>
@@ -272,8 +272,23 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout
+      top={
+        <DashboardSection
+          title="Quick Actions"
+          description="Shortcuts to the modules you are most likely to use next."
+          action={
+            error ? (
+              <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                Reload
+              </Button>
+            ) : undefined
+          }
+        >
+          <QuickActions items={data.quickActions} />
+        </DashboardSection>
+      }
       summaryCards={
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
           {data.summaryCards.map((card) => (
             <DashboardCard
               key={card.id}
@@ -287,7 +302,7 @@ export default function DashboardPage() {
         </div>
       }
       middle={
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           {data.middleSections.map((section) => (
             <DashboardSection
               key={section.id}
@@ -300,26 +315,12 @@ export default function DashboardPage() {
         </div>
       }
       bottom={
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.25fr_0.95fr]">
+        <div className="grid grid-cols-1 gap-4">
           <DashboardSection
             title={data.activity.title}
             description={data.activity.description}
           >
             <ListSection items={data.activity.items} emptyMessage={data.activity.emptyMessage} />
-          </DashboardSection>
-
-          <DashboardSection
-            title="Quick Actions"
-            description="Shortcuts to the modules you are most likely to use next."
-            action={
-              error ? (
-                <Button variant="outline" onClick={() => window.location.reload()}>
-                  Reload
-                </Button>
-              ) : undefined
-            }
-          >
-            <QuickActions items={data.quickActions} />
           </DashboardSection>
         </div>
       }

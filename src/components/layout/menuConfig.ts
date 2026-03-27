@@ -125,4 +125,35 @@ export const menuItems: MenuItem[] = [
       },
     ],
   },
+  {
+    label: "Reports",
+    roles: ["superadmin", "admin", "HR"],
+    children: [
+      {
+        label: "Attendance Report",
+        path: "/reports/attendance",
+        roles: ["superadmin", "admin", "HR"],
+      },
+      {
+        label: "Leave Report",
+        path: "/reports/leave",
+        roles: ["superadmin", "admin", "HR"],
+      },
+      {
+        label: "Project Report",
+        path: "/reports/projects",
+        roles: ["superadmin", "admin", "HR"],
+      },
+      {
+        label: "Asset Report",
+        path: "/reports/assets",
+        roles: ["superadmin", "admin", "HR"],
+      },
+      {
+        label: "Employee Report",
+        path: "/reports/employees",
+        roles: ["superadmin", "admin", "HR"],
+      },
+    ],
+  },
 ];
