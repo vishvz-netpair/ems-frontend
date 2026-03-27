@@ -228,11 +228,17 @@ function projectStatusChart(projects: ProjectItem[]) {
 }
 
 function attendanceChartFromSummary(summary: Record<string, number>) {
+  const presentCount =
+    (summary.PRESENT ?? 0) +
+    (summary.HALF_DAY ?? 0) +
+    (summary.HALF_DAY_LEAVE_PRESENT ?? 0);
+
   return [
-    { id: "attendance-present", label: "Present", value: summary.PRESENT ?? 0, color: "#0f766e", hint: "Checked in today" },
-    { id: "attendance-half", label: "Half Day", value: summary.HALF_DAY ?? 0, color: "#14b8a6", hint: "Partial day" },
+    { id: "attendance-present", label: "Present", value: presentCount, color: "#0f766e", hint: "Checked in today" },
+    { id: "attendance-half", label: "Half Day", value: (summary.HALF_DAY ?? 0) + (summary.HALF_DAY_LEAVE_PRESENT ?? 0), color: "#14b8a6", hint: "Partial day" },
     { id: "attendance-leave", label: "Leave", value: summary.LEAVE ?? 0, color: "#d97706", hint: "Approved leave" },
     { id: "attendance-absent", label: "Absent", value: summary.ABSENT ?? 0, color: "#475569", hint: "No attendance" },
+    { id: "attendance-missed", label: "Missed Punch", value: summary.MISSED_PUNCH ?? 0, color: "#7c3aed", hint: "Needs follow-up" },
   ];
 }
 
@@ -524,6 +530,10 @@ async function getHrDashboard(): Promise<DashboardData> {
   const totalEmployees = users.total || users.items.length;
   const activeEmployees = users.items.filter((item) => item.status !== "Inactive").length;
   const inactiveEmployees = users.items.filter((item) => item.status === "Inactive");
+  const presentToday =
+    (attendance.summary.PRESENT ?? 0) +
+    (attendance.summary.HALF_DAY ?? 0) +
+    (attendance.summary.HALF_DAY_LEAVE_PRESENT ?? 0);
 
   return {
     badge: "HR Operations",
@@ -540,7 +550,7 @@ async function getHrDashboard(): Promise<DashboardData> {
       {
         id: "hr-attendance-summary",
         title: "Today Attendance Summary",
-        value: attendance.summary.PRESENT ?? 0,
+        value: presentToday,
         description: `${attendance.summary.ABSENT ?? 0} absent and ${attendance.summary.LEAVE ?? 0} on leave today.`,
         icon: "attendance",
       },

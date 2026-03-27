@@ -203,17 +203,16 @@ export async function listAttendanceRecords(params: {
   page?: number;
   limit?: number;
 }) {
-  const qs = new URLSearchParams({
-    employeeId: params.employeeId || "",
-    departmentId: params.departmentId || "",
-    month: params.month ? String(params.month) : "",
-    year: params.year ? String(params.year) : "",
-    status: params.status || "all",
-    fromDate: params.fromDate || "",
-    toDate: params.toDate || "",
-    page: String(params.page ?? 1),
-    limit: String(params.limit ?? 10)
-  });
+  const qs = new URLSearchParams();
+  if (params.employeeId) qs.set("employeeId", params.employeeId);
+  if (params.departmentId) qs.set("departmentId", params.departmentId);
+  if (params.month) qs.set("month", String(params.month));
+  if (params.year) qs.set("year", String(params.year));
+  if (params.status) qs.set("status", params.status);
+  if (params.fromDate) qs.set("fromDate", params.fromDate);
+  if (params.toDate) qs.set("toDate", params.toDate);
+  qs.set("page", String(params.page ?? 1));
+  qs.set("limit", String(params.limit ?? 10));
 
   return apiRequest<AttendanceRecordListResponse>(`/api/attendance/records?${qs.toString()}`, "GET");
 }
@@ -226,17 +225,16 @@ export async function getAttendanceDashboard(params: {
   fromDate?: string;
   toDate?: string;
 }) {
-  const qs = new URLSearchParams({
-    employeeId: params.employeeId || "",
-    departmentId: params.departmentId || "",
-    month: params.month ? String(params.month) : "",
-    year: params.year ? String(params.year) : "",
-    fromDate: params.fromDate || "",
-    toDate: params.toDate || "",
-    status: "all",
-    page: "1",
-    limit: "31"
-  });
+  const qs = new URLSearchParams();
+  if (params.employeeId) qs.set("employeeId", params.employeeId);
+  if (params.departmentId) qs.set("departmentId", params.departmentId);
+  if (params.month) qs.set("month", String(params.month));
+  if (params.year) qs.set("year", String(params.year));
+  if (params.fromDate) qs.set("fromDate", params.fromDate);
+  if (params.toDate) qs.set("toDate", params.toDate);
+  qs.set("status", "all");
+  qs.set("page", "1");
+  qs.set("limit", "31");
 
   return apiRequest<AttendanceDashboardResponse>(`/api/attendance/dashboard/summary?${qs.toString()}`, "GET");
 }

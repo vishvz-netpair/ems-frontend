@@ -108,7 +108,7 @@ function DashboardIcon({ name }: { name: DashboardIconKey }) {
 function ChartSection({ items, emptyMessage }: { items: DashboardChartItem[]; emptyMessage: string }) {
   const maxValue = Math.max(...items.map((item) => item.value), 0);
 
-  if (items.length === 0 || maxValue === 0) {
+  if (items.length === 0) {
     return <p className="text-xs text-slate-500">{emptyMessage}</p>;
   }
 
