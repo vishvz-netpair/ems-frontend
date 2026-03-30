@@ -36,7 +36,6 @@ export default function LeaveCalendarPage() {
 
   const [month, setMonth] = useState(String(now.getMonth() + 1));
   const [year, setYear] = useState(String(now.getFullYear()));
-  const [status, setStatus] = useState("all");
   const [employeeId, setEmployeeId] = useState("");
   const [items, setItems] = useState<LeaveCalendarItem[]>([]);
   const [employees, setEmployees] = useState<LeaveEmployeeOption[]>([]);
@@ -55,7 +54,6 @@ export default function LeaveCalendarPage() {
         getLeaveCalendar({
           month: Number(month),
           year: Number(year),
-          status,
           employeeId,
         }),
         isEmployee ? Promise.resolve({ items: [] as LeaveEmployeeOption[] }) : getLeaveEmployees(),
@@ -72,12 +70,11 @@ export default function LeaveCalendarPage() {
 
   useEffect(() => {
     load();
-  }, [month, year, status, employeeId]);
+  }, [month, year, employeeId]);
 
   const clearFilters = () => {
     setMonth(String(now.getMonth() + 1));
     setYear(String(now.getFullYear()));
-    setStatus("all");
     setEmployeeId("");
   };
 
@@ -103,19 +100,6 @@ export default function LeaveCalendarPage() {
               return { label: value, value };
             })}
           />
-          <SelectDropdown
-            label="Status"
-            value={status}
-            onChange={setStatus}
-            options={[
-              { label: "All Active", value: "all" },
-              { label: "Pending", value: "Pending" },
-              { label: "Level 1 Approved", value: "Level 1 Approved" },
-              { label: "Approved", value: "Approved" },
-              { label: "Rejected", value: "Rejected" },
-              { label: "Cancelled", value: "Cancelled" },
-            ]}
-          />
           {!isEmployee ? (
             <SelectDropdown
               label="Employee"
@@ -138,7 +122,7 @@ export default function LeaveCalendarPage() {
         <>
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold text-slate-900">{title}</h3>
-            <p className="text-sm text-slate-500">{items.length} visible item(s)</p>
+            <p className="text-sm text-slate-500">{items.length} approved leave or holiday item(s)</p>
           </div>
           <LeaveCalendarGrid year={Number(year)} month={Number(month)} items={items} />
 

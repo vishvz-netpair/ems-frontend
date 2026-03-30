@@ -10,25 +10,19 @@ type Props = {
 };
 
 function getStepStatus(request: LeaveRequestItem, level: number) {
-  const rejected = request.approvalHistory.find((item) => item.level === level && item.action === "Rejected");
-  if (rejected) return { label: "Rejected", tone: "bg-rose-50 text-rose-700" };
-
-  const approved = request.approvalHistory.find((item) => item.level === level && item.action === "Approved");
-  if (approved) return { label: "Approved", tone: "bg-emerald-50 text-emerald-700" };
-
-  if (request.status === "Cancelled") {
-    return { label: "Stopped", tone: "bg-slate-100 text-slate-600" };
+  const step = request.approvalFlow.find((item) => item.level === level);
+  switch (step?.status) {
+    case "REJECTED":
+      return { label: "Rejected", tone: "bg-rose-50 text-rose-700" };
+    case "APPROVED":
+      return { label: "Approved", tone: "bg-emerald-50 text-emerald-700" };
+    case "PENDING":
+      return { label: "Pending", tone: "bg-amber-50 text-amber-700" };
+    case "CANCELLED":
+      return { label: "Stopped", tone: "bg-slate-100 text-slate-600" };
+    default:
+      return { label: "Waiting", tone: "bg-slate-100 text-slate-600" };
   }
-
-  if (request.currentApprovalLevel + 1 === level && request.status !== "Approved") {
-    return { label: "Pending", tone: "bg-amber-50 text-amber-700" };
-  }
-
-  if (request.status === "Approved") {
-    return { label: "Approved", tone: "bg-emerald-50 text-emerald-700" };
-  }
-
-  return { label: "Waiting", tone: "bg-slate-100 text-slate-600" };
 }
 
 export default function LeaveRequestDetailsModal({ open, request, onClose }: Props) {
@@ -76,8 +70,8 @@ export default function LeaveRequestDetailsModal({ open, request, onClose }: Pro
           <div className="rounded-2xl border border-slate-200 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Approval Flow</p>
-              {request.nextApprovalRole ? (
-                <p className="text-sm font-medium text-slate-600">Next Approver: {request.nextApprovalRole}</p>
+              {request.currentApproverRole ? (
+                <p className="text-sm font-medium text-slate-600">{request.currentApproverLabel}</p>
               ) : null}
             </div>
             <div className="mt-4 flex flex-wrap items-center gap-2">

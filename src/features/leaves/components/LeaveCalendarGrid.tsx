@@ -93,11 +93,7 @@ export default function LeaveCalendarGrid({ year, month, items }: Props) {
           <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
             Holiday
           </span>
-          <LeaveStatusBadge status="Pending" />
-          <LeaveStatusBadge status="Level 1 Approved" />
           <LeaveStatusBadge status="Approved" />
-          <LeaveStatusBadge status="Rejected" />
-          <LeaveStatusBadge status="Cancelled" />
         </div>
       </div>
     </div>

@@ -9,6 +9,20 @@ export type LeaveApprovalFlowStep = {
   role: LeaveApproverRole;
 };
 
+export type LeaveApprovalFlowViewItem = {
+  level: number;
+  role: LeaveApproverRole;
+  status: "WAITING" | "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+  canAct: boolean;
+  actedAt?: string | null;
+  remarks?: string;
+  actedBy?: {
+    id: string | null;
+    name: string;
+    email: string;
+  } | null;
+};
+
 export type LeaveTypeItem = {
   id: string;
   name: string;
@@ -89,7 +103,10 @@ export type LeaveRequestItem = {
   currentApprovalLevel: number;
   approvalWorkflowType: "single_level" | "multi_level";
   approvalFlowSteps: LeaveApprovalFlowStep[];
+  approvalFlow: LeaveApprovalFlowViewItem[];
   nextApprovalRole: LeaveApproverRole | null;
+  currentApproverRole: LeaveApproverRole | null;
+  currentApproverLabel: string;
   balanceCycleKey: string;
   approvalHistory: LeaveApprovalHistoryItem[];
   createdAt?: string;
@@ -258,13 +275,12 @@ export async function getLeaveCalendar(params: {
   month: number;
   year: number;
   employeeId?: string;
-  status?: string;
 }) {
   const qs = new URLSearchParams({
     month: String(params.month),
     year: String(params.year),
     employeeId: params.employeeId || "",
-    status: params.status || "all",
+    status: "Approved",
   });
 
   return apiRequest<{ items: LeaveCalendarItem[] }>(`/api/leaves/calendar?${qs.toString()}`, "GET");

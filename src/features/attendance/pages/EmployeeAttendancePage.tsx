@@ -4,7 +4,7 @@ import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Loader from "../../../components/ui/Loader";
 import { formatDate } from "../../../utils/date";
-import AttendanceStatusBadge from "../components/AttendanceStatusBadge";
+import AttendanceDayMessage from "../components/AttendanceDayMessage";
 import {
   getMyDailyAttendance,
   subscribeAttendanceDayUpdate,
@@ -25,7 +25,11 @@ function formatMinutes(totalMinutes: number) {
 export default function EmployeeAttendancePage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [dayData, setDayData] = useState<AttendanceDayResponse>({ summary: null, punches: [] });
+  const [dayData, setDayData] = useState<AttendanceDayResponse>({
+    summary: null,
+    punches: [],
+    status: "PRESENT"
+  });
   const [error, setError] = useState("");
 
   const load = async () => {
@@ -84,7 +88,7 @@ export default function EmployeeAttendancePage() {
             <h3 className="mt-1 text-xl font-semibold text-slate-900">{summary ? formatDate(summary.date) : formatDate(new Date().toISOString())}</h3>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            {summary ? <AttendanceStatusBadge status={summary.status} /> : null}
+            <AttendanceDayMessage status={dayData.status} />
             {summary?.isHalfDayLeave ? (
               <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">Half-day leave applied</span>
             ) : null}

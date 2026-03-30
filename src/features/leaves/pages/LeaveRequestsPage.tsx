@@ -50,6 +50,14 @@ export default function LeaveRequestsPage() {
       { key: "totalDays", label: "Days" },
       { key: "createdAt", label: "Applied On", render: (value) => formatDate(String(value ?? "")) },
       { key: "status", label: "Status", render: (value) => <LeaveStatusBadge status={value as LeaveRequestItem["status"]} /> },
+      {
+        key: "currentApproverLabel",
+        label: "Approval",
+        render: (value, row) =>
+          row.status === "Approved" || row.status === "Rejected" || row.status === "Cancelled"
+            ? "Finalized"
+            : String(value || "Waiting")
+      },
       { key: "attachment", label: "Attachment", render: (value) => (value ? "Yes" : "No") },
     ],
     [],

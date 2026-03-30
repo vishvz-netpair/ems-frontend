@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
-import AttendanceStatusBadge from "./AttendanceStatusBadge";
+import AttendanceDayMessage from "./AttendanceDayMessage";
 import {
   addAttendancePunch,
   getAttendancePolicy,
@@ -27,7 +27,11 @@ function getLocalPunchTimestamp() {
 export default function HeaderPunchActions() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState<"" | "IN" | "OUT">("");
-  const [dayData, setDayData] = useState<AttendanceDayResponse>({ summary: null, punches: [] });
+  const [dayData, setDayData] = useState<AttendanceDayResponse>({
+    summary: null,
+    punches: [],
+    status: "PRESENT"
+  });
   const [policy, setPolicy] = useState<AttendancePolicy | null>(null);
   const [error, setError] = useState("");
 
@@ -91,7 +95,7 @@ export default function HeaderPunchActions() {
   return (
     <>
       <div className="hidden items-center gap-2 xl:flex">
-        {summary ? <AttendanceStatusBadge status={summary.status} /> : null}
+        <AttendanceDayMessage status={dayData.status} compact />
         <Button
           size="sm"
           disabled={loading || submitting !== "" || !canPunchIn}

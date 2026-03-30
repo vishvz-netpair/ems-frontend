@@ -307,7 +307,7 @@ function quickActionsForRole(role: UserRole): DashboardActionItem[] {
 
 async function getEmployeeDashboard(): Promise<DashboardData> {
   const [attendance, leaveSummary, myTasks, communications, holidays] = await Promise.all([
-    safeRequest(() => getMyDailyAttendance(), { summary: null, punches: [] }),
+    safeRequest(() => getMyDailyAttendance(), { summary: null, punches: [], status: "PRESENT" }),
     safeRequest(() => getLeaveSummary("self"), { summary: {}, balances: [], recentRequests: [] }),
     safeRequest(() => getMyTasks(), { items: [] }),
     safeRequest(() => listAnnouncements({ page: 1, limit: 5, status: "published" }), { items: [], total: 0, page: 1, limit: 5, totalPages: 0 }),

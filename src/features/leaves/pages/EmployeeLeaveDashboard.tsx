@@ -63,8 +63,9 @@ export default function EmployeeLeaveDashboard() {
 
   const load = async () => {
     setLoading(true);
+    setError("");
     try {
-      const [summaryRes, balanceRes, typeRes, holidayRes, requestRes] = await Promise.all([
+      const [summaryRes, balanceRes, typeRes, holidayRes, requestRes] = await Promise.allSettled([
         getLeaveSummary("self"),
         getMyLeaveBalances(),
         listActiveLeaveTypes(),
@@ -72,12 +73,16 @@ export default function EmployeeLeaveDashboard() {
         listMyLeaveRequests({ page, limit, status, leaveTypeId, fromDate, toDate }),
       ]);
 
-      setSummary(summaryRes.summary || {});
-      setBalances(balanceRes.items || []);
-      setLeaveTypes(typeRes.items || []);
-      setHolidays(holidayRes.items || []);
-      setRequests(requestRes.items || []);
-      setTotal(requestRes.total || 0);
+      setSummary(summaryRes.status === "fulfilled" ? summaryRes.value.summary || {} : {});
+      setBalances(balanceRes.status === "fulfilled" ? balanceRes.value.items || [] : []);
+      setLeaveTypes(typeRes.status === "fulfilled" ? typeRes.value.items || [] : []);
+      setHolidays(holidayRes.status === "fulfilled" ? holidayRes.value.items || [] : []);
+      setRequests(requestRes.status === "fulfilled" ? requestRes.value.items || [] : []);
+      setTotal(requestRes.status === "fulfilled" ? requestRes.value.total || 0 : 0);
+
+      if (requestRes.status === "rejected") {
+        setError(requestRes.reason instanceof Error ? requestRes.reason.message : "Failed to fetch leave requests");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to fetch leave data");
     } finally {

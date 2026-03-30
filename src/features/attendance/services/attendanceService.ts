@@ -10,6 +10,8 @@ export type AttendanceStatus =
   | "MISSED_PUNCH"
   | "HALF_DAY_LEAVE_PRESENT";
 
+export type AttendanceDayUiStatus = "MISSED_PUNCH" | "LATE" | "ABSENT" | "PRESENT";
+
 export type AttendancePolicy = {
   id: string;
   officeStartTime: string;
@@ -71,6 +73,7 @@ export type AttendanceDailySummary = {
 export type AttendanceDayResponse = {
   summary: AttendanceDailySummary | null;
   punches: AttendancePunchItem[];
+  status: AttendanceDayUiStatus;
 };
 
 export type AttendanceMonthlyResponse = {
