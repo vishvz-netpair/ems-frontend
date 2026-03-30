@@ -62,8 +62,8 @@ export async function createUser(payload: {
   name: string;
   email: string;
   role: UserRole;
-  departmentId: string;
-  designationId: string;
+  departmentId?: string;
+  designationId?: string;
 }) {
   return apiRequest<{ id: string; message: string }>(
     `/api/users`,
@@ -94,8 +94,8 @@ export async function updateUser(
     name: string;
     email: string;
     role: UserRole;
-    departmentId: string;
-    designationId: string;
+    departmentId?: string;
+    designationId?: string;
     status: "Active" | "Inactive";
   },
 ) {

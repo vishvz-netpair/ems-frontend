@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import Button from "../../../components/ui/Button";
 import { InputField } from "../../../components/ui/InputField";
 import FormRequiredNote from "../../../components/ui/FormRequiredNote";
+import Modal from "../../../components/ui/Modal";
 import { apiRequest } from "../../../services/api";
 import { saveSession, type SessionUser, type UserRole } from "../services/auth";
 
@@ -31,7 +31,6 @@ const Login = () => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
-  const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data: LoginFormData) => {
@@ -58,7 +57,6 @@ const Login = () => {
       else if (typeof e === "string") message = e;
 
       setDialogMessage(message);
-      setIsSuccess(false);
       setDialogOpen(true);
     } finally {
       setLoading(false);
@@ -187,14 +185,14 @@ const Login = () => {
         </div>
       </div>
 
-      <ConfirmDialog
+      <Modal
         open={dialogOpen}
-        title={isSuccess ? "Success" : "Login Failed"}
-        message={dialogMessage}
-        mode={isSuccess ? "Success" : "Confirm"}
-        onConfirm={handleDialogClose}
-        onCancel={handleDialogClose}
-      />
+        title="Login Failed"
+        onClose={handleDialogClose}
+        size="sm"
+      >
+        <p className="text-sm leading-6 text-slate-700">{dialogMessage}</p>
+      </Modal>
     </>
   );
 };

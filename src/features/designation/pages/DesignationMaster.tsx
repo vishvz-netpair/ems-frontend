@@ -166,7 +166,6 @@ const DesignationMaster = () => {
       });
 
       setAddOpen(false);
-      setSuccessMsg("Designation added successfully.");
       setPage(1);
       load();
     } catch (e: unknown) {
@@ -193,7 +192,6 @@ const DesignationMaster = () => {
         status: form.status,
       });
       setEditRow(null);
-      setSuccessMsg("Designation updated successfully.");
       load();
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "Update failed");

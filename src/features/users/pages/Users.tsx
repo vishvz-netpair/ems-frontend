@@ -91,6 +91,7 @@ const Users = () => {
     control,
     handleSubmit,
     reset,
+    setValue,
     watch,
     formState: { errors },
   } = useForm<FormValues>({
@@ -104,6 +105,8 @@ const Users = () => {
   });
 
   const departmentId = watch("departmentId");
+  const role = watch("role");
+  const isAdminRole = role === "admin";
 
   const columns: Column<Row>[] = useMemo(
     () => [
@@ -167,19 +170,21 @@ const Users = () => {
     try {
       const res = await fetchUsers({ page, limit, search });
 
-      const mapped: Row[] = res.items.map((u: UserItem, idx) => ({
-        id: idx + 1 + (page - 1) * limit,
-        _id: u._id,
-        name: u.name,
-        email: u.email,
-        role: u.role,
-        department: u.department ?? "",
-        designation: u.designation ?? "",
-        status: u.status ?? "Active",
-      }));
+      const mapped: Row[] = res.items
+        .filter((u) => u.role !== "superadmin")
+        .map((u: UserItem, idx) => ({
+          id: idx + 1 + (page - 1) * limit,
+          _id: u._id,
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          department: u.department || "-",
+          designation: u.designation || "-",
+          status: u.status ?? "Active",
+        }));
 
       setRows(mapped);
-      setTotal(res.total ?? 0);
+      setTotal(res.total ?? mapped.length);
     } catch (e) {
       setErrorMsg("Failed to fetch users");
       setErrorOpen(true);
@@ -195,7 +200,7 @@ const Users = () => {
   };
 
   useEffect(() => {
-    if (!departmentId) {
+    if (isAdminRole || !departmentId) {
       setDesigOptions([]);
       return;
     }
@@ -211,7 +216,17 @@ const Users = () => {
     };
 
     loadDesignations();
-  }, [departmentId]);
+  }, [departmentId, isAdminRole]);
+
+  useEffect(() => {
+    if (!isAdminRole) {
+      return;
+    }
+
+    setValue("departmentId", "");
+    setValue("designationId", "");
+    setDesigOptions([]);
+  }, [isAdminRole, setValue]);
 
   useEffect(() => {
     load();
@@ -269,7 +284,7 @@ const Users = () => {
         departments.items.map((d) => ({ id: d.id, name: d.name })),
       );
 
-      if (user.departmentId) {
+      if (user.role !== "admin" && user.departmentId) {
         const designations = await listDesignations({
           page: 1,
           limit: 1000,
@@ -300,34 +315,6 @@ const Users = () => {
     }
   };
 
-  /* const onSubmit = async (data: FormValues) => {
-    setSaving(true);
-
-    try {
-      if (editingUserId) {
-        await updateUser(editingUserId, {
-          ...data,
-          status: "Active",
-        });
-
-        setSuccessMsg("User updated successfully.");
-      } else {
-        await createUser(data);
-        setSuccessMsg("User created successfully.");
-      }
-
-      setAddOpen(false);
-      setSuccessOpen(true);
-
-      setPage(1);
-      load();
-    } catch {
-      setErrorMsg("Save failed");
-      setErrorOpen(true);
-    } finally {
-      setSaving(false);
-    }
-  };*/
   const onSubmit = async (data: FormValues) => {
     if (!canManageUsers) {
       setErrorMsg("You are not authorized to manage users");
@@ -335,13 +322,13 @@ const Users = () => {
       return;
     }
 
-    if (!data.departmentId) {
+    if (data.role !== "admin" && !data.departmentId) {
       setErrorMsg("Department is required");
       setErrorOpen(true);
       return;
     }
 
-    if (!data.designationId) {
+    if (data.role !== "admin" && !data.designationId) {
       setErrorMsg("Designation is required");
       setErrorOpen(true);
       return;
@@ -355,8 +342,8 @@ const Users = () => {
           name: data.name.trim(),
           email: data.email.trim(),
           role: data.role,
-          departmentId: data.departmentId,
-          designationId: data.designationId,
+          departmentId: data.role === "admin" ? undefined : data.departmentId,
+          designationId: data.role === "admin" ? undefined : data.designationId,
           status: "Active",
         });
 
@@ -365,8 +352,8 @@ const Users = () => {
           name: data.name.trim(),
           email: data.email.trim(),
           role: data.role,
-          departmentId: data.departmentId,
-          designationId: data.designationId,
+          departmentId: data.role === "admin" ? undefined : data.departmentId,
+          designationId: data.role === "admin" ? undefined : data.designationId,
         });
 
       }
@@ -374,7 +361,7 @@ const Users = () => {
       setAddOpen(false);
       load();
     } catch (err) {
-      setErrorMsg("User save failed");
+      setErrorMsg(err instanceof Error ? err.message : "User save failed");
       setErrorOpen(true);
     } finally {
       setSaving(false);
@@ -508,17 +495,22 @@ const Users = () => {
           <Controller
             name="departmentId"
             control={control}
-            rules={{ required: "Department required" }}
+            rules={{
+              validate: (value) =>
+                isAdminRole || value ? true : "Department required",
+            }}
             render={({ field }) => (
               <SelectDropdown
                 label="Department"
-                required
+                required={!isAdminRole}
                 value={field.value}
                 onChange={field.onChange}
+                disabled={isAdminRole}
                 options={deptOptions.map((d) => ({
                   label: d.name,
                   value: d.id,
                 }))}
+                helperText={isAdminRole ? "Optional for Admin" : undefined}
                 error={errors.departmentId?.message}
               />
             )}
@@ -527,17 +519,22 @@ const Users = () => {
           <Controller
             name="designationId"
             control={control}
-            rules={{ required: "Designation required" }}
+            rules={{
+              validate: (value) =>
+                isAdminRole || value ? true : "Designation required",
+            }}
             render={({ field }) => (
               <SelectDropdown
                 label="Designation"
-                required
+                required={!isAdminRole}
                 value={field.value}
                 onChange={field.onChange}
+                disabled={isAdminRole || !departmentId}
                 options={desigOptions.map((d) => ({
                   label: d.name,
                   value: d.id,
                 }))}
+                helperText={isAdminRole ? "Optional for Admin" : undefined}
                 error={errors.designationId?.message}
               />
             )}

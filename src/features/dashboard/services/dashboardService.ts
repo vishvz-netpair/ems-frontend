@@ -1,6 +1,6 @@
 import type { UserRole } from "../../auth/services/auth";
 import { getAttendanceDashboard, getMyDailyAttendance } from "../../attendance/services/attendanceService";
-import { getCommunicationDashboard, listAnnouncements } from "../../communications/services/communicationService";
+import { listAnnouncements } from "../../communications/services/communicationService";
 import { getLeaveSummary, listLeaveHolidays, listLeaveRequests } from "../../leaves/services/leaveService";
 import { getProjects, myProjects, type ProjectItem, type ProjectStatus } from "../../projects/services/projectService";
 import { getTasksByProject, getMyTasks, type MyTaskItem, type TaskItem, type TaskStatus } from "../../tasks/services/taskService";
@@ -105,8 +105,6 @@ function getLocalDateKey() {
 }
 
 const TODAY = getLocalDateKey();
-const CURRENT_MONTH = new Date().getMonth() + 1;
-const CURRENT_YEAR = new Date().getFullYear();
 
 async function safeRequest<T>(request: () => Promise<T>, fallback: T) {
   try {
@@ -124,6 +122,26 @@ function formatShortDate(value?: string | null) {
     day: "2-digit",
     month: "short",
   });
+}
+
+function startOfToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+function endOfNextSevenDays() {
+  const end = startOfToday();
+  end.setDate(end.getDate() + 7);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
+function isWithinNextSevenDays(value?: string | null) {
+  if (!value) return false;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+  return date >= startOfToday() && date <= endOfNextSevenDays();
 }
 
 function formatTime(value?: string | null) {
@@ -159,7 +177,7 @@ function getTaskStatusCounts(tasks: Array<Pick<TaskItem, "status"> | Pick<MyTask
 
 function upcomingTaskItems(tasks: MyTaskItem[]) {
   return tasks
-    .filter((item) => item.dueDate && item.status !== "Completed")
+    .filter((item) => item.status !== "Completed" && isWithinNextSevenDays(item.dueDate))
     .sort((left, right) => new Date(left.dueDate ?? "").getTime() - new Date(right.dueDate ?? "").getTime())
     .slice(0, 5)
     .map((item) => ({
@@ -292,12 +310,12 @@ async function getEmployeeDashboard(): Promise<DashboardData> {
     safeRequest(() => getMyDailyAttendance(), { summary: null, punches: [] }),
     safeRequest(() => getLeaveSummary("self"), { summary: {}, balances: [], recentRequests: [] }),
     safeRequest(() => getMyTasks(), { items: [] }),
-    safeRequest(() => getCommunicationDashboard(), { roleView: "employee", latestAnnouncements: [], upcomingEvents: [], totals: { totalAnnouncements: 0, unreadAnnouncements: 0, upcomingEvents: 0 } }),
-    safeRequest(() => listLeaveHolidays({ month: CURRENT_MONTH, year: CURRENT_YEAR }), { items: [] }),
+    safeRequest(() => listAnnouncements({ page: 1, limit: 5, status: "published" }), { items: [], total: 0, page: 1, limit: 5, totalPages: 0 }),
+    safeRequest(() => listLeaveHolidays({ isActive: "true" }), { items: [] }),
   ]);
 
   const openTasks = myTasks.items.filter((item) => isTaskOpen(item.status)).length;
-  const deadlineCount = myTasks.items.filter((item) => item.dueDate && isTaskOpen(item.status)).length;
+  const deadlineCount = myTasks.items.filter((item) => isTaskOpen(item.status) && isWithinNextSevenDays(item.dueDate)).length;
   const totalBalance = (leaveSummary.balances || []).reduce((sum, item) => sum + item.remaining, 0);
   const taskCounts = getTaskStatusCounts(myTasks.items);
 
@@ -370,7 +388,7 @@ async function getEmployeeDashboard(): Promise<DashboardData> {
       title: "Recent Announcements",
       description: "Important company updates for you.",
       emptyMessage: "No recent announcements available.",
-      items: announcementItems(communications.latestAnnouncements || []),
+      items: announcementItems(communications.items || []),
     },
     quickActions: quickActionsForRole("employee"),
   };
@@ -380,7 +398,7 @@ async function getTeamLeaderDashboard(): Promise<DashboardData> {
   const [projectsResponse, leaveRequests, announcements, attendanceSummary] = await Promise.all([
     safeRequest(() => myProjects(), { items: [] }),
     safeRequest(() => listLeaveRequests({ page: 1, limit: 5, status: "Pending" }), { items: [], total: 0, page: 1, limit: 5, totalPages: 0 }),
-    safeRequest(() => getCommunicationDashboard(), { roleView: "manager", latestAnnouncements: [], upcomingEvents: [], totals: { totalAnnouncements: 0, unreadAnnouncements: 0, upcomingEvents: 0 } }),
+    safeRequest(() => listAnnouncements({ page: 1, limit: 5, status: "published" }), { items: [], total: 0, page: 1, limit: 5, totalPages: 0 }),
     safeRequest(() => getAttendanceDashboard({ fromDate: TODAY, toDate: TODAY }), { totalRecords: 0, summary: {} }),
   ]);
 
@@ -511,7 +529,7 @@ async function getTeamLeaderDashboard(): Promise<DashboardData> {
           href: "/leaves/requests",
           badge: "Approval",
         })),
-        ...announcementItems(announcements.latestAnnouncements || []).slice(0, 2),
+        ...announcementItems(announcements.items || []).slice(0, 2),
       ].slice(0, 5),
     },
     quickActions: quickActionsForRole("teamLeader"),
@@ -523,8 +541,8 @@ async function getHrDashboard(): Promise<DashboardData> {
     safeRequest(() => fetchUsers({ page: 1, limit: 1000 }), { items: [], total: 0, page: 1, limit: 1000, totalPages: 0 }),
     safeRequest(() => getAttendanceDashboard({ fromDate: TODAY, toDate: TODAY }), { totalRecords: 0, summary: {} }),
     safeRequest(() => getLeaveSummary("company"), { summary: {}, topLeaveTypes: [], recentRequests: [] }),
-    safeRequest(() => listLeaveHolidays({ month: CURRENT_MONTH, year: CURRENT_YEAR }), { items: [] }),
-    safeRequest(() => listAnnouncements({ page: 1, limit: 5, status: "Published" }), { items: [], total: 0, page: 1, limit: 5, totalPages: 0 }),
+    safeRequest(() => listLeaveHolidays({ isActive: "true" }), { items: [] }),
+    safeRequest(() => listAnnouncements({ page: 1, limit: 5, status: "published" }), { items: [], total: 0, page: 1, limit: 5, totalPages: 0 }),
   ]);
 
   const totalEmployees = users.total || users.items.length;

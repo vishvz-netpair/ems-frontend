@@ -35,7 +35,6 @@ export default function PolicyDetailsPage() {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const columns: Column<ReportRow>[] = useMemo(
     () => [
@@ -156,7 +155,6 @@ export default function PolicyDetailsPage() {
                 onClick={async () => {
                   if (!policyId) return;
                   await acknowledgePolicy(policyId);
-                  setSuccess("Policy acknowledged successfully.");
                   await load();
                 }}
               >
@@ -246,13 +244,11 @@ export default function PolicyDetailsPage() {
         onClose={() => setModalOpen(false)}
         onSave={async (payload, id) => {
           await savePolicy(payload, id);
-          setSuccess("Policy updated successfully.");
           await load();
         }}
       />
 
       <ConfirmDialog open={!!error} title="Error" message={error} onConfirm={() => setError("")} onCancel={() => setError("")} />
-      <ConfirmDialog open={!!success} title="Success" message={success} mode="Success" onConfirm={() => setSuccess("")} onCancel={() => setSuccess("")} />
     </div>
   );
 }

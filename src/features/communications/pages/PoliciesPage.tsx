@@ -36,7 +36,6 @@ export default function PoliciesPage() {
   const [editingItem, setEditingItem] = useState<PolicyDetail | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const categories = useMemo(
     () =>
@@ -240,13 +239,11 @@ export default function PoliciesPage() {
         onClose={() => setModalOpen(false)}
         onSave={async (payload, id) => {
           await savePolicy(payload, id);
-          setSuccess(id ? "Policy updated successfully." : "Policy created successfully.");
           await load();
         }}
       />
 
       <ConfirmDialog open={!!error} title="Error" message={error} onConfirm={() => setError("")} onCancel={() => setError("")} />
-      <ConfirmDialog open={!!success} title="Success" message={success} mode="Success" onConfirm={() => setSuccess("")} onCancel={() => setSuccess("")} />
     </div>
   );
 }

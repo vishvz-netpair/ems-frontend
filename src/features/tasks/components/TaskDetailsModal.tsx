@@ -33,6 +33,7 @@ type Props = {
   open: boolean;
   task: TaskDetailsValue | null;
   onClose: () => void;
+  viewMode?: "normal" | "worklog";
   canAddWorkLog: boolean;
   currentUserId?: string | null;
   onWorkLogChanged?: () => void | Promise<void>;
@@ -137,10 +138,12 @@ export default function TaskDetailsModal({
   open,
   task,
   onClose,
+  viewMode = "normal",
   canAddWorkLog,
   currentUserId,
   onWorkLogChanged
 }: Props) {
+  const showWorkLog = viewMode === "worklog";
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [saving, setSaving] = useState(false);
   const [logs, setLogs] = useState<TaskWorkLogItem[]>([]);
@@ -154,7 +157,7 @@ export default function TaskDetailsModal({
   const [error, setError] = useState("");
 
   const loadLogs = useCallback(async () => {
-    if (!task?.taskId || !open) return;
+    if (!showWorkLog || !task?.taskId || !open) return;
 
     setLoadingLogs(true);
     try {
@@ -166,10 +169,10 @@ export default function TaskDetailsModal({
     } finally {
       setLoadingLogs(false);
     }
-  }, [open, task?.taskId]);
+  }, [open, showWorkLog, task?.taskId]);
 
   useEffect(() => {
-    if (open && task?.taskId) {
+    if (open && showWorkLog && task?.taskId) {
       loadLogs();
       setTotalTimeDisplay(task.totalTimeDisplay || "0h 0m");
     } else {
@@ -183,7 +186,7 @@ export default function TaskDetailsModal({
       setExpandedLogs({});
       setError("");
     }
-  }, [open, task?.taskId, task?.totalTimeDisplay, loadLogs]);
+  }, [open, showWorkLog, task?.taskId, task?.totalTimeDisplay, loadLogs]);
 
   const workLogCountLabel = useMemo(
     () => `${logs.length} entr${logs.length === 1 ? "y" : "ies"}`,
@@ -316,9 +319,11 @@ export default function TaskDetailsModal({
                 <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700">
                   {task.status}
                 </span>
-                <span className="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">
-                  Logged: {totalTimeDisplay}
-                </span>
+                {showWorkLog ? (
+                  <span className="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">
+                    Logged: {totalTimeDisplay}
+                  </span>
+                ) : null}
               </div>
             </div>
           </div>
@@ -342,142 +347,144 @@ export default function TaskDetailsModal({
             <TaskDetailRow label="Updated At" value={formatDateTime(task.updatedAt)} />
           </div>
 
-          <section className="rounded-[24px] border border-[rgba(15,118,110,0.12)] bg-[rgba(248,252,251,0.92)] p-5">
-            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
-                  Work Log
-                </p>
-                <h4 className="mt-2 text-lg font-semibold text-slate-900">
-                  Total Time Spent: {totalTimeDisplay}
-                </h4>
-                <p className="mt-1 text-sm text-slate-500">{workLogCountLabel}</p>
+          {showWorkLog ? (
+            <section className="rounded-[24px] border border-[rgba(15,118,110,0.12)] bg-[rgba(248,252,251,0.92)] p-5">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    Work Log
+                  </p>
+                  <h4 className="mt-2 text-lg font-semibold text-slate-900">
+                    Total Time Spent: {totalTimeDisplay}
+                  </h4>
+                  <p className="mt-1 text-sm text-slate-500">{workLogCountLabel}</p>
+                </div>
               </div>
-            </div>
 
-            {canAddWorkLog ? (
-              <div className="mt-5 rounded-2xl border border-[rgba(15,118,110,0.12)] bg-white px-4 py-4">
-                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr),120px,120px,auto] md:items-end">
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-slate-900">
-                      Comment <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      rows={3}
-                      className="w-full rounded-2xl border border-[rgba(123,97,63,0.15)] bg-[rgba(255,253,248,0.92)] px-4 py-3 text-sm text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
-                      placeholder="What work did you complete?"
+              {canAddWorkLog ? (
+                <div className="mt-5 rounded-2xl border border-[rgba(15,118,110,0.12)] bg-white px-4 py-4">
+                  <div className="grid gap-3 md:grid-cols-[minmax(0,1fr),120px,120px,auto] md:items-end">
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-slate-900">
+                        Comment <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        rows={3}
+                        className="w-full rounded-2xl border border-[rgba(123,97,63,0.15)] bg-[rgba(255,253,248,0.92)] px-4 py-3 text-sm text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+                        placeholder="What work did you complete?"
+                      />
+                    </div>
+
+                    <InputField
+                      label="Hours"
+                      value={hours}
+                      onChange={(value) => setHours(sanitizeNumberInput(value))}
+                      inputMode="numeric"
+                      placeholder="0"
+                      maxLength={3}
                     />
-                  </div>
 
-                  <InputField
-                    label="Hours"
-                    value={hours}
-                    onChange={(value) => setHours(sanitizeNumberInput(value))}
-                    inputMode="numeric"
-                    placeholder="0"
-                    maxLength={3}
-                  />
+                    <InputField
+                      label="Minutes"
+                      value={minutes}
+                      onChange={(value) => setMinutes(sanitizeNumberInput(value))}
+                      inputMode="numeric"
+                      placeholder="0"
+                      maxLength={2}
+                    />
 
-                  <InputField
-                    label="Minutes"
-                    value={minutes}
-                    onChange={(value) => setMinutes(sanitizeNumberInput(value))}
-                    inputMode="numeric"
-                    placeholder="0"
-                    maxLength={2}
-                  />
-
-                  <div className="flex flex-col gap-2">
-                    <Button onClick={handleSubmitWorkLog} disabled={saving}>
-                      {saving ? "Saving..." : editingLogId ? "Update Entry" : "Add Entry"}
-                    </Button>
-                    {editingLogId ? (
-                      <Button variant="outline" onClick={resetForm} disabled={saving}>
-                        Cancel
+                    <div className="flex flex-col gap-2">
+                      <Button onClick={handleSubmitWorkLog} disabled={saving}>
+                        {saving ? "Saving..." : editingLogId ? "Update Entry" : "Add Entry"}
                       </Button>
-                    ) : null}
+                      {editingLogId ? (
+                        <Button variant="outline" onClick={resetForm} disabled={saving}>
+                          Cancel
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
 
-                {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
-              </div>
-            ) : null}
-
-            <div className="mt-5">
-              {loadingLogs ? (
-                <Loader variant="inline" label="Loading work logs..." />
-              ) : logs.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-sm text-slate-500">
-                  No work logs added yet.
+                  {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
                 </div>
-              ) : (
-                <div className="max-h-[360px] space-y-5 overflow-y-auto pr-1">
-                  {groupedLogs.map((group) => (
-                    <div key={group.description} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold leading-6 text-slate-900">{group.description}</p>
-                          <p className="mt-1 text-xs text-slate-500">
-                            Last updated {formatDateTime(group.latestActivityAt)}
-                          </p>
+              ) : null}
+
+              <div className="mt-5">
+                {loadingLogs ? (
+                  <Loader variant="inline" label="Loading work logs..." />
+                ) : logs.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-sm text-slate-500">
+                    No work logs added yet.
+                  </div>
+                ) : (
+                  <div className="max-h-[360px] space-y-5 overflow-y-auto pr-1">
+                    {groupedLogs.map((group) => (
+                      <div key={group.description} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold leading-6 text-slate-900">{group.description}</p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              Last updated {formatDateTime(group.latestActivityAt)}
+                            </p>
+                          </div>
+                          <p className="shrink-0 text-sm font-semibold text-teal-700">{group.totalTimeDisplay}</p>
                         </div>
-                        <p className="shrink-0 text-sm font-semibold text-teal-700">{group.totalTimeDisplay}</p>
-                      </div>
 
-                      <div className="mt-3 space-y-2">
-                        {group.items.map((log) => (
-                          <div
-                            key={log.id}
-                            className="rounded-xl border border-[rgba(15,118,110,0.08)] bg-[rgba(248,252,251,0.62)] px-3 py-2.5"
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0 flex-1">
-                                <p
-                                  className={`text-sm leading-6 text-slate-700 ${
-                                    expandedLogs[log.id] ? "" : "line-clamp-3"
-                                  }`}
-                                  title={log.comment}
-                                >
-                                  {log.comment}
-                                </p>
-                                {isLongComment(log.comment) ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => toggleExpandedLog(log.id)}
-                                    className="mt-1 text-xs font-medium text-teal-700 transition hover:text-teal-800"
+                        <div className="mt-3 space-y-2">
+                          {group.items.map((log) => (
+                            <div
+                              key={log.id}
+                              className="rounded-xl border border-[rgba(15,118,110,0.08)] bg-[rgba(248,252,251,0.62)] px-3 py-2.5"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0 flex-1">
+                                  <p
+                                    className={`text-sm leading-6 text-slate-700 ${
+                                      expandedLogs[log.id] ? "" : "line-clamp-3"
+                                    }`}
+                                    title={log.comment}
                                   >
-                                    {expandedLogs[log.id] ? "Show less" : "View more"}
-                                  </button>
+                                    {log.comment}
+                                  </p>
+                                  {isLongComment(log.comment) ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleExpandedLog(log.id)}
+                                      className="mt-1 text-xs font-medium text-teal-700 transition hover:text-teal-800"
+                                    >
+                                      {expandedLogs[log.id] ? "Show less" : "View more"}
+                                    </button>
+                                  ) : null}
+                                </div>
+
+                                {canAddWorkLog && isOwnWorkLog(log, currentUserId) ? (
+                                  <div className="flex shrink-0 items-center gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => startEditLog(log)}>
+                                      Edit
+                                    </Button>
+                                    <Button variant="danger" size="sm" onClick={() => setDeleteTarget(log)}>
+                                      Delete
+                                    </Button>
+                                  </div>
                                 ) : null}
                               </div>
 
-                              {canAddWorkLog && isOwnWorkLog(log, currentUserId) ? (
-                                <div className="flex shrink-0 items-center gap-2">
-                                  <Button variant="outline" size="sm" onClick={() => startEditLog(log)}>
-                                    Edit
-                                  </Button>
-                                  <Button variant="danger" size="sm" onClick={() => setDeleteTarget(log)}>
-                                    Delete
-                                  </Button>
-                                </div>
-                              ) : null}
+                              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                                <span className="font-semibold text-teal-700">{log.timeDisplay}</span>
+                                <span>{formatDateTime(log.createdAt)}</span>
+                              </div>
                             </div>
-
-                            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-                              <span className="font-semibold text-teal-700">{log.timeDisplay}</span>
-                              <span>{formatDateTime(log.createdAt)}</span>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          ) : null}
         </div>
       ) : null}
 

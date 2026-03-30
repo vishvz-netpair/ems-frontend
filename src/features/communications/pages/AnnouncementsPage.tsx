@@ -46,6 +46,8 @@ export default function AnnouncementsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const hasAnnouncements = items.length > 0;
+
   const columns: Column<Row>[] = useMemo(
     () => [
       { key: "title", label: "Title" },
@@ -112,26 +114,32 @@ export default function AnnouncementsPage() {
   if (!canManage) {
     return (
       <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {items.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => navigate(`/communications/announcements/${item.id}`)}
-              className="rounded-[28px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,0.92)] p-5 text-left shadow-[0_18px_40px_rgba(33,29,22,0.08)] transition hover:-translate-y-1"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{item.announcementType}</p>
-                  <h3 className="mt-2 text-xl font-semibold text-slate-900">{item.title}</h3>
+        {hasAnnouncements ? (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {items.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => navigate(`/communications/announcements/${item.id}`)}
+                className="rounded-[28px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,0.92)] p-5 text-left shadow-[0_18px_40px_rgba(33,29,22,0.08)] transition hover:-translate-y-1"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{item.announcementType}</p>
+                    <h3 className="mt-2 text-xl font-semibold text-slate-900">{item.title}</h3>
+                  </div>
+                  {item.isPinned ? <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">Pinned</span> : null}
                 </div>
-                {item.isPinned ? <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">Pinned</span> : null}
-              </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{item.summary}</p>
-              <p className="mt-4 text-xs uppercase tracking-[0.16em] text-slate-500">{formatDate(item.publishDate)}</p>
-            </button>
-          ))}
-        </div>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{item.summary}</p>
+                <p className="mt-4 text-xs uppercase tracking-[0.16em] text-slate-500">{formatDate(item.publishDate)}</p>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[28px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,0.92)] px-6 py-10 text-center text-slate-500 shadow-[0_18px_40px_rgba(33,29,22,0.08)]">
+            No Announcements Available
+          </div>
+        )}
       </div>
     );
   }
@@ -181,6 +189,10 @@ export default function AnnouncementsPage() {
 
       {loading ? (
         <Loader variant="block" label="Loading announcements..." />
+      ) : !hasAnnouncements ? (
+        <div className="rounded-[28px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,0.92)] px-6 py-10 text-center text-slate-500 shadow-[0_18px_40px_rgba(33,29,22,0.08)]">
+          No Announcements Available
+        </div>
       ) : (
         <DataTable
           columns={columns}
@@ -188,9 +200,36 @@ export default function AnnouncementsPage() {
           actions={[
             { label: "View", onClick: (row) => navigate(`/communications/announcements/${row.id}`) },
             { label: "Edit", onClick: openEdit },
-            { label: "Publish", onClick: (row) => handleManageAction("Publish this announcement?", async () => { await publishAnnouncement(row.id); setSuccess("Announcement published successfully."); await load(); }) },
-            { label: "Archive", onClick: (row) => handleManageAction("Archive this announcement?", async () => { await archiveAnnouncement(row.id); setSuccess("Announcement archived successfully."); await load(); }) },
-            { label: "Restore", onClick: (row) => handleManageAction("Restore this announcement to draft?", async () => { await restoreAnnouncement(row.id); setSuccess("Announcement restored successfully."); await load(); }) },
+            {
+              label: "Publish",
+              hidden: (row) => row.status !== "draft",
+              onClick: (row) =>
+                handleManageAction("Publish this announcement?", async () => {
+                  await publishAnnouncement(row.id);
+                  setSuccess("Announcement published successfully.");
+                  await load();
+                })
+            },
+            {
+              label: "Archive",
+              hidden: (row) => row.status === "archived",
+              onClick: (row) =>
+                handleManageAction("Archive this announcement?", async () => {
+                  await archiveAnnouncement(row.id);
+                  setSuccess("Announcement archived successfully.");
+                  await load();
+                })
+            },
+            {
+              label: "Restore",
+              hidden: (row) => row.status !== "archived",
+              onClick: (row) =>
+                handleManageAction("Restore this announcement to draft?", async () => {
+                  await restoreAnnouncement(row.id);
+                  setSuccess("Announcement restored successfully.");
+                  await load();
+                })
+            },
             { label: "Delete", onClick: (row) => handleManageAction("Delete this announcement?", async () => { await deleteAnnouncement(row.id); setSuccess("Announcement deleted successfully."); await load(); }) }
           ]}
           serverPagination={{
@@ -211,7 +250,6 @@ export default function AnnouncementsPage() {
         onClose={() => setModalOpen(false)}
         onSave={async (payload, id) => {
           await saveAnnouncement(payload, id);
-          setSuccess(id ? "Announcement updated successfully." : "Announcement created successfully.");
           await load();
         }}
       />

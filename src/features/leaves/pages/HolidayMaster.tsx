@@ -170,10 +170,8 @@ export default function HolidayMaster() {
     try {
       if (selected) {
         await updateLeaveHoliday(selected.id, payload);
-        setSuccess("Holiday updated successfully.");
       } else {
         await createLeaveHoliday(payload);
-        setSuccess("Holiday added successfully.");
       }
       setFormOpen(false);
       setSelected(null);
@@ -210,8 +208,8 @@ export default function HolidayMaster() {
         <p className="text-sm text-slate-500">Manage company holidays that should appear in calendars and be excluded from leave counting.</p>
       </div>
 
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-4xl">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex min-w-0 flex-1 flex-wrap items-end gap-3">
           <InputField label="Search" value={search} onChange={(value) => setSearch(value)} placeholder="Search holiday..." />
           <SelectDropdown
             label="Scope"
@@ -236,7 +234,9 @@ export default function HolidayMaster() {
             Clear
           </Button>
         </div>
-        <Button onClick={openAdd}>Add Holiday</Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={openAdd}>Add Holiday</Button>
+        </div>
       </div>
 
       {loading ? (

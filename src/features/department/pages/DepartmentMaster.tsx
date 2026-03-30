@@ -124,8 +124,6 @@ const DepartmentMaster = () => {
     try {
       await createDepartment(payload);
       setAddOpen(false);
-      setSuccessMessage("Department added successfully.");
-      setSuccessOpen(true);
       setPage(1);
       load();
     } catch (e: unknown) {
@@ -145,8 +143,6 @@ const DepartmentMaster = () => {
       await updateDepartment(selected._id, payload);
       setEditOpen(false);
       setSelected(null);
-      setSuccessMessage("Department updated successfully.");
-      setSuccessOpen(true);
       load();
     } catch (e: unknown) {
       let message = "Update failed";

@@ -6,7 +6,6 @@ import { InputField } from "../../../components/ui/InputField";
 import DatePicker from "../../../components/ui/DatePicker";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 
-import { getSession } from "../../auth/services/auth";
 import { fetchProjectAssignableEmployees, type UserItem } from "../../users/services/userService";
 import {
   createProject,
@@ -32,7 +31,6 @@ const ProjectFormModal = ({
   onSuccess,
 }: Props) => {
   const [loading, setLoading] = useState(false);
-  const { user } = getSession();
 
   const [users, setUsers] = useState<UserItem[]>([]);
   const members = useMemo(
@@ -42,14 +40,13 @@ const ProjectFormModal = ({
           (u) =>
             (u.role === "employee" || u.role === "teamLeader") &&
             u.status !== "Inactive" &&
-            !u.isDeleted &&
-            (mode !== "add" || String(u._id) !== String(user?.id)),
+            !u.isDeleted,
         )
         .map((u) => ({
           value: u._id,
           label: `${u.name} (${u.email}) - ${u.role === "teamLeader" ? "Team Leader" : "Employee"}`,
         })),
-    [mode, user?.id, users],
+    [users],
   );
 
   // form state

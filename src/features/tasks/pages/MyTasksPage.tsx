@@ -263,6 +263,7 @@ export default function MyTasksPage() {
       <TaskDetailsModal
         open={Boolean(selectedTask)}
         onClose={() => setSelectedTask(null)}
+        viewMode="worklog"
         canAddWorkLog
         currentUserId={user?.id}
         onWorkLogChanged={load}
