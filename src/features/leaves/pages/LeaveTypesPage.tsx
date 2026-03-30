@@ -6,6 +6,7 @@ import Loader from "../../../components/ui/Loader";
 import Button from "../../../components/ui/Button";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import { InputField } from "../../../components/ui/InputField";
+import LeaveTypeDetailsModal from "../components/LeaveTypeDetailsModal";
 import LeaveTypeModal from "../components/LeaveTypeModal";
 import {
   createLeaveType,
@@ -25,6 +26,7 @@ export default function LeaveTypesPage() {
   const [success, setSuccess] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [editItem, setEditItem] = useState<LeaveTypeItem | null>(null);
+  const [viewItem, setViewItem] = useState<LeaveTypeItem | null>(null);
   const [deleteItem, setDeleteItem] = useState<LeaveTypeItem | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "Inactive">("all");
@@ -107,9 +109,11 @@ export default function LeaveTypesPage() {
         <p className="mt-1 text-sm text-slate-500">Configure leave rules, workflow depth, carry forward, accrual, and attachment policies.</p>
       </div>
 
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex w-full flex-col gap-3 md:flex-row xl:max-w-4xl">
+      <div className="flex items-end gap-4 flex-wrap">
+        <div className="min-w-[240px] flex-1">
           <InputField label="Search" value={search} onChange={setSearch} placeholder="Search leave type or code..." />
+        </div>
+        <div className="min-w-[180px]">
           <SelectDropdown
             label="Status"
             value={statusFilter}
@@ -120,6 +124,8 @@ export default function LeaveTypesPage() {
               { label: "Inactive", value: "Inactive" }
             ]}
           />
+        </div>
+        <div className="min-w-[220px]">
           <SelectDropdown
             label="Workflow"
             value={workflowFilter}
@@ -130,11 +136,11 @@ export default function LeaveTypesPage() {
               { label: "Multi Level", value: "multi_level" }
             ]}
           />
-          <Button variant="outline" onClick={clearFilters}>
-            Clear
-          </Button>
         </div>
-        <Button onClick={() => setAddOpen(true)} size="lg">
+        <Button variant="outline" onClick={clearFilters}>
+          Clear
+        </Button>
+        <Button onClick={() => setAddOpen(true)}>
           Add Leave Type
         </Button>
       </div>
@@ -146,12 +152,14 @@ export default function LeaveTypesPage() {
           columns={columns}
           data={items.map((item) => ({ ...item, id: item.id }))}
           actions={[
+            { label: "View", onClick: (row) => setViewItem(row) },
             { label: "Edit", onClick: (row) => setEditItem(row) },
             { label: "Delete", onClick: (row) => setDeleteItem(row) },
           ]}
         />
       )}
 
+      <LeaveTypeDetailsModal open={!!viewItem} leaveType={viewItem} onClose={() => setViewItem(null)} />
       <LeaveTypeModal open={addOpen} mode="add" onClose={() => setAddOpen(false)} onSave={(payload) => save(payload, "add")} />
       <LeaveTypeModal open={!!editItem} mode="edit" initial={editItem} onClose={() => setEditItem(null)} onSave={(payload) => save(payload, "edit")} />
 

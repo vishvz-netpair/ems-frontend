@@ -208,8 +208,8 @@ export default function HolidayMaster() {
         <p className="text-sm text-slate-500">Manage company holidays that should appear in calendars and be excluded from leave counting.</p>
       </div>
 
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-4 flex-wrap min-w-0 flex-1">
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div className="flex items-end gap-4 flex-wrap min-w-0 flex-1">
           <div className="min-w-[220px] flex-1">
             <InputField label="Search" value={search} onChange={(value) => setSearch(value)} placeholder="Search holiday..." />
           </div>
@@ -240,7 +240,7 @@ export default function HolidayMaster() {
             Clear
           </Button>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-end">
           <Button onClick={openAdd}>Add Holiday</Button>
         </div>
       </div>
