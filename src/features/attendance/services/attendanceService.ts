@@ -11,6 +11,9 @@ export type AttendanceStatus =
   | "HALF_DAY_LEAVE_PRESENT";
 
 export type AttendanceDayUiStatus =
+  | "HOLIDAY"
+  | "LEAVE"
+  | "WEEK_OFF"
   | "MISSED_PUNCH"
   | "LATE"
   | "HALF_DAY"
