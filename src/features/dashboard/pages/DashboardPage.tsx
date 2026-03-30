@@ -217,15 +217,14 @@ function ProgressSection({
 
 function QuickActions({ items }: { items: DashboardActionItem[] }) {
   return (
-    <div className="flex flex-wrap gap-2.5">
+    <div className="flex flex-wrap items-center gap-3">
       {items.map((item) => (
         <Link
           key={item.id}
           to={item.path}
-          className="min-w-[180px] flex-1 rounded-xl border border-[rgba(123,97,63,0.12)] bg-white/85 px-3 py-2.5 transition hover:-translate-y-0.5 hover:bg-white sm:flex-none"
+          className="inline-flex items-center rounded-xl border border-[rgba(123,97,63,0.12)] bg-white/85 px-3 py-2 text-sm font-semibold leading-none text-slate-900 transition hover:-translate-y-0.5 hover:bg-white"
         >
-          <p className="text-sm font-semibold leading-5 text-slate-900">{item.label}</p>
-          <p className="mt-0.5 text-xs leading-5 text-slate-600">{item.description}</p>
+          {item.label}
         </Link>
       ))}
     </div>

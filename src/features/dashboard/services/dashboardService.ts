@@ -4,7 +4,7 @@ import { listAnnouncements } from "../../communications/services/communicationSe
 import { getLeaveSummary, listLeaveHolidays, listLeaveRequests } from "../../leaves/services/leaveService";
 import { getProjects, myProjects, type ProjectItem, type ProjectStatus } from "../../projects/services/projectService";
 import { getTasksByProject, getMyTasks, type MyTaskItem, type TaskItem, type TaskStatus } from "../../tasks/services/taskService";
-import { fetchActiveUsers, fetchUsers, type UserItem } from "../../users/services/userService";
+import { fetchActiveUsers, fetchUsers } from "../../users/services/userService";
 
 export type DashboardIconKey =
   | "attendance"
@@ -272,8 +272,8 @@ function taskChartFromCounts(counts: ReturnType<typeof getTaskStatusCounts>) {
 function quickActionsForRole(role: UserRole): DashboardActionItem[] {
   if (role === "employee") {
     return [
-      { id: "action-my-tasks", label: "Open My Tasks", description: "Review assigned work and deadlines.", path: "/my-tasks" },
-      { id: "action-my-attendance", label: "Check Attendance", description: "Review your daily punch and records.", path: "/my-attendance" },
+      { id: "action-my-tasks", label: "My Tasks", description: "Review assigned work and deadlines.", path: "/my-tasks" },
+      { id: "action-my-attendance", label: "Attendance", description: "Review your daily punch and records.", path: "/my-attendance" },
       { id: "action-my-leaves", label: "My Leaves", description: "Track leave balance and requests.", path: "/leaves/my" },
       { id: "action-announcements", label: "Announcements", description: "Catch up on company updates.", path: "/communications/announcements" },
     ];
@@ -281,19 +281,19 @@ function quickActionsForRole(role: UserRole): DashboardActionItem[] {
 
   if (role === "teamLeader") {
     return [
-      { id: "action-projects", label: "Open Projects", description: "Review team assignments and delivery state.", path: "/projects" },
-      { id: "action-approvals", label: "Leave Requests", description: "Check leave requests awaiting action.", path: "/leaves/requests" },
+      { id: "action-projects", label: "Projects", description: "Review team assignments and delivery state.", path: "/projects" },
+      { id: "action-approvals", label: "Approvals", description: "Check leave requests awaiting action.", path: "/leaves/requests" },
       { id: "action-my-tasks", label: "My Tasks", description: "Follow up on your own assigned items.", path: "/my-tasks" },
-      { id: "action-calendar", label: "Leave Calendar", description: "See team availability at a glance.", path: "/leaves/calendar" },
+      { id: "action-calendar", label: "Calendar", description: "See team availability at a glance.", path: "/leaves/calendar" },
     ];
   }
 
   if (role === "HR") {
     return [
-      { id: "action-users", label: "Manage Users", description: "Review employee records and status.", path: "/user" },
-      { id: "action-attendance", label: "Attendance Manage", description: "Open attendance management tools.", path: "/attendance/manage" },
+      { id: "action-users", label: "Users", description: "Review employee records and status.", path: "/user" },
+      { id: "action-attendance", label: "Attendance", description: "Open attendance management tools.", path: "/attendance/manage" },
       { id: "action-leaves", label: "Leave Requests", description: "Handle pending leave operations.", path: "/leaves/requests" },
-      { id: "action-holidays", label: "Holiday Master", description: "Maintain holiday schedules.", path: "/leaves/holidays" },
+      { id: "action-holidays", label: "Holidays", description: "Maintain holiday schedules.", path: "/leaves/holidays" },
     ];
   }
 
@@ -608,31 +608,6 @@ async function getHrDashboard(): Promise<DashboardData> {
           { id: "hr-leave-rejected", label: "Rejected", value: leaveSummary.summary.rejected ?? 0, color: "#475569", hint: "Rejected requests" },
           { id: "hr-leave-today", label: "On Leave Today", value: leaveSummary.summary.employeesOnLeaveToday ?? 0, color: "#7c3aed", hint: "Away today" },
         ],
-      },
-      {
-        id: "hr-workforce-highlights",
-        kind: "list",
-        title: "Workforce Highlights",
-        description: "Inactive users and onboarding placeholder insights.",
-        emptyMessage: "No workforce highlights available.",
-        items: [
-          ...inactiveEmployees.slice(0, 4).map((item: UserItem) => ({
-            id: item._id,
-            title: item.name,
-            subtitle: item.email,
-            meta: item.role,
-            href: "/user",
-            badge: "Inactive",
-          })),
-          {
-            id: "placeholder-new-joiners",
-            title: "New joiners snapshot",
-            subtitle: "Join date API is not available yet, so this area is ready for future data.",
-            meta: "Placeholder",
-            href: "/user",
-            badge: "Coming Soon",
-          },
-        ].slice(0, 5),
       },
       {
         id: "hr-holidays",

@@ -208,33 +208,39 @@ export default function HolidayMaster() {
         <p className="text-sm text-slate-500">Manage company holidays that should appear in calendars and be excluded from leave counting.</p>
       </div>
 
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex min-w-0 flex-1 flex-wrap items-end gap-3">
-          <InputField label="Search" value={search} onChange={(value) => setSearch(value)} placeholder="Search holiday..." />
-          <SelectDropdown
-            label="Scope"
-            value={scopeFilter}
-            onChange={(value) => setScopeFilter(value as HolidayScope | "")}
-            options={[
-              { label: "All", value: "" },
-              ...HOLIDAY_SCOPE_OPTIONS
-            ]}
-          />
-          <SelectDropdown
-            label="Status"
-            value={statusFilter}
-            onChange={(value) => setStatusFilter(value as "all" | "true" | "false")}
-            options={[
-              { label: "All", value: "all" },
-              { label: "Active", value: "true" },
-              { label: "Inactive", value: "false" }
-            ]}
-          />
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4 flex-wrap min-w-0 flex-1">
+          <div className="min-w-[220px] flex-1">
+            <InputField label="Search" value={search} onChange={(value) => setSearch(value)} placeholder="Search holiday..." />
+          </div>
+          <div className="min-w-[180px]">
+            <SelectDropdown
+              label="Scope"
+              value={scopeFilter}
+              onChange={(value) => setScopeFilter(value as HolidayScope | "")}
+              options={[
+                { label: "All", value: "" },
+                ...HOLIDAY_SCOPE_OPTIONS
+              ]}
+            />
+          </div>
+          <div className="min-w-[180px]">
+            <SelectDropdown
+              label="Status"
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value as "all" | "true" | "false")}
+              options={[
+                { label: "All", value: "all" },
+                { label: "Active", value: "true" },
+                { label: "Inactive", value: "false" }
+              ]}
+            />
+          </div>
           <Button variant="outline" onClick={clearFilters}>
             Clear
           </Button>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center">
           <Button onClick={openAdd}>Add Holiday</Button>
         </div>
       </div>
