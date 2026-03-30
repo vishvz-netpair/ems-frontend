@@ -1,12 +1,14 @@
 import type { AttendanceDayUiStatus } from "../services/attendanceService";
 
-const toneMap: Record<Exclude<AttendanceDayUiStatus, "PRESENT">, string> = {
+type VisibleAttendanceDayUiStatus = Exclude<AttendanceDayUiStatus, "PRESENT" | "IN_PROGRESS">;
+
+const toneMap: Record<VisibleAttendanceDayUiStatus, string> = {
   MISSED_PUNCH: "border-orange-200 bg-orange-50 text-orange-700",
   LATE: "border-amber-200 bg-amber-50 text-amber-700",
   ABSENT: "border-rose-200 bg-rose-50 text-rose-700"
 };
 
-const labelMap: Record<Exclude<AttendanceDayUiStatus, "PRESENT">, string> = {
+const labelMap: Record<VisibleAttendanceDayUiStatus, string> = {
   MISSED_PUNCH: "Missed Punch",
   LATE: "You are late",
   ABSENT: "Marked as Absent"
@@ -18,7 +20,7 @@ type Props = {
 };
 
 export default function AttendanceDayMessage({ status = "PRESENT", compact = false }: Props) {
-  if (!status || status === "PRESENT") {
+  if (!status || status === "PRESENT" || status === "IN_PROGRESS") {
     return null;
   }
 
