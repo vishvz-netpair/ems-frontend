@@ -5,12 +5,14 @@ type VisibleAttendanceDayUiStatus = Exclude<AttendanceDayUiStatus, "PRESENT" | "
 const toneMap: Record<VisibleAttendanceDayUiStatus, string> = {
   MISSED_PUNCH: "border-orange-200 bg-orange-50 text-orange-700",
   LATE: "border-amber-200 bg-amber-50 text-amber-700",
+  HALF_DAY: "border-sky-200 bg-sky-50 text-sky-700",
   ABSENT: "border-rose-200 bg-rose-50 text-rose-700"
 };
 
 const labelMap: Record<VisibleAttendanceDayUiStatus, string> = {
   MISSED_PUNCH: "Missed Punch",
   LATE: "You are late",
+  HALF_DAY: "Half Day",
   ABSENT: "Marked as Absent"
 };
 

@@ -55,6 +55,7 @@ function normalizeApprovalSteps(
 ): LeaveApprovalFlowStep[] {
   const normalized = (steps || [])
     .filter((item) => !!item?.role)
+    .sort((left, right) => (left.level ?? 0) - (right.level ?? 0))
     .map((item, index) => ({
       level: index + 1,
       role: item.role
@@ -115,9 +116,9 @@ export default function LeaveTypeModal({ open, mode, initial, onClose, onSave }:
   useEffect(() => {
     if (!open) return;
     setValue("approvalFlowSteps", normalizeApprovalSteps(approvalWorkflowType, approvalFlowSteps), {
-      shouldDirty: true
+      shouldDirty: false
     });
-  }, [approvalWorkflowType, open]);
+  }, [approvalWorkflowType, open, setValue]);
 
   const setFlowSteps = (steps: LeaveApprovalFlowStep[]) => {
     setValue("approvalFlowSteps", normalizeApprovalSteps(approvalWorkflowType, steps), {

@@ -10,7 +10,13 @@ export type AttendanceStatus =
   | "MISSED_PUNCH"
   | "HALF_DAY_LEAVE_PRESENT";
 
-export type AttendanceDayUiStatus = "MISSED_PUNCH" | "LATE" | "ABSENT" | "PRESENT" | "IN_PROGRESS";
+export type AttendanceDayUiStatus =
+  | "MISSED_PUNCH"
+  | "LATE"
+  | "HALF_DAY"
+  | "ABSENT"
+  | "PRESENT"
+  | "IN_PROGRESS";
 
 export type AttendancePolicy = {
   id: string;
