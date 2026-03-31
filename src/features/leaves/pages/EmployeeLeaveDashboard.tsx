@@ -80,8 +80,15 @@ export default function EmployeeLeaveDashboard() {
       setRequests(requestRes.status === "fulfilled" ? requestRes.value.items || [] : []);
       setTotal(requestRes.status === "fulfilled" ? requestRes.value.total || 0 : 0);
 
-      if (requestRes.status === "rejected") {
-        setError(requestRes.reason instanceof Error ? requestRes.reason.message : "Failed to fetch leave requests");
+      const failures: string[] = [];
+      if (summaryRes.status === "rejected") failures.push("summary");
+      if (balanceRes.status === "rejected") failures.push("balances");
+      if (typeRes.status === "rejected") failures.push("leave types");
+      if (holidayRes.status === "rejected") failures.push("holidays");
+      if (requestRes.status === "rejected") failures.push("leave requests");
+
+      if (failures.length > 0) {
+        setError(`Failed to load ${failures.join(", ")}.`);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to fetch leave data");

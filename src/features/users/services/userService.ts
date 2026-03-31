@@ -29,15 +29,18 @@ export async function fetchUsers(params: {
   page?: number;
   limit?: number;
   search?: string;
+  status?: "Active" | "Inactive";
 }): Promise<UsersResponse> {
   const page = params.page ?? 1;
   const limit = params.limit ?? 10;
   const search = (params.search ?? "").trim();
+  const status = params.status ?? "";
 
   const qs = new URLSearchParams();
   qs.set("page", String(page));
   qs.set("limit", String(limit));
   if (search) qs.set("search", search);
+  if (status) qs.set("status", status);
 
   return apiRequest<UsersResponse>(`/api/users?${qs.toString()}`);
 }

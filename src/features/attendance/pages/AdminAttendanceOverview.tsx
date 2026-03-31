@@ -4,12 +4,14 @@ import Button from "../../../components/ui/Button";
 import Loader from "../../../components/ui/Loader";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import { getAttendanceDashboard } from "../services/attendanceService";
-import { getSession } from "../../auth/services/auth";
+import { getSession, hasAccess } from "../../auth/services/auth";
 
 export default function AdminAttendanceOverview() {
   const navigate = useNavigate();
   const { user } = getSession();
   const canSelfAttend = user?.role === "employee" || user?.role === "teamLeader" || user?.role === "HR";
+  const canManageAttendanceRecords = hasAccess(user?.role, "attendanceManage");
+  const canManageAttendancePolicy = hasAccess(user?.role, "attendancePolicy");
   const now = new Date();
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<Record<string, number>>({});
@@ -59,8 +61,12 @@ export default function AdminAttendanceOverview() {
               <Button variant="outline" onClick={() => navigate("/attendance/self")}>Punch In / Out</Button>
             </>
           ) : null}
-          <Button variant="outline" onClick={() => navigate("/attendance/manage")}>Attendance Management</Button>
-          <Button onClick={() => navigate("/attendance/policy")}>Attendance Policy</Button>
+          {canManageAttendanceRecords ? (
+            <Button variant="outline" onClick={() => navigate("/attendance/manage")}>Attendance Management</Button>
+          ) : null}
+          {canManageAttendancePolicy ? (
+            <Button onClick={() => navigate("/attendance/policy")}>Attendance Policy</Button>
+          ) : null}
         </div>
       </div>
 

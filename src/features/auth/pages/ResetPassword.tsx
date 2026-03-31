@@ -55,7 +55,9 @@ export default function ResetPassword() {
         "POST",
         { token, newPassword: data.password },
       );
-      navigate("/", { replace: true });
+      setIsSuccess(true);
+      setDialogMessage("Password updated successfully. Please sign in with your new password.");
+      setDialogOpen(true);
     } catch (e: unknown) {
       let message = "Reset failed";
       if (e instanceof Error) message = e.message;

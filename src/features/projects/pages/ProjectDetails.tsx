@@ -29,7 +29,6 @@ export default function ProjectDetails() {
 
   const role = user?.role ?? "employee";
   const isEmployee = role === "employee";
-  const canManage = hasAccess(role, "projectManage");
 
   const [tab, setTab] = useState<TabKey>("tasks");
 
@@ -58,6 +57,17 @@ export default function ProjectDetails() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const members = useMemo(() => project?.employees ?? [], [project]);
+  const canManage = useMemo(() => {
+    if (!hasAccess(role, "projectManage")) {
+      return false;
+    }
+
+    if (role === "teamLeader") {
+      return String(project?.createdBy?._id ?? "") === String(user?.id ?? "");
+    }
+
+    return true;
+  }, [project?.createdBy?._id, role, user?.id]);
 
   const loadProject = async () => {
     if (!projectId) return;

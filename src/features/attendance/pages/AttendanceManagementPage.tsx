@@ -76,6 +76,8 @@ function getDepartmentLabel(employee: Row["employeeId"]) {
 
 export default function AttendanceManagementPage() {
   const { user } = getSession();
+  const isTeamLeader = user?.role === "teamLeader";
+  const canRecompute = hasAccess(user?.role, "attendancePolicy");
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
   const currentMonth = now.getMonth() + 1;
@@ -117,10 +119,25 @@ export default function AttendanceManagementPage() {
 
   const loadMeta = async () => {
     try {
-      const [employeeRes, departmentRes] = await Promise.all([
-        getAttendanceEmployees(),
-        listDepartments({ page: 1, limit: 100 })
-      ]);
+      const employeeRes = await getAttendanceEmployees();
+      const derivedDepartments = new Map<string, DepartmentItem>();
+      let departmentItems: DepartmentItem[] = [];
+
+      if (isTeamLeader) {
+        (employeeRes.items || []).forEach((item) => {
+          if (item.department) {
+            derivedDepartments.set(item.department, {
+              id: item.department,
+              name: item.department,
+              status: "Active"
+            });
+          }
+        });
+        departmentItems = [...derivedDepartments.values()];
+      } else {
+        const departmentRes = await listDepartments({ page: 1, limit: 100 });
+        departmentItems = departmentRes.items || [];
+      }
 
       setEmployees(
         (employeeRes.items || []).map((item) => ({
@@ -129,7 +146,7 @@ export default function AttendanceManagementPage() {
           departmentId: item.department || ""
         }))
       );
-      setDepartments(departmentRes.items || []);
+      setDepartments(departmentItems);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load filters");
     }
@@ -283,9 +300,11 @@ export default function AttendanceManagementPage() {
           <h2 className="text-3xl font-semibold text-slate-900">Attendance Management</h2>
           <p className="mt-1 text-sm text-slate-500">Filter attendance records, inspect computed outcomes, and recompute when policy or punches change.</p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Button onClick={handleRecomputeRange}>Recompute Range</Button>
-        </div>
+        {canRecompute ? (
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={handleRecomputeRange}>Recompute Range</Button>
+          </div>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -377,30 +396,34 @@ export default function AttendanceManagementPage() {
         <DataTable
           columns={columns}
           data={items.map((item) => ({ ...item, id: item._id || item.dateKey }))}
-          actions={[
-            {
-              label: "Recompute Day",
-              onClick: async (row) => {
-                const employee = row.employeeId;
-                const resolvedEmployeeId = typeof employee === "string" ? employee : employee?._id || employee?.id;
-                if (!resolvedEmployeeId) {
-                  setError("Employee id not available for recompute.");
-                  return;
-                }
+          actions={
+            canRecompute
+              ? [
+                  {
+                    label: "Recompute Day",
+                    onClick: async (row) => {
+                      const employee = row.employeeId;
+                      const resolvedEmployeeId = typeof employee === "string" ? employee : employee?._id || employee?.id;
+                      if (!resolvedEmployeeId) {
+                        setError("Employee id not available for recompute.");
+                        return;
+                      }
 
-                try {
-                  await recomputeAttendanceDay({
-                    employeeId: resolvedEmployeeId,
-                    date: row.date
-                  });
-                  setSuccess("Attendance day recomputed successfully.");
-                  await loadData();
-                } catch (e) {
-                  setError(e instanceof Error ? e.message : "Failed to recompute attendance day");
-                }
-              }
-            }
-          ]}
+                      try {
+                        await recomputeAttendanceDay({
+                          employeeId: resolvedEmployeeId,
+                          date: row.date
+                        });
+                        setSuccess("Attendance day recomputed successfully.");
+                        await loadData();
+                      } catch (e) {
+                        setError(e instanceof Error ? e.message : "Failed to recompute attendance day");
+                      }
+                    }
+                  }
+                ]
+              : undefined
+          }
           serverPagination={{
             enabled: true,
             page,

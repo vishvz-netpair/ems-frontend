@@ -14,7 +14,7 @@ export const ACCESS_RULES = {
   projectManage: ["superadmin", "admin", "teamLeader"],
   myTasksPage: ["employee", "teamLeader"],
   attendancePage: ["superadmin", "admin", "employee", "HR", "teamLeader"],
-  attendanceManage: ["superadmin", "admin", "HR"],
+  attendanceManage: ["superadmin", "admin", "HR", "teamLeader"],
   attendancePolicy: ["superadmin", "admin", "HR"],
   leavesPage: ["superadmin", "admin", "employee", "HR", "teamLeader"],
   leaveTypes: ["superadmin", "admin", "HR"],

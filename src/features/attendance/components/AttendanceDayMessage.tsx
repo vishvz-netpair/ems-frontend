@@ -1,6 +1,9 @@
 import type { AttendanceDayUiStatus } from "../services/attendanceService";
 
-type VisibleAttendanceDayUiStatus = Exclude<AttendanceDayUiStatus, "PRESENT" | "IN_PROGRESS">;
+type VisibleAttendanceDayUiStatus = Exclude<
+  AttendanceDayUiStatus,
+  "PRESENT" | "IN_PROGRESS" | "NOT_STARTED"
+>;
 
 const toneMap: Record<VisibleAttendanceDayUiStatus, string> = {
   HOLIDAY: "border-violet-200 bg-violet-50 text-violet-700",
@@ -28,7 +31,7 @@ type Props = {
 };
 
 export default function AttendanceDayMessage({ status = "PRESENT", compact = false }: Props) {
-  if (!status || status === "PRESENT" || status === "IN_PROGRESS") {
+  if (!status || status === "PRESENT" || status === "IN_PROGRESS" || status === "NOT_STARTED") {
     return null;
   }
 

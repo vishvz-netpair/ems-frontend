@@ -19,7 +19,7 @@ export default function AdminLeaveDashboard() {
   const canRunAccrual = user?.role === "superadmin" || user?.role === "admin";
   const canManageLeaveTypes = hasAccess(user?.role, "leaveTypes");
   const canRequestOwnLeave =
-    user?.role === "employee" || user?.role === "HR" || user?.role === "teamLeader" || user?.role === "admin";
+    user?.role === "employee" || user?.role === "HR" || user?.role === "teamLeader";
 
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<Record<string, number>>({});

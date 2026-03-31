@@ -94,7 +94,7 @@ export default function HeaderPunchActions() {
 
   return (
     <>
-      <div className="hidden items-center gap-2 xl:flex">
+      <div className="flex items-center gap-2">
         <AttendanceDayMessage status={dayData.status} compact />
         <Button
           size="sm"

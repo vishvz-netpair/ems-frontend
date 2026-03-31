@@ -45,7 +45,7 @@ export const menuItems: MenuItem[] = [
       {
         label: "Attendance Management",
         path: "/attendance/manage",
-        roles: ["superadmin", "admin", "HR"],
+        roles: ["superadmin", "admin", "HR", "teamLeader"],
       },
       {
         label: "Attendance Policy",

@@ -4,7 +4,7 @@ import { listAnnouncements } from "../../communications/services/communicationSe
 import { getLeaveSummary, listLeaveHolidays, listLeaveRequests } from "../../leaves/services/leaveService";
 import { getProjects, myProjects, type ProjectItem, type ProjectStatus } from "../../projects/services/projectService";
 import { getTasksByProject, getMyTasks, type MyTaskItem, type TaskItem, type TaskStatus } from "../../tasks/services/taskService";
-import { fetchActiveUsers, fetchUsers } from "../../users/services/userService";
+import { fetchUsers } from "../../users/services/userService";
 
 export type DashboardIconKey =
   | "attendance"
@@ -537,8 +537,10 @@ async function getTeamLeaderDashboard(): Promise<DashboardData> {
 }
 
 async function getHrDashboard(): Promise<DashboardData> {
-  const [users, attendance, leaveSummary, holidays, announcements] = await Promise.all([
-    safeRequest(() => fetchUsers({ page: 1, limit: 1000 }), { items: [], total: 0, page: 1, limit: 1000, totalPages: 0 }),
+  const [users, activeUsers, inactiveUsers, attendance, leaveSummary, holidays, announcements] = await Promise.all([
+    safeRequest(() => fetchUsers({ page: 1, limit: 1 }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
+    safeRequest(() => fetchUsers({ page: 1, limit: 1, status: "Active" }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
+    safeRequest(() => fetchUsers({ page: 1, limit: 1, status: "Inactive" }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
     safeRequest(() => getAttendanceDashboard({ fromDate: TODAY, toDate: TODAY }), { totalRecords: 0, summary: {} }),
     safeRequest(() => getLeaveSummary("company"), { summary: {}, topLeaveTypes: [], recentRequests: [] }),
     safeRequest(() => listLeaveHolidays({ isActive: "true" }), { items: [] }),
@@ -546,8 +548,8 @@ async function getHrDashboard(): Promise<DashboardData> {
   ]);
 
   const totalEmployees = users.total || users.items.length;
-  const activeEmployees = users.items.filter((item) => item.status !== "Inactive").length;
-  const inactiveEmployees = users.items.filter((item) => item.status === "Inactive");
+  const activeEmployees = activeUsers.total || activeUsers.items.length;
+  const inactiveEmployees = inactiveUsers.total || inactiveUsers.items.length;
   const presentToday =
     (attendance.summary.PRESENT ?? 0) +
     (attendance.summary.HALF_DAY ?? 0) +
@@ -582,7 +584,7 @@ async function getHrDashboard(): Promise<DashboardData> {
       {
         id: "hr-inactive",
         title: "Inactive Employees",
-        value: inactiveEmployees.length,
+        value: inactiveEmployees,
         description: "Employees currently marked inactive.",
         icon: "activity",
       },
@@ -632,9 +634,9 @@ async function getHrDashboard(): Promise<DashboardData> {
 
 async function getAdminDashboard(role: UserRole): Promise<DashboardData> {
   const [users, activeUsers, projects, attendance, leaveSummary, recentLeaveRequests, announcements] = await Promise.all([
-    safeRequest(() => fetchUsers({ page: 1, limit: 1000 }), { items: [], total: 0, page: 1, limit: 1000, totalPages: 0 }),
-    safeRequest(() => fetchActiveUsers(), { items: [] }),
-    safeRequest(() => getProjects(1, 50), { items: [], total: 0, page: 1, limit: 50, totalPages: 0 }),
+    safeRequest(() => fetchUsers({ page: 1, limit: 1 }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
+    safeRequest(() => fetchUsers({ page: 1, limit: 1, status: "Active" }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
+    safeRequest(() => getProjects(1, 8), { items: [], total: 0, page: 1, limit: 8, totalPages: 0 }),
     safeRequest(() => getAttendanceDashboard({ fromDate: TODAY, toDate: TODAY }), { totalRecords: 0, summary: {} }),
     safeRequest(() => getLeaveSummary("company"), { summary: {}, topLeaveTypes: [], recentRequests: [] }),
     safeRequest(() => listLeaveRequests({ page: 1, limit: 5, status: "all" }), { items: [], total: 0, page: 1, limit: 5, totalPages: 0 }),
@@ -663,7 +665,7 @@ async function getAdminDashboard(role: UserRole): Promise<DashboardData> {
       {
         id: "admin-active-users",
         title: "Active Users",
-        value: activeUsers.items.length,
+        value: activeUsers.total || activeUsers.items.length,
         description: "Users currently marked active in the system.",
         icon: "activity",
       },

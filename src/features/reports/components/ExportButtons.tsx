@@ -104,10 +104,10 @@ export default function ExportButtons({ title, columns, rows }: ExportButtonsPro
   return (
     <div className="flex flex-wrap gap-3">
       <Button variant="outline" onClick={handleExcelExport}>
-        Export Excel
+        Export Current Page Excel
       </Button>
       <Button variant="outline" onClick={handlePdfExport}>
-        Export PDF
+        Export Current Page PDF
       </Button>
     </div>
   );
