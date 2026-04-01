@@ -58,7 +58,7 @@ export default function PoliciesPage() {
       },
       {
         key: "acknowledgmentSummary",
-        label: "Acknowledgments",
+        label: "Acknowledgement",
         render: (value) => {
           const summary = value as PolicyListItem["acknowledgmentSummary"];
           return summary ? `${summary.acknowledgedCount}/${summary.totalEmployees}` : "-";

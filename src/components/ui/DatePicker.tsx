@@ -14,6 +14,7 @@ type DatePickerProps = {
   name?: string;
   id?: string;
   className?: string;
+  lang?: string;
 };
 
 const DatePicker: React.FC<DatePickerProps> = ({
@@ -30,6 +31,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   name,
   id,
   className = "",
+  lang,
 }) => {
   const generatedId = React.useId();
   const selectId = id ?? generatedId;
@@ -52,6 +54,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         value={value}
         min={min}
         max={max}
+        lang={lang}
         disabled={disabled}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}

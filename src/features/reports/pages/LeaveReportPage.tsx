@@ -22,7 +22,8 @@ export default function LeaveReportPage() {
         title: "Leave Report",
         description:
           "Track leave balances, request status distribution, and leave usage across employees and departments.",
-        columns: leaveColumns
+        columns: leaveColumns,
+        showSummary: false
       }}
     />
   );

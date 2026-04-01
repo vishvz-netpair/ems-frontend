@@ -154,6 +154,14 @@ function formatTime(value?: string | null) {
   });
 }
 
+function isEmployeeCountRole(role?: string | null) {
+  return role === "employee" || role === "teamLeader";
+}
+
+function countEmployeeRoles(items: Array<{ role?: string | null }> = []) {
+  return items.filter((item) => isEmployeeCountRole(item.role)).length;
+}
+
 function formatAttendanceStatus(status?: string | null) {
   if (!status) return "Not Marked";
   return status
@@ -538,18 +546,18 @@ async function getTeamLeaderDashboard(): Promise<DashboardData> {
 
 async function getHrDashboard(): Promise<DashboardData> {
   const [users, activeUsers, inactiveUsers, attendance, leaveSummary, holidays, announcements] = await Promise.all([
-    safeRequest(() => fetchUsers({ page: 1, limit: 1 }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
-    safeRequest(() => fetchUsers({ page: 1, limit: 1, status: "Active" }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
-    safeRequest(() => fetchUsers({ page: 1, limit: 1, status: "Inactive" }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
+    safeRequest(() => fetchUsers({ page: 1, limit: 1000 }), { items: [], total: 0, page: 1, limit: 1000, totalPages: 0 }),
+    safeRequest(() => fetchUsers({ page: 1, limit: 1000, status: "Active" }), { items: [], total: 0, page: 1, limit: 1000, totalPages: 0 }),
+    safeRequest(() => fetchUsers({ page: 1, limit: 1000, status: "Inactive" }), { items: [], total: 0, page: 1, limit: 1000, totalPages: 0 }),
     safeRequest(() => getAttendanceDashboard({ fromDate: TODAY, toDate: TODAY }), { totalRecords: 0, summary: {} }),
     safeRequest(() => getLeaveSummary("company"), { summary: {}, topLeaveTypes: [], recentRequests: [] }),
     safeRequest(() => listLeaveHolidays({ isActive: "true" }), { items: [] }),
     safeRequest(() => listAnnouncements({ page: 1, limit: 5, status: "published" }), { items: [], total: 0, page: 1, limit: 5, totalPages: 0 }),
   ]);
 
-  const totalEmployees = users.total || users.items.length;
-  const activeEmployees = activeUsers.total || activeUsers.items.length;
-  const inactiveEmployees = inactiveUsers.total || inactiveUsers.items.length;
+  const totalEmployees = countEmployeeRoles(users.items);
+  const activeEmployees = countEmployeeRoles(activeUsers.items);
+  const inactiveEmployees = countEmployeeRoles(inactiveUsers.items);
   const presentToday =
     (attendance.summary.PRESENT ?? 0) +
     (attendance.summary.HALF_DAY ?? 0) +
@@ -634,7 +642,7 @@ async function getHrDashboard(): Promise<DashboardData> {
 
 async function getAdminDashboard(role: UserRole): Promise<DashboardData> {
   const [users, activeUsers, projects, attendance, leaveSummary, recentLeaveRequests, announcements] = await Promise.all([
-    safeRequest(() => fetchUsers({ page: 1, limit: 1 }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
+    safeRequest(() => fetchUsers({ page: 1, limit: 1000 }), { items: [], total: 0, page: 1, limit: 1000, totalPages: 0 }),
     safeRequest(() => fetchUsers({ page: 1, limit: 1, status: "Active" }), { items: [], total: 0, page: 1, limit: 1, totalPages: 0 }),
     safeRequest(() => getProjects(1, 8), { items: [], total: 0, page: 1, limit: 8, totalPages: 0 }),
     safeRequest(() => getAttendanceDashboard({ fromDate: TODAY, toDate: TODAY }), { totalRecords: 0, summary: {} }),
@@ -658,7 +666,7 @@ async function getAdminDashboard(role: UserRole): Promise<DashboardData> {
       {
         id: "admin-total-employees",
         title: "Total Employees",
-        value: users.total || users.items.length,
+        value: countEmployeeRoles(users.items),
         description: "All employee records currently available.",
         icon: "users",
       },

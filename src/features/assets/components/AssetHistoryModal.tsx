@@ -1,5 +1,6 @@
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
+import { formatDate } from "../../../utils/date";
 import type { AssetAllocationItem, AssetItem } from "../services/assetService";
 
 type Props = {
@@ -37,10 +38,10 @@ export default function AssetHistoryModal({
           items.map((h: AssetAllocationItem) => {
             const allocatedTo = h?.employeeId?.name || "-";
             const allocatedOn = h?.allocatedOn
-              ? new Date(h.allocatedOn).toLocaleDateString()
+              ? formatDate(h.allocatedOn)
               : "-";
             const returnedOn = h?.returnedOn
-              ? new Date(h.returnedOn).toLocaleDateString()
+              ? formatDate(h.returnedOn)
               : "Not returned";
 
             return (

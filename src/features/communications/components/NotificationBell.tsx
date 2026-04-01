@@ -6,23 +6,10 @@ import {
   markNotificationRead,
   type NotificationItem
 } from "../services/communicationService";
+import { formatDateTime } from "../../../utils/date";
 
 const formatNotificationTimestamp = (value: string) => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  const formattedDate = date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "2-digit",
-    year: "numeric"
-  });
-
-  const formattedTime = date.toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit"
-  });
-
-  return `${formattedDate}, ${formattedTime}`;
+  return formatDateTime(value);
 };
 
 export default function NotificationBell() {

@@ -22,6 +22,7 @@ type ReportPageConfig = {
   title: string;
   description: string;
   columns: ReportColumn[];
+  showSummary?: boolean;
 };
 
 export function ReportModulePage({ config }: { config: ReportPageConfig }) {
@@ -125,7 +126,9 @@ export function ReportModulePage({ config }: { config: ReportPageConfig }) {
         onClear={() => setFilters(buildDefaultReportFilters())}
       />
 
-      <ReportSummaryCards summary={data?.summary || []} chart={data?.chart || []} />
+      {config.showSummary !== false ? (
+        <ReportSummaryCards summary={data?.summary || []} chart={data?.chart || []} />
+      ) : null}
 
       <div className="relative">
         {loading ? <Loader variant="overlay" label="Loading report..." /> : null}
@@ -165,7 +168,8 @@ export default function AttendanceReportPage() {
         title: "Attendance Report",
         description:
           "Review monthly attendance trends, late or early logs, absence summaries, and department-wise performance.",
-        columns: attendanceColumns
+        columns: attendanceColumns,
+        showSummary: false
       }}
     />
   );

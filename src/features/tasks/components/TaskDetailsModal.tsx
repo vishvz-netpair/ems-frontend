@@ -13,7 +13,7 @@ import {
   type TaskStatus,
   type TaskWorkLogItem
 } from "../services/taskService";
-import { formatDate } from "../../../utils/date";
+import { formatDate, formatDateTime } from "../../../utils/date";
 
 type TaskDetailsValue = {
   taskId: string;
@@ -46,22 +46,6 @@ type GroupedLogs = {
   latestActivityAt?: string | null;
   items: TaskWorkLogItem[];
 };
-
-function formatDateTime(value?: string | null) {
-  if (!value) return "-";
-
-  try {
-    return new Date(value).toLocaleString(undefined, {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  } catch {
-    return value;
-  }
-}
 
 function priorityBadge(priority: TaskPriority) {
   switch (priority) {
@@ -212,7 +196,7 @@ export default function TaskDetailsModal({
     if (!task?.taskId) return;
 
     const normalizedComment = comment.trim();
-    const normalizedHours = Number(hours || "0");
+    const normalizedHours = Number(hours || "");
     const normalizedMinutes = Number(minutes || "0");
 
     if (!normalizedComment) {
@@ -220,13 +204,13 @@ export default function TaskDetailsModal({
       return;
     }
 
-    if (normalizedMinutes < 0 || normalizedMinutes > 59) {
-      setError("Minutes must be between 0 and 59");
+    if (!hours.trim() || normalizedHours <= 0) {
+      setError("Hours is required and must be greater than 0");
       return;
     }
 
-    if (normalizedHours === 0 && normalizedMinutes === 0) {
-      setError("Enter hours or minutes");
+    if (normalizedMinutes < 0 || normalizedMinutes > 59) {
+      setError("Minutes must be between 0 and 59");
       return;
     }
 
@@ -363,7 +347,7 @@ export default function TaskDetailsModal({
 
               {canAddWorkLog ? (
                 <div className="mt-5 rounded-2xl border border-[rgba(15,118,110,0.12)] bg-white px-4 py-4">
-                  <div className="grid gap-3 md:grid-cols-[minmax(0,1fr),120px,120px,auto] md:items-end">
+                  <div className="space-y-4">
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-slate-900">
                         Comment <span className="text-red-500">*</span>
@@ -377,33 +361,38 @@ export default function TaskDetailsModal({
                       />
                     </div>
 
-                    <InputField
-                      label="Hours"
-                      value={hours}
-                      onChange={(value) => setHours(sanitizeNumberInput(value))}
-                      inputMode="numeric"
-                      placeholder="0"
-                      maxLength={3}
-                    />
+                    <div className="grid gap-3 md:grid-cols-[120px,120px,auto] md:items-end">
+                      <InputField
+                        label="Hours *"
+                        value={hours}
+                        onChange={(value) => setHours(sanitizeNumberInput(value))}
+                        inputMode="numeric"
+                        placeholder="0"
+                        maxLength={3}
+                      />
 
-                    <InputField
-                      label="Minutes"
-                      value={minutes}
-                      onChange={(value) => setMinutes(sanitizeNumberInput(value))}
-                      inputMode="numeric"
-                      placeholder="0"
-                      maxLength={2}
-                    />
+                      <InputField
+                        label="Minutes"
+                        value={minutes}
+                        onChange={(value) => setMinutes(sanitizeNumberInput(value))}
+                        inputMode="numeric"
+                        placeholder="0"
+                        maxLength={2}
+                      />
 
-                    <div className="flex flex-col gap-2">
-                      <Button onClick={handleSubmitWorkLog} disabled={saving}>
-                        {saving ? "Saving..." : editingLogId ? "Update Entry" : "Add Entry"}
-                      </Button>
-                      {editingLogId ? (
-                        <Button variant="outline" onClick={resetForm} disabled={saving}>
-                          Cancel
+                      <div className="flex flex-col gap-2 md:min-w-[140px]">
+                        <Button
+                          onClick={handleSubmitWorkLog}
+                          disabled={saving || !hours.trim() || Number(hours) <= 0}
+                        >
+                          {saving ? "Saving..." : editingLogId ? "Update Entry" : "Add Entry"}
                         </Button>
-                      ) : null}
+                        {editingLogId ? (
+                          <Button variant="outline" onClick={resetForm} disabled={saving}>
+                            Cancel
+                          </Button>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
 

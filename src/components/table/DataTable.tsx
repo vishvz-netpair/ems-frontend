@@ -190,13 +190,19 @@ function DataTable<T extends { id: string | number }>({
   return (
     <div className="min-w-0 overflow-hidden rounded-[28px] border border-[rgba(123,97,63,0.12)] bg-[rgba(255,253,248,0.92)] shadow-[0_18px_40px_rgba(33,29,22,0.08)]">
       <table className={`w-full table-fixed ${compact ? "text-[13px]" : "text-sm"}`}>
+        <colgroup>
+          {columns.map((col) => (
+            <col key={String(col.key)} />
+          ))}
+          {actions ? <col key="actions" /> : null}
+        </colgroup>
         <thead className="bg-[linear-gradient(180deg,rgba(15,118,110,0.06),rgba(255,253,248,0.96))]">
           <tr>
             {columns.map((col) => (
               <th
                 key={String(col.key)}
                 className={`text-left font-extrabold uppercase tracking-[0.18em] text-slate-500 ${
-                  compact ? "px-4 py-3 text-[11px]" : "px-5 py-4 text-[12px]"
+                  compact ? "px-4 py-2 text-[11px]" : "px-4 py-2 text-[12px]"
                 }`}
               >
                 {col.label}
@@ -204,8 +210,8 @@ function DataTable<T extends { id: string | number }>({
             ))}
             {actions && (
               <th
-                className={`text-center font-extrabold uppercase tracking-[0.18em] text-slate-500 ${
-                  compact ? "px-4 py-3 text-[11px]" : "px-5 py-4 text-[12px]"
+                className={`text-left font-extrabold uppercase tracking-[0.18em] text-slate-500 ${
+                  compact ? "px-4 py-2 text-[11px]" : "px-4 py-2 text-[12px]"
                 }`}
               >
                 Actions
@@ -225,7 +231,7 @@ function DataTable<T extends { id: string | number }>({
                   <td
                     key={String(col.key)}
                     className={`min-w-0 align-top text-slate-700 ${
-                      compact ? "px-4 py-3 leading-5" : "px-5 py-4 leading-6"
+                      compact ? "px-4 py-2 leading-5" : "px-4 py-2 leading-6"
                     }`}
                   >
                     {renderCellContent(col, row)}
@@ -234,8 +240,8 @@ function DataTable<T extends { id: string | number }>({
               })}
 
               {actions && (
-                <td className={compact ? "px-4 py-3 text-center" : "px-5 py-4 text-center"}>
-                  <div className="flex justify-center">
+                <td className={compact ? "px-4 py-2 text-left" : "px-4 py-2 text-left"}>
+                  <div className="flex justify-start">
                     <button
                       ref={openActionMenu?.rowId === row.id ? actionAnchorRef : null}
                       type="button"
@@ -271,7 +277,7 @@ function DataTable<T extends { id: string | number }>({
             <tr>
               <td
                 colSpan={columns.length + (actions ? 1 : 0)}
-                className={compact ? "px-4 py-5 text-center text-slate-500" : "px-5 py-6 text-center text-slate-500"}
+                className={compact ? "px-4 py-5 text-center text-slate-500" : "px-4 py-6 text-center text-slate-500"}
               >
                 No data available
               </td>
@@ -282,7 +288,7 @@ function DataTable<T extends { id: string | number }>({
 
       <div
         className={`flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(123,97,63,0.1)] bg-[rgba(250,247,241,0.82)] ${
-          compact ? "px-4 py-3" : "px-5 py-4"
+          compact ? "px-4 py-3" : "px-4 py-4"
         }`}
       >
         <div className={`flex items-center gap-2 leading-6 ${compact ? "text-[13px]" : "text-sm"}`}>

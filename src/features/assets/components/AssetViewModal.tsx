@@ -1,4 +1,5 @@
 import Modal from "../../../components/ui/Modal";
+import { formatDate } from "../../../utils/date";
 import type { AssetItem } from "../services/assetService";
 
 type Props = {
@@ -21,13 +22,6 @@ function DetailRow({ label, value }: DetailRowProps) {
       <p className="mt-2 text-sm text-slate-800">{value || "-"}</p>
     </div>
   );
-}
-
-function formatDate(value?: string | null) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
-  return date.toLocaleDateString("en-GB");
 }
 
 export default function AssetViewModal({ open, asset, onClose }: Props) {
