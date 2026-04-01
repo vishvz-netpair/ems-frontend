@@ -110,6 +110,7 @@ export default function MyAttendancePage() {
     { key: "firstIn", label: "First In", render: (value) => formatTime(value as string | null) },
     { key: "lastOut", label: "Last Out", render: (value) => formatTime(value as string | null) },
     { key: "totalWorkMinutes", label: "Worked Time", render: (value) => formatDuration(Number(value ?? 0)) },
+    { key: "totalBreakMinutes", label: "Break Time", render: (value) => formatDuration(Number(value ?? 0)) },
     { key: "status", label: "Status", render: (value) => <AttendanceStatusBadge status={value as Row["status"]} /> }
   ];
 

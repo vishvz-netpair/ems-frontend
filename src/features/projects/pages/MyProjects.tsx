@@ -65,7 +65,8 @@ const MyProjects = () => {
             options={[
               { label: "All", value: "all" },
               { label: "Active", value: "active" },
-              { label: "Pending", value: "pending" }
+              { label: "Pending", value: "pending" },
+              { label: "Completed", value: "completed" }
             ]}
           />
         </div>
@@ -99,7 +100,9 @@ const MyProjects = () => {
                   className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
                     p.status === "active"
                       ? "bg-green-100 text-green-700"
-                      : "bg-amber-100 text-amber-700"
+                      : p.status === "pending"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-slate-100 text-slate-700"
                   }`}
                 >
                   {p.status}

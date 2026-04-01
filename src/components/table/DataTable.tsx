@@ -183,7 +183,9 @@ function DataTable<T extends { id: string | number }>({
     setActionMenuStyle({
       top,
       left,
-      maxHeight: viewportHeight - viewportPadding * 2,
+      ...(activeActions.length > 5
+        ? { maxHeight: viewportHeight - viewportPadding * 2 }
+        : {}),
     });
   }, [openActionMenu, activeActions.length, compact]);
 
@@ -336,7 +338,9 @@ function DataTable<T extends { id: string | number }>({
         ? createPortal(
             <div
               ref={actionMenuRef}
-              className="fixed z-[120] min-w-[160px] max-w-[220px] overflow-y-auto rounded-2xl border border-[rgba(123,97,63,0.14)] bg-white/98 p-2 shadow-[0_20px_36px_rgba(33,29,22,0.18)] backdrop-blur"
+              className={`fixed z-[180] min-w-[180px] max-w-[240px] rounded-2xl border border-[rgba(123,97,63,0.14)] bg-white/98 p-2 shadow-[0_20px_36px_rgba(33,29,22,0.18)] backdrop-blur ${
+                activeActions.length > 5 ? "overflow-y-auto" : "overflow-visible"
+              }`}
               style={actionMenuStyle}
             >
               <div className="flex flex-col gap-1">

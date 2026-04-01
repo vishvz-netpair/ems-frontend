@@ -45,7 +45,6 @@ export default function ReportFilters({
           onChange={(value) => onChange("fromDate", value)}
           max={filters.toDate || undefined}
           lang="en-GB"
-          helperText="dd/mm/yyyy"
         />
         <DatePicker
           label="To Date"
@@ -53,7 +52,6 @@ export default function ReportFilters({
           onChange={(value) => onChange("toDate", value)}
           min={filters.fromDate || undefined}
           lang="en-GB"
-          helperText="dd/mm/yyyy"
         />
         <SelectDropdown
           label="Department"

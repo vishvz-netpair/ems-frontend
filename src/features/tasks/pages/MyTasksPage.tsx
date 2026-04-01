@@ -231,7 +231,6 @@ export default function MyTasksPage() {
                             <SelectDropdown
                               value={field.value}
                               onChange={(v) => {
-                                field.onChange(v);
                                 changeStatus(t._id, v as TaskStatus);
                               }}
                               options={[

@@ -157,7 +157,8 @@ const attendanceColumns: ReportColumn[] = [
   { key: "halfDays", label: "Half Day" },
   { key: "lateLogs", label: "Late Logs" },
   { key: "earlyLogs", label: "Early Logs" },
-  { key: "totalHours", label: "Work Hours" }
+  { key: "totalHours", label: "Work Hours" },
+  { key: "totalBreakHours", label: "Break Hours" }
 ];
 
 export default function AttendanceReportPage() {

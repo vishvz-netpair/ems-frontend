@@ -1,6 +1,6 @@
 import { apiRequest } from "../../../services/api";
 
-export type ProjectStatus = "active" | "pending";
+export type ProjectStatus = "active" | "pending" | "completed";
 
 export type ProjectEmployee = {
   _id: string;

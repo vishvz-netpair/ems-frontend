@@ -12,6 +12,13 @@ import {
   type AttendancePolicy
 } from "../services/attendanceService";
 
+function formatPunchTime(value?: string | null) {
+  if (!value) return "--";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "--";
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
 function getLocalPunchTimestamp() {
   const now = new Date();
   const year = now.getFullYear();
@@ -91,28 +98,50 @@ export default function HeaderPunchActions() {
     !isCurrentlyPunchedIn &&
     (latestPunch?.punchType !== "OUT" || Boolean(policy?.multiplePunchAllowed));
   const canPunchOut = !isNonWorkingDay && isCurrentlyPunchedIn;
+  const latestPunchLabel = latestPunch
+    ? {
+        label: latestPunch.punchType === "IN" ? "Punch In" : "Punch Out",
+        value: formatPunchTime(latestPunch.punchTime)
+      }
+    : null;
 
   return (
     <>
       <div className="flex items-center gap-2">
         <AttendanceDayMessage status={dayData.status} compact />
-        <Button
-          size="sm"
-          disabled={loading || submitting !== "" || !canPunchIn}
-          isLoading={submitting === "IN"}
-          onClick={() => handlePunch("IN")}
-        >
-          Punch In
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={loading || submitting !== "" || !canPunchOut}
-          isLoading={submitting === "OUT"}
-          onClick={() => handlePunch("OUT")}
-        >
-          Punch Out
-        </Button>
+        <div className="flex items-start gap-2">
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              size="sm"
+              disabled={loading || submitting !== "" || !canPunchIn}
+              isLoading={submitting === "IN"}
+              onClick={() => handlePunch("IN")}
+            >
+              Punch In
+            </Button>
+            {latestPunchLabel?.label === "Punch In" ? (
+              <span className="text-[11px] text-slate-500">
+                Punch In: {latestPunchLabel.value}
+              </span>
+            ) : null}
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={loading || submitting !== "" || !canPunchOut}
+              isLoading={submitting === "OUT"}
+              onClick={() => handlePunch("OUT")}
+            >
+              Punch Out
+            </Button>
+            {latestPunchLabel?.label === "Punch Out" ? (
+              <span className="text-[11px] text-slate-500">
+                Punch Out: {latestPunchLabel.value}
+              </span>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       <ConfirmDialog open={!!error} title="Error" message={error} onConfirm={() => setError("")} onCancel={() => setError("")} />

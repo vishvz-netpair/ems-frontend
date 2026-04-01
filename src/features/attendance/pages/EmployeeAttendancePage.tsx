@@ -61,7 +61,8 @@ export default function EmployeeAttendancePage() {
       { label: "First In", value: formatTime(summary?.firstIn), tone: "bg-slate-900 text-white" },
       { label: "Last Out", value: formatTime(summary?.lastOut), tone: "bg-sky-50 text-sky-700" },
       { label: "Worked Time", value: formatMinutes(summary?.totalWorkMinutes ?? 0), tone: "bg-emerald-50 text-emerald-700" },
-      { label: "Late Minutes", value: String(summary?.lateMinutes ?? 0), tone: "bg-amber-50 text-amber-700" }
+      { label: "Late Minutes", value: String(summary?.lateMinutes ?? 0), tone: "bg-amber-50 text-amber-700" },
+      { label: "Total Break Time", value: formatMinutes(summary?.totalBreakMinutes ?? 0), tone: "bg-rose-50 text-rose-700" }
     ],
     [summary]
   );
@@ -109,7 +110,7 @@ export default function EmployeeAttendancePage() {
         <Loader variant="block" label="Loading attendance..." />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
             {cards.map((card) => (
               <div key={card.label} className={`rounded-3xl px-5 py-5 shadow-sm ${card.tone}`}>
                 <p className="text-xs uppercase tracking-[0.2em] opacity-80">{card.label}</p>

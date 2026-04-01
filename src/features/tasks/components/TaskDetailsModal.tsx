@@ -177,6 +177,7 @@ export default function TaskDetailsModal({
     [logs.length]
   );
   const groupedLogs = useMemo(() => buildGroupedLogs(logs), [logs]);
+  const canModifyWorkLogs = canAddWorkLog && task?.status !== "Completed";
 
   const resetForm = () => {
     setComment("");
@@ -345,7 +346,7 @@ export default function TaskDetailsModal({
                 </div>
               </div>
 
-              {canAddWorkLog ? (
+              {canModifyWorkLogs ? (
                 <div className="mt-5 rounded-2xl border border-[rgba(15,118,110,0.12)] bg-white px-4 py-4">
                   <div className="space-y-4">
                     <div>
@@ -448,7 +449,7 @@ export default function TaskDetailsModal({
                                   ) : null}
                                 </div>
 
-                                {canAddWorkLog && isOwnWorkLog(log, currentUserId) ? (
+                                {canModifyWorkLogs && isOwnWorkLog(log, currentUserId) ? (
                                   <div className="flex shrink-0 items-center gap-2">
                                     <Button variant="outline" size="sm" onClick={() => startEditLog(log)}>
                                       Edit
@@ -472,6 +473,11 @@ export default function TaskDetailsModal({
                   </div>
                 )}
               </div>
+              {canAddWorkLog && task?.status === "Completed" ? (
+                <p className="mt-3 text-sm text-slate-500">
+                  Work logs are visible, but completed tasks cannot be edited or deleted.
+                </p>
+              ) : null}
             </section>
           ) : null}
         </div>

@@ -5,6 +5,7 @@ import { getLeaveSummary, listLeaveHolidays, listLeaveRequests } from "../../lea
 import { getProjects, myProjects, type ProjectItem, type ProjectStatus } from "../../projects/services/projectService";
 import { getTasksByProject, getMyTasks, type MyTaskItem, type TaskItem, type TaskStatus } from "../../tasks/services/taskService";
 import { fetchUsers } from "../../users/services/userService";
+import { formatDate } from "../../../utils/date";
 
 export type DashboardIconKey =
   | "attendance"
@@ -116,12 +117,7 @@ async function safeRequest<T>(request: () => Promise<T>, fallback: T) {
 
 function formatShortDate(value?: string | null) {
   if (!value) return "No date";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(undefined, {
-    day: "2-digit",
-    month: "short",
-  });
+  return formatDate(value);
 }
 
 function startOfToday() {
@@ -245,6 +241,7 @@ function projectStatusChart(projects: ProjectItem[]) {
   const counts: Record<ProjectStatus, number> = {
     active: projects.filter((item) => item.status === "active").length,
     pending: projects.filter((item) => item.status === "pending").length,
+    completed: projects.filter((item) => item.status === "completed").length,
   };
 
   return [

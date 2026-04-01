@@ -184,6 +184,7 @@ const ProjectsAdmin = () => {
             <option value="all">All</option>
             <option value="active">Active</option>
             <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
           </select>
           <Button variant="outline" onClick={clearFilters}>
             Clear

@@ -67,6 +67,7 @@ export type AttendanceDailySummary = {
   year: number;
   month: number;
   totalWorkMinutes: number;
+  totalBreakMinutes: number;
   firstIn?: string | null;
   lastOut?: string | null;
   status: AttendanceStatus;
